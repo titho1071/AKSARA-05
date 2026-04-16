@@ -25,3 +25,17 @@ Route::get('/dashboard/absensi', function () {
 Route::get('/dashboard/absensi/recap', function () {
     return view('Dashboard_Guru.rekap-absensi');
 })->name('dashboard.absensi.recap');
+
+// Admin Dashboard Routes
+Route::get('/admin/dashboard', function () {
+    return view('Dashboard_Admin.dashboard-admin');
+})->name('admin.dashboard');
+
+Route::get('/admin/pengumuman', function () {
+    return view('Dashboard_Admin.pengumuman-admin');
+})->name('admin.pengumuman');
+
+Route::get('/admin/jadwal', function () {
+    return view('Dashboard_Admin.jadwal-admin');
+})->name('admin.jadwal');
+
