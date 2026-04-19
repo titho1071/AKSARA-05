@@ -8,7 +8,7 @@
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-900">
     <div class="min-h-screen flex">
-        @include('Dashboard_Guru.sidebar')
+        @include('components.sidebar-guru')
         <main class="flex-1 p-6 lg:p-8">
             @yield('content')
         </main>

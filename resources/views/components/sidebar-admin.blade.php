@@ -12,138 +12,122 @@
     </div>
 
     @php $route = request()->route()?->getName(); @endphp
+
     <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
-        <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
+
+        {{-- DASHBOARD --}}
+        <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
 
         <a href="{{ route('admin.dashboard') }}"
-            class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.dashboard' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }} ">
+            class="block px-3 py-2 rounded transition
+            {{ $route === 'admin.dashboard' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Dashboard
         </a>
 
-        <a 
-            class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+        <a href="#"
+            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
             Absensi
         </a>
 
-        <a 
-            class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+        <a href="#"
+            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
             Dokumentasi
         </a>
 
         <a href="{{ route('admin.pengumuman') }}"
-            class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.pengumuman' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+            class="block px-3 py-2 rounded transition
+            {{ $route === 'admin.pengumuman' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Pengumuman
         </a>
 
         <a href="{{ route('admin.jadwal') }}"
-            class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.jadwal' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+            class="block px-3 py-2 rounded transition
+            {{ $route === 'admin.jadwal' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Jadwal
         </a>
 
-        <div class="my-4 form-label text-slate-400 uppercase text-xs tracking-wider">Master Data</div>
+        {{-- MASTER DATA --}}
+        <div class="my-4 text-slate-400 uppercase text-xs tracking-wider">Master Data</div>
 
-        <!-- Dropdown Menu -->
-        <div x-data="{ open: false }" class="relative">
+        {{-- Dropdown Biodata --}}
+        @php
+            $biodataRoutes = [
+                'admin.biodata.index', 'admin.biodata.create',
+                'admin.guru.index', 'admin.guru.create',
+                'admin.orangtua.index', 'admin.orangtua.create',
+            ];
+            $biodataActive = in_array($route, $biodataRoutes);
+        @endphp
+        <div x-data="{ open: {{ $biodataActive ? 'true' : 'false' }} }" class="relative">
             <button @click="open = !open"
-                class="w-full flex justify-between items-center px-3 py-2 rounded transition 
-                {{ in_array($route, ['admin.guru', 'admin.siswa', 'admin.orang-tua']) 
-                    ? 'bg-[#F59E0B] text-slate-950' 
-                    : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-                Biodata Data
+                class="w-full flex justify-between items-center px-3 py-2 rounded transition
+                {{ $biodataActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Biodata
                 <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
             </button>
-
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
-                <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === '#' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                <a href="{{ route('admin.biodata.index') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ $route === 'admin.biodata.index' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Admin
                 </a>
-                <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === 'admin.guru' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                <a href="{{ route('admin.guru.index') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ in_array($route, ['admin.guru.index', 'admin.guru.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Guru
                 </a>
                 <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === 'admin.siswa' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Siswa
                 </a>
-                <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === 'admin.orang-tua' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-                    Orang tua
+                <a href="{{ route('admin.orangtua.index') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ in_array($route, ['admin.orangtua.index', 'admin.orangtua.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    Orang Tua
                 </a>
-            
             </div>
         </div>
-        <!-- Dropdown Menu -->
-        <div x-data="{ open: false }" class="relative">
+
+        {{-- Dropdown Data Sekolah --}}
+        @php
+            $sekolahRoutes = ['admin.kelas', 'admin.tahun-pelajaran'];
+            $sekolahActive = in_array($route, $sekolahRoutes);
+        @endphp
+        <div x-data="{ open: {{ $sekolahActive ? 'true' : 'false' }} }" class="relative">
             <button @click="open = !open"
-                class="w-full flex justify-between items-center px-3 py-2 rounded transition 
-                {{ in_array($route, ['admin.guru', 'admin.siswa', 'admin.orang-tua']) 
-                    ? 'bg-[#F59E0B] text-slate-950' 
-                    : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                class="w-full flex justify-between items-center px-3 py-2 rounded transition
+                {{ $sekolahActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Data Sekolah
                 <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
             </button>
-
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
                 <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === '#' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Kelas
                 </a>
                 <a href="#"
-                    class="block px-3 py-2 rounded transition 
-                    {{ $route === 'admin.guru' 
-                        ? 'bg-[#F59E0B] text-slate-950' 
-                        : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Tahun Pelajaran
                 </a>
             </div>
         </div>
-        <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Saya</div>
-            <a 
-            class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+
+        {{-- SAYA --}}
+        <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Saya</div>
+
+        <a href="#"
+            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
             Profil
-            </a>
-            <a 
-            class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-            Logout
-            </a>
-        </div>
+        </a>
+
+        <form action="{{ route('logout') }}" method="POST" class="m-0">
+            @csrf
+            <button type="submit"
+                class="w-full text-left block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                Logout
+            </button>
+        </form>
+
     </nav>
 
     <style>
@@ -151,12 +135,8 @@
             scrollbar-width: thin;
             scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
         }
-        .sidebar-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .sidebar-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .sidebar-scrollbar::-webkit-scrollbar { width: 8px; }
+        .sidebar-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .sidebar-scrollbar::-webkit-scrollbar-thumb {
             background-color: rgba(148, 163, 184, 0.6);
             border-radius: 9999px;

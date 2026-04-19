@@ -38,9 +38,12 @@
                     Profil
                 </a>
 
-                <button class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100">
-                    Logout
-                </button>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100">
+                        Logout
+                    </button>
+                </form>
 
             </div>
         </div>

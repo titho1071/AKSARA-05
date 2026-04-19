@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Login</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-indigo-900 min-h-screen flex items-center justify-center">
@@ -17,22 +18,34 @@
     <div class="w-full max-w-[520px] bg-white rounded-[32px] shadow-[0_36px_90px_rgba(0,0,0,0.16)] overflow-hidden">
         <div class="bg-white p-10 sm:p-12">
             <h1 class="text-4xl font-extrabold text-[#111827] text-center mb-10">Masuk</h1>
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+            <form id="login-form" class="space-y-6">
                 @csrf
+
+                @if(session('error'))
+                    <div id="error-message" class="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <div id="api-error" class="hidden rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"></div>
 
                 <!-- Email -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-[#111827] mb-3">Username</label>
+                    <label for="login" class="block text-sm font-medium text-[#111827] mb-3">Email atau Username</label>
                     <div class="relative">
                         <input
-                            id="email"
-                            type="email"
-                            name="email"
-                            autocomplete="email"
+                            id="login"
+                            type="text"
+                            name="login"
+                            autocomplete="username"
                             required
-                            placeholder="Masukkan Email"
+                            value="{{ old('login') }}"
+                            placeholder="Masukkan Email atau Username"
                             class="w-full h-14 rounded-[16px] bg-[#F2F2F2] px-5 pr-14 text-base text-[#4B5563] placeholder:text-[#9CA3AF] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                         />
+                        @error('login')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                         <span class="absolute inset-y-0 right-5 flex items-center text-[#6B7280]">
                             <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1.66667 3.33334C1.66667 2.59747 2.26314 2 3 2H17C17.7369 2 18.3333 2.59747 18.3333 3.33334V12.6667C18.3333 13.4025 17.7369 14 17 14H3C2.26314 14 1.66667 13.4025 1.66667 12.6667V3.33334Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -55,6 +68,9 @@
                             placeholder="Masukkan Kata Sandi"
                             class="w-full h-14 rounded-[16px] bg-[#F2F2F2] px-5 pr-14 text-base text-[#4B5563] placeholder:text-[#9CA3AF] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
                         />
+                        @error('password')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                         <button
                             type="button"
                             id="toggle-password"
@@ -86,6 +102,9 @@
         const toggleButton = document.getElementById('toggle-password');
         const eyeOpen = document.getElementById('eye-open');
         const eyeClosed = document.getElementById('eye-closed');
+        const loginForm = document.getElementById('login-form');
+        const apiError = document.getElementById('api-error');
+        const submitButton = loginForm.querySelector('button[type="submit"]');
 
         if (toggleButton && passwordInput) {
             toggleButton.addEventListener('click', function () {
@@ -95,6 +114,57 @@
                 eyeClosed.classList.toggle('hidden', isPassword);
             });
         }
+
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const data = {
+                login: formData.get('login'),
+                password: formData.get('password'),
+            };
+
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sedang Masuk...';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json().catch(() => null);
+
+                if (response.ok && result && result.success) {
+                    window.location.href = result.redirect;
+                    return;
+                }
+
+                if (result && result.message) {
+                    apiError.textContent = result.message;
+                } else if (response.status === 422 && result && result.errors) {
+                    apiError.textContent = Object.values(result.errors).flat()[0] || 'Validasi gagal.';
+                } else if (response.status === 404) {
+                    apiError.textContent = 'Endpoint tidak ditemukan.';
+                } else {
+                    apiError.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                }
+
+                apiError.classList.remove('hidden');
+            } catch (error) {
+                apiError.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                apiError.classList.remove('hidden');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Masuk';
+            }
+        });
     });
 </script>
 </body>

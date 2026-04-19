@@ -35,7 +35,7 @@
                 <p class="text-gray-500 text-sm">Data Admin</p>
             </div>
         </div>
-        <a href="#" class="text-blue-500 text-sm mt-4 inline-block hover:underline">
+        <a href="{{ route('admin.biodata.index') }}" class="text-blue-500 text-sm mt-4 inline-block hover:underline">
             Lihat Detail
         </a>
     </div>
