@@ -26,11 +26,21 @@ Route::get('/dashboard/absensi/recap', function () {
     return view('Dashboard_Guru.rekap-absensi');
 })->name('dashboard.absensi.recap');
 
-// Admin Dashboard Routes
+// Admin, guru, dan orang tua Dashboard Routes Pages terbaru
 Route::get('/admin/dashboard', function () {
-    return view('Dashboard_Admin.dashboard-admin');
+    return view('pages.dashboard-admin');
 })->name('admin.dashboard');
 
+Route::get('/guru/dashboard', function () {
+    return view('pages.dashboard-guru');
+})->name('guru.dashboard');
+
+Route::get('/orangtua/dashboard', function () {
+    return view('pages.dashboard-orangtua');
+})->name('orangtua.dashboard');
+
+
+// Admin Dashboard Routes 
 Route::get('/admin/pengumuman', function () {
     return view('Dashboard_Admin.pengumuman-admin');
 })->name('admin.pengumuman');

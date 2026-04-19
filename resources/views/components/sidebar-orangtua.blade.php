@@ -72,5 +72,23 @@
         </div>
     </nav>
 
-
+<style>
+        .sidebar-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.6) transparent;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(148, 163, 184, 0.6);
+            border-radius: 9999px;
+        }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(100, 116, 139, 0.8);
+        }
+    </style>
 </aside>
