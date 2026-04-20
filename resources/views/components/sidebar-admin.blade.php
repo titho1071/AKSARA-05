@@ -24,13 +24,14 @@
             Dashboard
         </a>
 
-        <a href="#"
+        <a href="{{ route('admin.absensi') }}"
             class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
             Absensi
         </a>
 
-        <a href="#"
-            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+        <a href="{{ route('admin.dokumentasi') }}"
+            class="block px-3 py-2 rounded transition
+            {{ $route === 'admin.dokumentasi' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Dokumentasi
         </a>
 
@@ -55,6 +56,7 @@
                 'admin.biodata.index', 'admin.biodata.create',
                 'admin.guru.index', 'admin.guru.create',
                 'admin.orangtua.index', 'admin.orangtua.create',
+                'admin.siswa.index',
             ];
             $biodataActive = in_array($route, $biodataRoutes);
         @endphp

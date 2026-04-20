@@ -34,6 +34,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/biodata/{user}/edit', [AdminController::class, 'edit'])->name('biodata.edit');
     Route::put('/biodata/{user}', [AdminController::class, 'update'])->name('biodata.update');
 
+    // Absensi Admin
+    Route::get('/absensi', fn() => view('Dashboard_Admin.absensi-admin'))->name('absensi');
+    Route::get('/absensi/detail', fn() => view('Dashboard_Admin.detail-absensi'))->name('absensi.detail');
+    // dokumentasi
+    Route::get('/dokumentasi', fn() => view('Dashboard_Admin.dokumentasi'))->name('dokumentasi');
+    Route::get('/pengumuman', fn() => view('Dashboard_Admin.pengumuman-admin'))->name('pengumuman');
+    Route::get('/jadwal', fn() => view('Dashboard_Admin.jadwal'))->name('jadwal');
+
     // Master Data - Biodata Guru
     Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
     Route::get('/guru/create', [GuruController::class, 'create'])->name('guru.create');
@@ -50,6 +58,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/orangtua/{user}/edit', [OrangTuaController::class, 'edit'])->name('orangtua.edit');
     Route::put('/orangtua/{user}', [OrangTuaController::class, 'update'])->name('orangtua.update');
 
+    // Master Data - Biodata siswa
+   Route::get('/siswa', fn() => view('Dashboard_Admin.biodata-siswa'))->name('siswa');
     // Pengumuman & Jadwal
     Route::get('/pengumuman', fn() => view('Dashboard_Admin.pengumuman-admin'))->name('pengumuman');
     Route::get('/jadwal', fn() => view('Dashboard_Admin.jadwal-admin'))->name('jadwal');
