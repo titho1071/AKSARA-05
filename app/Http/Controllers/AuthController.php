@@ -63,32 +63,45 @@ class AuthController extends Controller
     }
 
     public function apiLogin(Request $request)
-    {
-        $validated = $request->validate([
-            'login' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ]);
+{
+    $validated = $request->validate([
+    'login' => ['required'],
+    'password' => ['required'],
+], [
+    'login.required' => 'Email atau username wajib diisi',
+    'password.required' => 'Kata sandi wajib diisi',
+]);
 
-        $loginField = filter_var($validated['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        $credentials = [$loginField => $validated['login'], 'password' => $validated['password']];
+    $loginField = filter_var($validated['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            $user = Auth::user();
+    // cek akun
+    $user = \App\Models\User::where($loginField, $validated['login'])->first();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login berhasil',
-                'user' => $user,
-                'redirect' => $this->getRedirectUrl($user),
-            ]);
-        }
-
+    if (!$user) {
         return response()->json([
             'success' => false,
-            'message' => 'Email/Username atau password salah',
+            'message' => 'Akun tidak ditemukan',
+        ], 404);
+    }
+
+    // cek password
+    if (!Auth::attempt([$loginField => $validated['login'], 'password' => $validated['password']])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Email atau kata sandi salah',
         ], 401);
     }
+
+    $request->session()->regenerate();
+    $user = Auth::user();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Login berhasil',
+        'user' => $user,
+        'redirect' => $this->getRedirectUrl($user),
+    ]);
+}
 
     protected function getRedirectUrl($user)
     {
@@ -106,7 +119,7 @@ class AuthController extends Controller
             }
 
             if (in_array(strtolower($roleName), ['orang_tua', 'orangtua', 'orang tua'], true)) {
-                return route('dashboard'); // fallback
+                return route('orangtua.dashboard'); // fallback
             }
         }
 

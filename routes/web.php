@@ -90,9 +90,17 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 | (uncomment saat dashboard orang tua sudah siap)
 |--------------------------------------------------------------------------
 */
-// Route::middleware(['auth', 'role:orang_tua'])->prefix('orangtua')->name('orangtua.')->group(function () {
-//     Route::get('/dashboard', fn() => view('pages.dashboard-orangtua'))->name('dashboard');
-// });
+Route::middleware(['auth', 'role:orang_tua'])
+    ->prefix('orangtua')
+    ->name('orangtua.')
+    ->group(function () {
+
+        // Dashboard Orang Tua
+        Route::get('/dashboard', function () {
+            return view('pages.dashboard-orangtua');
+        })->name('dashboard');
+
+});
 
 
 /*
