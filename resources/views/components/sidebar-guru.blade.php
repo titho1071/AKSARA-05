@@ -56,9 +56,9 @@
             </div>
         </div>
 
-        <a href="#"
+        <a href="{{ route('guru.dokumentasi.index') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'dokumentasi' 
+            {{ $route === 'guru.dokumentasi.index' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Dokumentasi
