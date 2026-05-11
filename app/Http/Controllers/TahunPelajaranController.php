@@ -8,23 +8,60 @@ use Illuminate\Http\Request;
 class TahunPelajaranController extends Controller
 {
     public function index()
-    {
-        $tahunPelajaran = TahunPelajaran::all();
-        return response()->json($tahunPelajaran);
-    }
+{
+    $tahunPelajaran = \DB::table('tahun_pelajaran')
+        ->leftJoin(
+            'kelas',
+            'tahun_pelajaran.id_tapel',
+            '=',
+            'kelas.tapel_id'
+        )
+        ->select(
+            'tahun_pelajaran.id_tapel',
+            'tahun_pelajaran.tahun_pelajaran',
+            'tahun_pelajaran.semester',
+            \DB::raw('COUNT(kelas.id_kelas) as jumlah_kelas')
+        )
+        ->groupBy(
+            'tahun_pelajaran.id_tapel',
+            'tahun_pelajaran.tahun_pelajaran',
+            'tahun_pelajaran.semester'
+        )
+        ->get();
 
+    return response()->json($tahunPelajaran);
+}
     public function store(Request $request)
-    {
-        $request->validate([
-            'id_tapel' => 'required|string|unique:tahun_pelajaran,id_tapel',
-            'semester' => 'required|string',
-            'tahun_pelajaran' => 'required|string',
-            'kelas_id' => 'nullable|integer',
-        ]);
+{
+    $request->validate([
+        'semester' => 'required|string',
+        'tahun_pelajaran' => 'required|string',
+    ]);
 
-        $tahunPelajaran = TahunPelajaran::create($request->all());
-        return response()->json($tahunPelajaran, 201);
+    // Ambil ID terakhir
+    $lastData = TahunPelajaran::orderBy('id_tapel', 'desc')->first();
+
+    if ($lastData) {
+
+        $lastNumber = (int) substr($lastData->id_tapel, 2);
+        $newNumber = $lastNumber + 1;
+
+    } else {
+
+        $newNumber = 1;
     }
+
+    // Format: TP001
+    $id_tapel = 'TP' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
+    $tahunPelajaran = TahunPelajaran::create([
+        'id_tapel' => $id_tapel,
+        'semester' => $request->semester,
+        'tahun_pelajaran' => $request->tahun_pelajaran,
+    ]);
+
+    return response()->json($tahunPelajaran, 201);
+}
 
     public function show($id)
     {
@@ -39,7 +76,6 @@ class TahunPelajaranController extends Controller
         $request->validate([
             'semester' => 'required|string',
             'tahun_pelajaran' => 'required|string',
-            'kelas_id' => 'nullable|integer',
         ]);
 
         $tahunPelajaran->update($request->all());
@@ -47,16 +83,25 @@ class TahunPelajaranController extends Controller
     }
 
     public function destroy($id)
-    {
-        $tahunPelajaran = TahunPelajaran::findOrFail($id);
+{
+    $tahunPelajaran = TahunPelajaran::findOrFail($id);
 
-        // Cek apakah ada kelas yang menggunakan tahun pelajaran ini
-        $kelasCount = \DB::table('kelas')->where('tahun_pelajaran', $tahunPelajaran->tahun_pelajaran)->count();
-        if ($kelasCount > 0) {
-            return response()->json(['message' => 'Tidak dapat menghapus tahun pelajaran karena masih ada kelas yang terkait'], 400);
-        }
+    // Cek apakah masih dipakai di tabel kelas
+    $kelasCount = \DB::table('kelas')
+        ->where('tapel_id', $tahunPelajaran->id_tapel)
+        ->count();
 
-        $tahunPelajaran->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+    if ($kelasCount > 0) {
+
+        return response()->json([
+            'message' => 'Tidak dapat menghapus tahun pelajaran karena masih digunakan oleh data kelas.'
+        ], 400);
     }
+
+    $tahunPelajaran->delete();
+
+    return response()->json([
+        'message' => 'Data berhasil dihapus'
+    ]);
+}
 }

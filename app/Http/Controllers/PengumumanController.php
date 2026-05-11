@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -123,4 +124,10 @@ class PengumumanController extends Controller
             'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:10240'],
         ]);
     }
+    public function create()
+{
+    $kelas = Kelas::all();
+
+    return view('Dashboard_Admin.pengumuman-tambah', compact('kelas'));
+}
 }

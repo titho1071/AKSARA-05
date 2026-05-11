@@ -5,9 +5,11 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\OrangTuaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TahunPelajaranController;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\Guru\DokumentasiGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PengumumanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +47,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/tahun-pelajaran/{id}', [TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
     Route::delete('/tahun-pelajaran/{id}', [TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
 
+    // Master Data - Kelas
+    Route::get('/kelas', fn() => view('Dashboard_Admin.kelas'))->name('kelas');
+    Route::get('/kelas/data', [KelasController::class, 'index'])->name('kelas.data');
+    Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
+    Route::put('/kelas/{id}', [KelasController::class, 'update'])->name('kelas.update');
+    Route::delete('/kelas/{id}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+    Route::get('/kelas/guru-list', [KelasController::class, 'guruList'])->name('kelas.guru-list');
+
     // Master Data
     // Biodata Guru
     Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
@@ -66,6 +76,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/siswa', fn() => view('Dashboard_Admin.Biodata.biodata-siswa'))->name('siswa');
 
     // Dokumentasi, Pengumuman, Jadwal
+    Route::get('/dokumentasi', fn() => view('Dashboard_Admin.dokumentasi'))->name('dokumentasi');
+    Route::get('/pengumuman', fn() => view('Dashboard_Admin.pengumuman-admin'))->name('pengumuman');
+    Route::get('/mata-pelajaran', fn() => view('Dashboard_Admin.mata-pelajaran'))->name('mata-pelajaran');
+    Route::get('/jam-pelajaran', fn() => view('Dashboard_Admin.jam-pelajaran'))->name('jam-pelajaran');
+    Route::get('/jadwal', fn() => view('Dashboard_Admin.jadwal-admin'))->name('jadwal');
+
+Route::get('/pengumuman/create', [PengumumanController::class, 'create'])
+    ->name('pengumuman.create');
     Route::get('/dokumentasi', [DokumentasiAdminController::class, 'index'])->name('dokumentasi');
     Route::get('/dokumentasi/{id}', [DokumentasiAdminController::class, 'show'])->name('dokumentasi.show');
     Route::get('/pengumuman', fn() => view('Dashboard_Admin.Pengumuman.pengumuman-admin'))->name('pengumuman');
