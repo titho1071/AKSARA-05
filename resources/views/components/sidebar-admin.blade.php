@@ -1,4 +1,4 @@
-<script src="//unpkg.com/alpinejs" defer></script>
+﻿<script src="//unpkg.com/alpinejs" defer></script>
 
 <!-- Sidebar -->
 <aside class="hidden lg:flex fixed inset-y-0 left-0 z-40 w-56 flex-col bg-[#1E2567] text-white rounded-e-md border-r border-white/10">
@@ -11,12 +11,15 @@
         </div>
     </div>
 
-    @php $route = request()->route()?->getName(); @endphp
+    @php
+        $route = request()->route()?->getName();
+        $absensiActive = in_array($route, ['admin.absensi', 'admin.absensi.rekap', 'admin.absensi.detail'], true);
+    @endphp
 
     <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
 
         {{-- DASHBOARD --}}
-        <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
+        <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Halaman</div>
 
         <a href="{{ route('admin.dashboard') }}"
             class="block px-3 py-2 rounded transition
@@ -24,10 +27,26 @@
             Dashboard
         </a>
 
-        <a href="{{ route('admin.absensi') }}"
-            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
-            Absensi
-        </a>
+        <div x-data="{ open: {{ $absensiActive ? 'true' : 'false' }} }" class="relative">
+            <button @click="open = !open"
+                class="w-full flex justify-between items-center px-3 py-2 rounded transition
+                {{ $absensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Absensi
+                <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
+            </button>
+            <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
+                <a href="{{ route('admin.absensi') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ $route === 'admin.absensi' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    Absensi
+                </a>
+                <a href="{{ route('admin.absensi.rekap') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ $route === 'admin.absensi.rekap' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    Rekap Absensi
+                </a>
+            </div>
+        </div>
 
         <a href="{{ route('admin.dokumentasi') }}"
             class="block px-3 py-2 rounded transition
@@ -47,8 +66,8 @@
             Jadwal
         </a>
 
-        {{-- MASTER DATA --}}
-        <div class="my-4 text-slate-400 uppercase text-xs tracking-wider">Master Data</div>
+        {{-- DATA --}}
+        <div class="my-4 text-slate-400 uppercase text-xs tracking-wider">Data</div>
 
         {{-- Dropdown Biodata --}}
         @php
@@ -99,7 +118,7 @@
             <button @click="open = !open"
                 class="w-full flex justify-between items-center px-3 py-2 rounded transition
                 {{ $sekolahActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-                Data Sekolah
+                Sekolah
                 <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
             </button>
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
@@ -107,9 +126,17 @@
                     class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Kelas
                 </a>
-                <a href="#"
+                <a href="{{ route('admin.tahun-pelajaran') }}"
                     class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Tahun Pelajaran
+                </a>
+                <a href="{{ route('admin.mata-pelajaran') }}"
+                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                    Mata Pelajaran
+                </a>
+                <a href="{{ route('admin.jam-pelajaran') }}"
+                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                    Jam Pelajaran
                 </a>
             </div>
         </div>
