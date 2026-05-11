@@ -51,12 +51,12 @@ class OrangTuaController extends Controller
 
         $orangTuas = $query->orderBy('orang_tua.nama')->get();
 
-        return view('Dashboard_Admin.biodata-orangtua', compact('orangTuas', 'search'));
+        return view('Dashboard_Admin.Biodata.biodata-orangtua', compact('orangTuas', 'search'));
     }
 
     public function create()
     {
-        return view('Dashboard_Admin.biodata-orangtua-create');
+        return view('Dashboard_Admin.Biodata.biodata-orangtua-create');
     }
 
     public function store(Request $request)
@@ -106,7 +106,7 @@ class OrangTuaController extends Controller
 
         $profil = DB::table('orang_tua')->where('user_id', $user->id)->first();
 
-        return view('Dashboard_Admin.biodata-orangtua-edit', compact('user', 'profil'));
+        return view('Dashboard_Admin.Biodata.biodata-orangtua-edit', compact('user', 'profil'));
     }
 
     public function update(Request $request, User $user)

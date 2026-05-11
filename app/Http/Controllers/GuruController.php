@@ -52,12 +52,12 @@ class GuruController extends Controller
 
         $gurus = $query->orderBy('guru.nama')->get();
 
-        return view('Dashboard_Admin.biodata-guru', compact('gurus', 'search'));
+        return view('Dashboard_Admin.Biodata.biodata-guru', compact('gurus', 'search'));
     }
 
     public function create()
     {
-        return view('Dashboard_Admin.biodata-guru-create');
+        return view('Dashboard_Admin.Biodata.biodata-guru-create');
     }
 
     public function store(Request $request)
@@ -109,7 +109,7 @@ class GuruController extends Controller
 
         $profil = DB::table('guru')->where('user_id', $user->id)->first();
 
-        return view('Dashboard_Admin.biodata-guru-edit', compact('user', 'profil'));
+        return view('Dashboard_Admin.Biodata.biodata-guru-edit', compact('user', 'profil'));
     }
 
     public function update(Request $request, User $user)

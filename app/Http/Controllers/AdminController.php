@@ -52,12 +52,12 @@ class AdminController extends Controller
 
         $admins = $query->orderBy('admin.nama')->get();
 
-        return view('Dashboard_Admin.biodata-admin', compact('admins', 'search'));
+        return view('Dashboard_Admin.Biodata.biodata-admin', compact('admins', 'search'));
     }
 
     public function create()
     {
-        return view('Dashboard_Admin.biodata-admin-create');
+        return view('Dashboard_Admin.Biodata.biodata-admin-create');
     }
 
     public function store(Request $request)
@@ -109,7 +109,7 @@ class AdminController extends Controller
 
         $profil = DB::table('admin')->where('user_id', $user->id)->first();
 
-        return view('Dashboard_Admin.biodata-admin-edit', compact('user', 'profil'));
+        return view('Dashboard_Admin.Biodata.biodata-admin-edit', compact('user', 'profil'));
     }
 
     public function update(Request $request, User $user)

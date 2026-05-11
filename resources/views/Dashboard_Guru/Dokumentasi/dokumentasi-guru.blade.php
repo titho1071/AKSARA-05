@@ -53,10 +53,20 @@
 <div class="mb-8 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
     <h2 class="mb-4 text-base font-bold text-slate-900">Filter & Pencarian</h2>
     <form method="GET" action="{{ route('guru.dokumentasi.index') }}">
-        <div class="flex gap-3">
+        <div class="flex gap-3 flex-col md:flex-row">
             <input type="text" name="search" value="{{ $search ?? '' }}"
                 placeholder="Cari judul kegiatan..."
                 class="flex-1 rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+            <select name="kelas"
+                class="rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                <option value="">Semua Kelas</option>
+                <option value="semua_kelas" {{ ($kelas ?? '') === 'semua_kelas' ? 'selected' : '' }}>Semua Kelas (Tag)</option>
+                @foreach(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as $kelasRom)
+                    <option value="{{ $kelasRom }}" {{ ($kelas ?? '') === $kelasRom ? 'selected' : '' }}>
+                        Kelas {{ $kelasRom }}
+                    </option>
+                @endforeach
+            </select>
             <button type="submit"
                 class="inline-flex items-center justify-center rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4">

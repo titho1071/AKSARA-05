@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Guru;
 
+use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use App\Models\Dokumentasi;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class DokumentasiGuruController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $kelas = $request->query('kelas');
 
         $query = Kegiatan::with('dokumentasi')
             ->where('user_id', Auth::id())
@@ -26,9 +28,13 @@ class DokumentasiGuruController extends Controller
             $query->where('judul', 'like', "%{$search}%");
         }
 
+        if ($kelas) {
+            $query->where('kelas_id', $kelas);
+        }
+
         $kegiatans = $query->orderByDesc('tanggal')->get();
 
-        return view('Dashboard_Guru.Dokumentasi.dokumentasi-guru', compact('kegiatans', 'search'));
+        return view('Dashboard_Guru.Dokumentasi.dokumentasi-guru', compact('kegiatans', 'search', 'kelas'));
     }
 
     // =============================================

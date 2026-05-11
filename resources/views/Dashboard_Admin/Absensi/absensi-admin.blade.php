@@ -58,7 +58,7 @@
                     </div>
 
                     <!-- Button -->
-                    <a href="{{ route('admin.absensi.detail') }}"
+                    <a href="#"
                         class="block text-center border rounded-xl py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50">
                         Detail
                     </a>
