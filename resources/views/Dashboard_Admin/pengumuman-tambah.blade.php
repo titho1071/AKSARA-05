@@ -55,18 +55,24 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas_id">
-                    Kelas ID <span class="text-gray-400 text-xs">(Opsional)</span>
-                </label>
-                <input 
-                    id="kelas_id" 
-                    type="number" 
-                    name="kelas_id"
-                    min="1"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
-                    placeholder="Masukkan ID kelas (kosongkan untuk semua kelas)"
-                >
-            </div>
+    <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas_id">
+        Pilih Kelas <span class="text-gray-400 text-xs">(Opsional)</span>
+    </label>
+
+    <select 
+        id="kelas_id"
+        name="kelas_id"
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+    >
+        <option value="">Semua Kelas</option>
+
+        @foreach ($kelas as $item)
+            <option value="{{ $item->id_kelas }}">
+                {{ $item->nama_kelas }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="tanggal_mulai">

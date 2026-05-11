@@ -122,7 +122,7 @@
                 <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
             </button>
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
-                <a href="#"
+                <a href="{{ route('admin.kelas') }}"
                     class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
                     Kelas
                 </a>

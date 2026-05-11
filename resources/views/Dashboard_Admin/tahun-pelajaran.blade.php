@@ -135,7 +135,7 @@
                     <td class="px-6 py-4 font-medium text-slate-700">${index + 1}</td>
                     <td class="px-6 py-4 text-slate-700">${item.tahun_pelajaran}</td>
                     <td class="px-6 py-4 text-slate-700">${item.semester}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.kelas_id || 0}</td>
+                    <td class="px-6 py-4 text-slate-700">${item.jumlah_kelas || 0}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
 
@@ -195,9 +195,13 @@
                 return;
             }
 
-            const tahun = `${tahun_awal}/${tahun_akhir}`;
-            const id_tapel = `${tahun}-${semester}`;
-            const data = { id_tapel, semester, tahun_pelajaran: tahun, kelas_id: 0, _token: csrfToken };
+            const tahun_pelajaran = `${tahun_awal}/${tahun_akhir}-${semester}`;
+
+            const data = {
+            tahun_pelajaran,
+            semester,
+            _token: csrfToken
+            };
 
             try {
                 const url = '/admin/tahun-pelajaran';
@@ -234,10 +238,12 @@
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                     try {
                         const response = await fetch(`/admin/tahun-pelajaran/${id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: new URLSearchParams({ _method: 'DELETE', _token: csrfToken })
-                        });
+    method: 'DELETE',
+    headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+    }
+});
                         if (response.ok) {
                             loadTapelData();
                         } else {
