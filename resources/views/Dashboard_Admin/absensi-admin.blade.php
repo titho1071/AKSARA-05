@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <a href="#"
+        <a href="{{ route('admin.absensi.rekap') }}"
             class="bg-[#1E2567] text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-indigo-800">
             Rekap Absensi
         </a>

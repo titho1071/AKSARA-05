@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
+    /**
+     * Login melalui web form
+     * 
+     * Proses login standard menggunakan Laravel Auth dengan validasi email/username dan password.
+     * Setelah login berhasil, user akan di-redirect sesuai dengan role-nya (admin, guru, orangtua, dll).
+     */
     public function login(Request $request)
     {
         $validated = $request->validate([
@@ -52,6 +58,11 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
+    /**
+     * Logout user
+     * 
+     * Menghapus session dan token, kemudian redirect ke halaman login.
+     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -62,6 +73,12 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
+    /**
+     * Login dengan email atau username
+     * 
+     * Endpoint ini memvalidasi email/username dan password, kemudian mengembalikan data user
+     * jika kredensial benar. Jika login berhasil, akan redirect sesuai role user.
+     */
     public function apiLogin(Request $request)
 {
     $validated = $request->validate([

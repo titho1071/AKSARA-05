@@ -12,24 +12,25 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
                 <p class="text-gray-600 mt-1">Kelola Pengumuman</p>
             </div>
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
-            <span>+</span> Tambah Pengumuman
-        </button>
+            <a href="{{ route('admin.pengumuman.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors inline-flex">
+                <span>+</span> Tambah Pengumuman
+            </a>
         </div>
     </div>
+
     <!-- Statistics Card -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8 w-fit">
         <div class="flex items-center gap-4">
             <div class="bg-blue-100 rounded-2xl p-4">
                 <span class="text-3xl">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="blue" class="size-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="blue" class="size-6">
                         <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 0 1 .67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 1 1-.671-1.34l.041-.022ZM12 9a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
-                </svg>
+                    </svg>
                 </span>
             </div>
             <div>
                 <p class="text-gray-500 text-sm">Total Pengumuman</p>
-                <p class="text-3xl font-bold text-gray-900">1</p>
+                <p id="pengumuman-count" class="text-3xl font-bold text-gray-900">0</p>
             </div>
         </div>
     </div>
@@ -39,61 +40,99 @@
         <h2 class="text-xl font-bold text-gray-900 mb-6">Filter & Pencarian</h2>
         
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
+            <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
             <div class="flex gap-2">
                 <input 
+                    id="search-input"
                     type="text" 
                     placeholder="Cari judul atau deskripsi..." 
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    Cari
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Form Tambah/Edit Pengumuman -->
+    <div id="pengumuman-form" class="hidden bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
+        <div class="flex items-center justify-between mb-6 gap-4">
+            <div>
+                <h2 id="form-title" class="text-xl font-bold text-gray-900">Tambah Data Pengumuman</h2>
+                <p id="form-description" class="text-gray-600 mt-1">Isi form untuk menambahkan atau memperbarui pengumuman.</p>
+            </div>
+            <button id="btn-cancel" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition-colors">
+                Batal
+            </button>
+        </div>
+
+        <div id="pengumuman-alert" class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="judul">Judul Pengumuman <span class="text-red-500">*</span></label>
+                <input id="judul" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Tambahkan judul pengumuman...">
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="deskripsi">Deskripsi Pengumuman <span class="text-red-500">*</span></label>
+                <textarea id="deskripsi" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Jelaskan detail pengumuman yang mau disampaikan..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas_id">Kelas ID</label>
+                <input id="kelas_id" type="number" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Masukkan Kelas ID...">
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="tanggal_mulai">Tanggal Mulai Pengumuman</label>
+                    <input id="tanggal_mulai" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="tanggal_selesai">Tanggal Selesai Pengumuman</label>
+                    <input id="tanggal_selesai" type="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="file">Upload File Pengumuman</label>
+                <input id="file" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200" accept=".jpg,.jpeg,.png,.svg,.pdf">
+                <p class="mt-2 text-xs text-gray-500">JPG, JPEG, PNG, SVG, PDF — maksimal 10 MB.</p>
+            </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+            <button id="btn-save" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                Simpan Data
+            </button>
+            <button id="btn-cancel-bottom" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-medium transition-colors">
+                Batal
+            </button>
         </div>
     </div>
 
     <!-- Pengumuman Table -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div class="overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[720px]">
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Judul</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tag</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Pengumuman Dari</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Kelas ID</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Mulai</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Selesai</th>
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td class="px-4 py-4 text-gray-900 font-medium">Pengumuman Libur Sekolah</td>
-                        <td class="px-4 py-4">
-                            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">Semua Kelas</span>
-                        </td>
-                        <td class="px-4 py-4 text-gray-600">04/04/2026</td>
-                        <td class="px-4 py-4 text-gray-600">Admin</td>
-                        <td class="px-4 py-4">
-                            <div class="flex gap-3">
-                                <button class="text-yellow-500 hover:text-yellow-700 transition-colors" title="Edit">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-  <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-  <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
-</svg>
-
-                                </button>
-                                <button class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-  <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
-</svg>
-
-                                </button>
-                            </div>
-                        </td>
+                <tbody id="pengumuman-list">
+                    <tr class="border-b border-gray-100">
+                        <td class="px-4 py-6 text-gray-500" colspan="5">Memuat data pengumuman...</td>
                     </tr>
                 </tbody>
             </table>
@@ -101,7 +140,249 @@
         
         <!-- Total Info -->
         <div class="mt-6 text-sm text-gray-600">
-            <p>Total 1 Pengumuman</p>
+            <p id="pengumuman-total">Total 0 Pengumuman</p>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const apiUrl = '/api/pengumuman';
+            const countEl = document.getElementById('pengumuman-count');
+            const totalEl = document.getElementById('pengumuman-total');
+            const btnAdd = document.getElementById('btn-add-pengumuman');
+            const btnSearch = document.getElementById('btn-search');
+            const btnCancel = document.getElementById('btn-cancel');
+            const btnCancelBottom = document.getElementById('btn-cancel-bottom');
+            const btnSave = document.getElementById('btn-save');
+            const formTitle = document.getElementById('form-title');
+            const formDescription = document.getElementById('form-description');
+            const formContainer = document.getElementById('pengumuman-form');
+            const alertBox = document.getElementById('pengumuman-alert');
+            const searchInput = document.getElementById('search-input');
+            const tbody = document.getElementById('pengumuman-list');
+
+            const fields = {
+                judul: document.getElementById('judul'),
+                deskripsi: document.getElementById('deskripsi'),
+                kelas_id: document.getElementById('kelas_id'),
+                tanggal_mulai: document.getElementById('tanggal_mulai'),
+                tanggal_selesai: document.getElementById('tanggal_selesai'),
+                file: document.getElementById('file'),
+            };
+
+            let editingId = null;
+
+            function showAlert(message, type = 'error') {
+                alertBox.textContent = message;
+                alertBox.classList.remove('hidden', 'border-red-200', 'bg-red-50', 'text-red-700', 'border-green-200', 'bg-green-50', 'text-green-700');
+                if (type === 'success') {
+                    alertBox.classList.add('border-green-200', 'bg-green-50', 'text-green-700');
+                } else {
+                    alertBox.classList.add('border-red-200', 'bg-red-50', 'text-red-700');
+                }
+            }
+
+            function hideAlert() {
+                alertBox.classList.add('hidden');
+            }
+
+            function resetForm() {
+                editingId = null;
+                formTitle.textContent = 'Tambah Data Pengumuman';
+                formDescription.textContent = 'Isi form untuk menambahkan atau memperbarui pengumuman.';
+                fields.judul.value = '';
+                fields.deskripsi.value = '';
+                fields.kelas_id.value = '';
+                fields.tanggal_mulai.value = '';
+                fields.tanggal_selesai.value = '';
+                fields.file.value = '';
+                hideAlert();
+            }
+
+            function openForm() {
+                formContainer.classList.remove('hidden');
+            }
+
+            function closeForm() {
+                formContainer.classList.add('hidden');
+                resetForm();
+            }
+
+            function formatDateString(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                if (Number.isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+
+            function renderRows(data) {
+                if (!data || !data.length) {
+                    tbody.innerHTML = '<tr class="border-b border-gray-100"><td class="px-4 py-6 text-gray-500" colspan="5">Belum ada pengumuman.</td></tr>';
+                    countEl.textContent = '0';
+                    totalEl.textContent = 'Total 0 Pengumuman';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(item => {
+                    return `
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-4 text-gray-900 font-medium">
+                                <div>${item.judul}</div>
+                                ${item.file_url ? `<a href="${item.file_url}" class="text-blue-600 text-sm mt-1 inline-block hover:underline" target="_blank">Lampiran</a>` : ''}
+                            </td>
+                            <td class="px-4 py-4 text-gray-700">${item.kelas_id || '-'}</td>
+                            <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_mulai)}</td>
+                            <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_selesai)}</td>
+                            <td class="px-4 py-4">
+                                <div class="flex gap-3">
+                                    <button type="button" data-action="edit" data-id="${item.id_pengumuman}" class="text-yellow-500 hover:text-yellow-700 transition-colors" title="Edit">Edit</button>
+                                    <button type="button" data-action="delete" data-id="${item.id_pengumuman}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">Hapus</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                countEl.textContent = String(data.length);
+                totalEl.textContent = `Total ${data.length} Pengumuman`;
+            }
+
+            async function loadPengumuman(search = '') {
+                try {
+                    const url = search ? `${apiUrl}?search=${encodeURIComponent(search)}` : apiUrl;
+                    const response = await fetch(url);
+                    const payload = await response.json();
+
+                    if (!payload.success) {
+                        throw new Error('Gagal memuat pengumuman');
+                    }
+
+                    renderRows(payload.data);
+                } catch (error) {
+                    tbody.innerHTML = '<tr class="border-b border-gray-100"><td class="px-4 py-6 text-red-500" colspan="5">Tidak dapat memuat data pengumuman.</td></tr>';
+                    showAlert(error.message || 'Terjadi kesalahan saat mengambil data');
+                }
+            }
+
+            async function savePengumuman() {
+                const payload = new FormData();
+                payload.append('judul', fields.judul.value.trim());
+                payload.append('deskripsi', fields.deskripsi.value.trim());
+                payload.append('kelas_id', fields.kelas_id.value ? fields.kelas_id.value.trim() : '');
+                payload.append('tanggal_mulai', fields.tanggal_mulai.value);
+                payload.append('tanggal_selesai', fields.tanggal_selesai.value);
+
+                if (fields.file.files.length) {
+                    payload.append('file', fields.file.files[0]);
+                }
+
+                try {
+                    const method = editingId ? 'POST' : 'POST';
+                    if (editingId) {
+                        payload.append('_method', 'PUT');
+                    }
+
+                    const response = await fetch(editingId ? `${apiUrl}/${editingId}` : apiUrl, {
+                        method,
+                        body: payload,
+                    });
+
+                    const payloadResponse = await response.json();
+
+                    if (!response.ok || !payloadResponse.success) {
+                        const message = payloadResponse.message || 'Gagal menyimpan pengumuman';
+                        throw new Error(message);
+                    }
+
+                    showAlert(payloadResponse.message || 'Data berhasil disimpan', 'success');
+                    loadPengumuman(searchInput.value.trim());
+                    closeForm();
+                } catch (error) {
+                    showAlert(error.message || 'Terjadi kesalahan saat menyimpan data');
+                }
+            }
+
+            async function deletePengumuman(id) {
+                if (!confirm('Yakin ingin menghapus pengumuman ini?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${apiUrl}/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    const payloadResponse = await response.json();
+
+                    if (!response.ok || !payloadResponse.success) {
+                        const message = payloadResponse.message || 'Gagal menghapus pengumuman';
+                        throw new Error(message);
+                    }
+
+                    showAlert(payloadResponse.message || 'Pengumuman berhasil dihapus', 'success');
+                    loadPengumuman(searchInput.value.trim());
+                } catch (error) {
+                    showAlert(error.message || 'Terjadi kesalahan saat menghapus data');
+                }
+            }
+
+            tbody.addEventListener('click', function (event) {
+                const button = event.target.closest('button');
+                if (!button) return;
+
+                const action = button.dataset.action;
+                const id = button.dataset.id;
+
+                if (action === 'edit' && id) {
+                    openForm();
+                    editingId = id;
+                    formTitle.textContent = 'Edit Pengumuman';
+                    formDescription.textContent = 'Perbarui informasi pengumuman yang dipilih.';
+                    hideAlert();
+                    fetch(`${apiUrl}/${id}`)
+                        .then(response => response.json())
+                        .then(payload => {
+                            if (!payload.success) {
+                                throw new Error('Gagal memuat data pengumuman');
+                            }
+                            const data = payload.data;
+                            fields.judul.value = data.judul || '';
+                            fields.deskripsi.value = data.deskripsi || '';
+                            fields.kelas_id.value = data.kelas_id || '';
+                            fields.tanggal_mulai.value = data.tanggal_mulai || '';
+                            fields.tanggal_selesai.value = data.tanggal_selesai || '';
+                            fields.file.value = '';
+                        })
+                        .catch(error => showAlert(error.message || 'Tidak dapat memuat data pengumuman'));
+                }
+
+                if (action === 'delete' && id) {
+                    deletePengumuman(id);
+                }
+            });
+
+            btnAdd.addEventListener('click', function () {
+                resetForm();
+                openForm();
+            });
+
+            btnCancel.addEventListener('click', closeForm);
+            btnCancelBottom.addEventListener('click', closeForm);
+            btnSearch.addEventListener('click', function () {
+                loadPengumuman(searchInput.value.trim());
+            });
+            btnSave.addEventListener('click', function (event) {
+                event.preventDefault();
+                savePengumuman();
+            });
+
+            searchInput.addEventListener('keyup', function (event) {
+                if (event.key === 'Enter') {
+                    loadPengumuman(searchInput.value.trim());
+                }
+            });
+
+            loadPengumuman();
+        });
+    </script>
 @endsection

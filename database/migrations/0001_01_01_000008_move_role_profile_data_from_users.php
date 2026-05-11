@@ -17,35 +17,75 @@ return new class extends Migration
         $guruRoleId = DB::table('roles')->where('nama_role', 'guru')->value('id_role');
         $ortuRoleId = DB::table('roles')->where('nama_role', 'orang_tua')->value('id_role');
 
+        // Check if 'name' column exists, otherwise use 'username'
+        $nameColumn = Schema::hasColumn('users', 'name') ? 'u.name' : 'u.username';
+
         if ($adminRoleId && Schema::hasTable('admin') && Schema::hasColumn('users', 'nip')) {
+            // Build dynamic column list based on what exists
+            $columns = ['user_id', 'nama', 'nip', 'nuptk', 'jenis_kelamin'];
+            $selectCols = ['u.id', $nameColumn, 'u.nip', 'u.nuptk', 'u.gender'];
+            
+            if (Schema::hasColumn('admin', 'no_hp')) {
+                $columns[] = 'no_hp';
+                $selectCols[] = 'u.phone';
+            }
+            if (Schema::hasColumn('admin', 'alamat')) {
+                $columns[] = 'alamat';
+                $selectCols[] = 'u.address';
+            }
+
             DB::statement(
-                'INSERT IGNORE INTO admin (user_id, nama, nip, nuptk, jenis_kelamin, no_hp, alamat)
-                 SELECT u.id, u.name, u.nip, u.nuptk, u.gender, u.phone, u.address
+                "INSERT IGNORE INTO admin (" . implode(',', $columns) . ")
+                 SELECT " . implode(',', $selectCols) . "
                  FROM users u
                  LEFT JOIN admin a ON a.user_id = u.id
-                 WHERE u.role_id = ? AND a.user_id IS NULL',
+                 WHERE u.role_id = ? AND a.user_id IS NULL",
                 [$adminRoleId]
             );
         }
 
         if ($guruRoleId && Schema::hasTable('guru') && Schema::hasColumn('users', 'nip')) {
+            $columns = ['user_id', 'nama', 'nip', 'nuptk', 'jenis_kelamin'];
+            $selectCols = ['u.id', $nameColumn, 'u.nip', 'u.nuptk', 'u.gender'];
+            
+            if (Schema::hasColumn('guru', 'no_hp')) {
+                $columns[] = 'no_hp';
+                $selectCols[] = 'u.phone';
+            }
+            if (Schema::hasColumn('guru', 'alamat')) {
+                $columns[] = 'alamat';
+                $selectCols[] = 'u.address';
+            }
+
             DB::statement(
-                'INSERT IGNORE INTO guru (user_id, nama, nip, nuptk, jenis_kelamin, no_hp, alamat)
-                 SELECT u.id, u.name, u.nip, u.nuptk, u.gender, u.phone, u.address
+                "INSERT IGNORE INTO guru (" . implode(',', $columns) . ")
+                 SELECT " . implode(',', $selectCols) . "
                  FROM users u
                  LEFT JOIN guru g ON g.user_id = u.id
-                 WHERE u.role_id = ? AND g.user_id IS NULL',
+                 WHERE u.role_id = ? AND g.user_id IS NULL",
                 [$guruRoleId]
             );
         }
 
         if ($ortuRoleId && Schema::hasTable('orang_tua') && Schema::hasColumn('users', 'nip')) {
+            $columns = ['user_id', 'nama', 'nik', 'jenis_kelamin'];
+            $selectCols = ['u.id', $nameColumn, 'u.nip', 'u.gender'];
+            
+            if (Schema::hasColumn('orang_tua', 'no_hp')) {
+                $columns[] = 'no_hp';
+                $selectCols[] = 'u.phone';
+            }
+            if (Schema::hasColumn('orang_tua', 'alamat')) {
+                $columns[] = 'alamat';
+                $selectCols[] = 'u.address';
+            }
+
             DB::statement(
-                'INSERT IGNORE INTO orang_tua (user_id, nama, nik, jenis_kelamin, no_hp, alamat)
-                 SELECT u.id, u.name, u.nip, u.gender, u.phone, u.address
+                "INSERT IGNORE INTO orang_tua (" . implode(',', $columns) . ")
+                 SELECT " . implode(',', $selectCols) . "
                  FROM users u
                  LEFT JOIN orang_tua o ON o.user_id = u.id
-                 WHERE u.role_id = ? AND o.user_id IS NULL',
+                 WHERE u.role_id = ? AND o.user_id IS NULL",
                 [$ortuRoleId]
             );
         }
