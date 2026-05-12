@@ -34,7 +34,15 @@
             <div id="dropdownMenu" 
                  class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md">
 
-                <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100">
+                @php
+                    $profilRoute = match($role) {
+                        'admin' => route('admin.profil'),
+                        'guru' => route('guru.profil'),
+                        'orangtua' => route('orangtua.profil'),
+                        default => '#'
+                    };
+                @endphp
+                <a href="{{ $profilRoute }}" class="block px-4 py-2 text-sm hover:bg-gray-100">
                     Profil
                 </a>
 

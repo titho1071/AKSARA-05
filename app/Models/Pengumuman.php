@@ -21,6 +21,7 @@ class Pengumuman extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'file',
+        'nama_file',
     ];
 
     protected $casts = [

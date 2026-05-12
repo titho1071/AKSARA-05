@@ -15,6 +15,7 @@
         $route = request()->route()?->getName();
         $dashboardActive = in_array($route, ['guru.dashboard'], true);
         $absensiActive = in_array($route, ['guru.absensi', 'guru.absensi.recap', 'guru.absensi.kelola'], true);
+        $jadwalActive = in_array($route, ['guru.jadwal'], true);
         $siswaActive = in_array($route, ['guru.siswa.index', 'guru.siswa.edit', 'guru.siswa.show'], true);
     @endphp
     <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
@@ -73,9 +74,9 @@
             Pengumuman
         </a>
 
-        <a href="#"
+        <a href="{{ route('guru.jadwal') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'jadwal' 
+            {{ $jadwalActive 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Jadwal
@@ -105,13 +106,13 @@
             </div>
         </div>
         <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Saya</div>
-            <a 
+        <a href="{{ route('guru.profil') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'dashboard.profil' 
+            {{ $route === 'guru.profil' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Profil
-            </a>
+        </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="m-0">
                 @csrf
                 <button type="submit" class="w-full text-left block rounded-3xl px-3 py-2 bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 transition">

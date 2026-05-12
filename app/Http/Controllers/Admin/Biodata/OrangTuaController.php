@@ -110,7 +110,7 @@ class OrangTuaController extends Controller
         $request->validate([
             'username' => 'required|string|max:100|unique:users,username,' . auth()->id(),
             'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
-            'password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user = User::findOrFail(auth()->id());

@@ -79,7 +79,7 @@
     @if ($pengumuman->file)
         @php
             $fileUrl  = asset('storage/' . $pengumuman->file);
-            $fileName = basename($pengumuman->file);
+            $fileName = $pengumuman->nama_file ?: basename($pengumuman->file);
             $ext      = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
             $isImage  = in_array($ext, ['jpg', 'jpeg', 'png', 'svg']);
             $isPdf    = $ext === 'pdf';
