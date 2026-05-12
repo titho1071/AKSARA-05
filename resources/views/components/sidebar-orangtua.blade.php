@@ -31,9 +31,9 @@
             Absensi
         </a>
 
-        <a 
+        <a href="{{ route('orangtua.dokumentasi') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
+            {{ str_contains($route, 'orangtua.dokumentasi') 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Dokumentasi

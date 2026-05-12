@@ -15,6 +15,44 @@
         <p class="text-gray-500 mt-1">semua pengumuman</p>
     </div>
 
+    <!-- Student Tabs -->
+    <div class="flex flex-wrap gap-4 mb-8">
+        @foreach($siswa as $s)
+            @php
+                $isActive = $activeSiswa && $activeSiswa->id_siswa == $s->id_siswa;
+
+                $initials = collect(explode(' ', $s->nama))
+                    ->map(fn($n) => strtoupper(substr($n, 0, 1)))
+                    ->take(2)
+                    ->implode('');
+            @endphp
+
+            <a
+                href="{{ route('orangtua.pengumuman', ['siswa_id' => $s->id_siswa]) }}"
+                class="flex items-center gap-3 px-6 py-3 rounded-2xl transition-all
+                {{ $isActive
+                    ? 'bg-[#1E2567] text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }}"
+            >
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold
+                    {{ $isActive ? 'bg-white/20' : 'bg-gray-300' }}">
+                    {{ $initials }}
+                </div>
+
+                <div>
+                    <p class="font-bold text-sm">
+                        {{ $s->nama }}
+                    </p>
+
+                    <p class="text-xs
+                        {{ $isActive ? 'text-blue-100' : 'text-gray-500' }}">
+                        {{ $s->nama_kelas }}
+                    </p>
+                </div>
+            </a>
+        @endforeach
+    </div>
     <div class="space-y-6">
         @forelse($pengumuman as $item)
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-blue-200 hover:shadow-md transition-shadow relative">

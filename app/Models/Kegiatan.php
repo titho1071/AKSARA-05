@@ -27,4 +27,9 @@ class Kegiatan extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas');
+    }
 }

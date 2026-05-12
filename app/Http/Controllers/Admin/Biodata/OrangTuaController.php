@@ -25,22 +25,26 @@ class OrangTuaController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
-        
+
         // Ambil data orang tua
-        $ortu = DB::table('orang_tua')->where('user_id', $user->id)->first();
-        
+        $ortu = DB::table('orang_tua')
+            ->where('user_id', $user->id)
+            ->first();
+
         if (!$ortu) {
             return view('pages.dashboard-orangtua', [
                 'siswa' => collect(),
-                'pengumuman' => Pengumuman::whereNull('kelas_id')->orderByDesc('created_at')->take(5)->get()
+                'pengumuman' => Pengumuman::whereNull('kelas_id')
+                    ->orderByDesc('created_at')
+                    ->take(5)
+                    ->get()
             ]);
         }
 
         // Ambil data siswa yang terkait
         $siswa = DB::table('siswa')
-            ->join('orang_tua_siswa', 'siswa.id_siswa', '=', 'orang_tua_siswa.siswa_id')
             ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id_kelas')
-            ->where('orang_tua_siswa.orang_tua_id', $ortu->id_orang_tua)
+            ->where('siswa.orang_tua_id', $ortu->id_orang_tua)
             ->select('siswa.*', 'kelas.nama_kelas')
             ->get();
 
@@ -143,9 +147,8 @@ class OrangTuaController extends Controller
 
         // Ambil semua anak
         $siswa = DB::table('siswa')
-            ->join('orang_tua_siswa', 'siswa.id_siswa', '=', 'orang_tua_siswa.siswa_id')
             ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id_kelas')
-            ->where('orang_tua_siswa.orang_tua_id', $ortu->id_orang_tua)
+            ->where('siswa.orang_tua_id', $ortu->id_orang_tua)
             ->select('siswa.*', 'kelas.nama_kelas')
             ->get();
 
@@ -202,32 +205,128 @@ class OrangTuaController extends Controller
         return view('Dashboard_Orangtua.Pengumuman.pengumuman-detail-orangtua', compact('pengumuman'));
     }
 
-    public function pengumuman()
+    public function pengumuman(Request $request)
     {
         $user = auth()->user();
-        
+
         // Ambil data orang tua
-        $ortu = DB::table('orang_tua')->where('user_id', $user->id)->first();
-        
+        $ortu = DB::table('orang_tua')
+            ->where('user_id', $user->id)
+            ->first();
+
         if (!$ortu) {
-            $pengumuman = Pengumuman::whereNull('kelas_id')->orderByDesc('created_at')->get();
-            return view('Dashboard_Orangtua.Pengumuman.pengumuman-orangtua', compact('pengumuman'));
+            return view(
+                'Dashboard_Orangtua.Pengumuman.pengumuman-orangtua',
+                [
+                    'pengumuman' => collect(),
+                    'siswa' => collect(),
+                    'activeSiswa' => null,
+                ]
+            );
         }
 
-        // Ambil ID siswa yang terkait dengan orang tua ini
-        $siswaIds = DB::table('orang_tua_siswa')->where('orang_tua_id', $ortu->id_orang_tua)->pluck('siswa_id');
-
-        // Ambil ID kelas dari siswa-siswa tersebut
-        $kelasIds = DB::table('siswa')->whereIn('id_siswa', $siswaIds)->pluck('kelas_id');
-
-        // Ambil pengumuman yang sesuai dengan kelas siswa atau untuk semua kelas
-        $pengumuman = Pengumuman::with('kelas')
-            ->whereIn('kelas_id', $kelasIds)
-            ->orWhereNull('kelas_id')
-            ->orderByDesc('created_at')
+        // Ambil semua anak
+        $siswa = DB::table('siswa')
+            ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id_kelas')
+            ->where('siswa.orang_tua_id', $ortu->id_orang_tua)
+            ->select('siswa.*', 'kelas.nama_kelas')
             ->get();
 
-        return view('Dashboard_Orangtua.Pengumuman.pengumuman-orangtua', compact('pengumuman'));
+        // Anak aktif
+        $activeSiswaId = $request->query(
+            'siswa_id',
+            $siswa->first()?->id_siswa
+        );
+
+        $activeSiswa = $siswa
+            ->where('id_siswa', $activeSiswaId)
+            ->first();
+
+        // Pengumuman
+        $pengumuman = collect();
+
+        if ($activeSiswa) {
+            $pengumuman = Pengumuman::with('kelas')
+                ->where(function ($query) use ($activeSiswa) {
+                    $query->where('kelas_id', $activeSiswa->kelas_id)
+                        ->orWhereNull('kelas_id');
+                })
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
+        return view(
+            'Dashboard_Orangtua.Pengumuman.pengumuman-orangtua',
+            compact('pengumuman', 'siswa', 'activeSiswa')
+        );
+    }
+
+    public function dokumentasiDetail($id)
+    {
+        $kegiatan = \App\Models\Kegiatan::with([
+            'guru',
+            'dokumentasi'
+        ])->findOrFail($id);
+
+        return view(
+            'Dashboard_Orangtua.Dokumentasi.dokumentasi-detail-orangtua',
+            compact('kegiatan')
+        );
+    }
+
+    public function dokumentasi(Request $request)
+    {
+        $user = auth()->user();
+
+        $ortu = DB::table('orang_tua')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$ortu) {
+            return redirect()->route('login');
+        }
+
+        // Ambil semua anak
+        $siswa = DB::table('siswa')
+            ->join('kelas', 'siswa.kelas_id', '=', 'kelas.id_kelas')
+            ->where('siswa.orang_tua_id', $ortu->id_orang_tua)
+            ->select(
+                'siswa.*',
+                'kelas.nama_kelas'
+            )
+            ->get();
+
+        $activeSiswaId = $request->query(
+            'siswa_id',
+            $siswa->first()?->id_siswa
+        );
+
+        $activeSiswa = $siswa
+            ->where('id_siswa', $activeSiswaId)
+            ->first();
+
+        $kegiatans = collect();
+
+        if ($activeSiswa) {
+            $kelasId = $activeSiswa->kelas_id;
+
+            $kegiatans = \App\Models\Kegiatan::with(['guru', 'dokumentasi'])
+                ->where(function ($query) use ($kelasId) {
+                    $query->where('kelas_id', $kelasId)
+                        ->orWhere('kelas_id', 'semua_kelas');
+                })
+                ->orderByDesc('tanggal')
+                ->get();
+        }
+
+        return view(
+            'Dashboard_Orangtua.Dokumentasi.dokumentasi-orangtua',
+            compact(
+                'siswa',
+                'activeSiswa',
+                'kegiatans'
+            )
+        );
     }
 
     public function index(Request $request)

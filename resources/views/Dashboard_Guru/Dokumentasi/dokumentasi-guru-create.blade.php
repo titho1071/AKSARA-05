@@ -74,10 +74,17 @@
                 </label>
                 <select name="kelas_id"
                     class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                    <option value="">-- Pilih Kelas --</option>
-                    <option value="semua_kelas" {{ old('kelas_id') === 'semua_kelas' ? 'selected' : '' }}>Semua Kelas</option>
-                    @foreach(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as $kelas)
-                        <option value="{{ $kelas }}" {{ old('kelas_id') === $kelas ? 'selected' : '' }}>Kelas {{ $kelas }}</option>
+
+                    <option value="semua_kelas"
+                        {{ old('kelas_id', 'semua_kelas') == 'semua_kelas' ? 'selected' : '' }}>
+                        Semua Kelas
+                    </option>
+
+                    @foreach($kelasList as $kelas)
+                        <option value="{{ $kelas->id_kelas }}"
+                            {{ old('kelas_id') == $kelas->id_kelas ? 'selected' : '' }}>
+                            {{ $kelas->nama_kelas }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -90,8 +97,8 @@
             </label>
             <div id="dropZone"
                 class="relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-slate-300 bg-slate-50 p-6 transition hover:border-blue-400 hover:bg-blue-50">
-                <input type="file" id="fotoInput" name="foto[]" multiple
-                    accept="image/jpg,image/jpeg,image/png,image/webp"
+                <input type="file" id="fotoInput" name="foto[]" multiple required
+                    accept="image/jpeg,image/png,image/webp"
                     class="absolute inset-0 cursor-pointer opacity-0" />
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mb-3 h-10 w-10 text-slate-400">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
@@ -137,37 +144,135 @@
     const dropText    = document.getElementById('dropText');
     const dropZone    = document.getElementById('dropZone');
 
-    input.addEventListener('change', () => renderPreviews(input.files));
+    const defaultText = 'Klik atau drag & drop file di sini';
+
+    input.addEventListener('change', () => {
+        renderPreviews(input.files);
+    });
+
+    function resetPreview() {
+        input.value = '';
+        previewGrid.innerHTML = '';
+        previewCont.classList.add('hidden');
+        dropText.textContent = defaultText;
+    }
 
     function renderPreviews(files) {
+
+        // Reset preview lama
         previewGrid.innerHTML = '';
-        if (!files.length) { previewCont.classList.add('hidden'); return; }
+
+        // Jika tidak ada file
+        if (!files.length) {
+            previewCont.classList.add('hidden');
+            dropText.textContent = defaultText;
+            return;
+        }
+
+        // Validasi maksimal file
+        if (files.length > 10) {
+            alert('Maksimal upload 10 file.');
+            resetPreview();
+            return;
+        }
+
+        // Validasi ukuran file maksimal 3MB
+        const oversized = Array.from(files).find(file => {
+            return file.size > 3 * 1024 * 1024;
+        });
+
+        if (oversized) {
+            alert(`File "${oversized.name}" melebihi batas maksimal 3MB.`);
+            resetPreview();
+            return;
+        }
+
+        // Validasi tipe file
+        const allowedTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+        ];
+
+        const invalidFile = Array.from(files).find(file => {
+            return !allowedTypes.includes(file.type);
+        });
+
+        if (invalidFile) {
+            alert(`File "${invalidFile.name}" bukan format gambar yang didukung.`);
+            resetPreview();
+            return;
+        }
+
+        // Tampilkan preview
         previewCont.classList.remove('hidden');
         dropText.textContent = files.length + ' file dipilih';
+
         Array.from(files).forEach(file => {
+
             const reader = new FileReader();
+
             reader.onload = e => {
+
                 const div = document.createElement('div');
-                div.className = 'relative group';
+
+                div.className = 'relative group overflow-hidden rounded-[14px]';
+
                 div.innerHTML = `
-                    <img src="${e.target.result}" class="h-24 w-full rounded-[14px] object-cover" />
+                    <img 
+                        src="${e.target.result}" 
+                        class="h-24 w-full rounded-[14px] object-cover"
+                    />
+
                     <div class="absolute inset-0 flex items-center justify-center rounded-[14px] bg-black/40 opacity-0 transition group-hover:opacity-100">
-                        <p class="text-xs font-semibold text-white px-1 text-center">${file.name.length > 14 ? file.name.substring(0,14)+'...' : file.name}</p>
-                    </div>`;
+                        <p class="px-1 text-center text-xs font-semibold text-white">
+                            ${file.name.length > 14
+                                ? file.name.substring(0, 14) + '...'
+                                : file.name}
+                        </p>
+                    </div>
+                `;
+
                 previewGrid.appendChild(div);
             };
+
             reader.readAsDataURL(file);
         });
     }
 
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-blue-500', 'bg-blue-50'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500', 'bg-blue-50'));
-    dropZone.addEventListener('drop', e => {
+    // Drag Over
+    dropZone.addEventListener('dragover', e => {
         e.preventDefault();
-        dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+
+        dropZone.classList.add(
+            'border-blue-500',
+            'bg-blue-50'
+        );
+    });
+
+    // Drag Leave
+    dropZone.addEventListener('dragleave', e => {
+        if (!dropZone.contains(e.relatedTarget)) {
+            dropZone.classList.remove(
+                'border-blue-500',
+                'bg-blue-50'
+            );
+        }
+    });
+
+    // Drop File
+    dropZone.addEventListener('drop', e => {
+
+        e.preventDefault();
+
+        dropZone.classList.remove(
+            'border-blue-500',
+            'bg-blue-50'
+        );
+
         input.files = e.dataTransfer.files;
+
         renderPreviews(e.dataTransfer.files);
     });
 </script>
-
 @endsection

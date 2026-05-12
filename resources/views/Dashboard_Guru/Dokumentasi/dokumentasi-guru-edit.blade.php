@@ -75,10 +75,19 @@
                 </label>
                 <select name="kelas_id"
                     class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                    <option value="">-- Pilih Kelas --</option>
-                    <option value="semua_kelas" {{ old('kelas_id', $kegiatan->kelas_id) === 'semua_kelas' ? 'selected' : '' }}>Semua Kelas</option>
-                    @foreach(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as $kelas)
-                        <option value="{{ $kelas }}" {{ old('kelas_id', $kegiatan->kelas_id) === $kelas ? 'selected' : '' }}>Kelas {{ $kelas }}</option>
+
+                    {{-- Semua kelas --}}
+                    <option value="semua_kelas"
+                        {{ old('kelas_id', $kegiatan->kelas_id ?? 'semua_kelas') === 'semua_kelas' ? 'selected' : '' }}>
+                        Semua Kelas
+                    </option>
+
+                    {{-- Per kelas --}}
+                    @foreach($kelasList as $kelas)
+                        <option value="{{ $kelas->id_kelas }}"
+                            {{ old('kelas_id', $kegiatan->kelas_id ?? 'semua_kelas') == $kelas->id_kelas ? 'selected' : '' }}>
+                            {{ $kelas->nama_kelas }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -154,36 +163,142 @@
     const previewCont = document.getElementById('previewContainer');
     const previewGrid = document.getElementById('previewGrid');
     const dropZone    = document.getElementById('dropZone');
+    const dropText    = document.getElementById('dropText');
+
+    const defaultText = 'Klik atau drag & drop foto baru';
 
     input.addEventListener('change', () => renderPreviews(input.files));
 
-    function renderPreviews(files) {
+    function resetPreview() {
+        input.value = '';
         previewGrid.innerHTML = '';
-        if (!files.length) { previewCont.classList.add('hidden'); return; }
+        previewCont.classList.add('hidden');
+        dropText.textContent = defaultText;
+    }
+
+    function renderPreviews(files) {
+
+        // Reset preview lama
+        previewGrid.innerHTML = '';
+
+        // Jika tidak ada file
+        if (!files.length) {
+            previewCont.classList.add('hidden');
+            dropText.textContent = defaultText;
+            return;
+        }
+
+        // Validasi maksimal file
+        if (files.length > 10) {
+            alert('Maksimal upload 10 file.');
+            resetPreview();
+            return;
+        }
+
+        // Validasi ukuran file maksimal 3MB
+        const oversized = Array.from(files).find(file => {
+            return file.size > 3 * 1024 * 1024;
+        });
+
+        if (oversized) {
+            alert(`File "${oversized.name}" melebihi batas maksimal 3MB.`);
+            resetPreview();
+            return;
+        }
+
+        // Validasi tipe file
+        const allowedTypes = [
+            'image/jpg',
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+        ];
+
+        const invalidFile = Array.from(files).find(file => {
+            return !allowedTypes.includes(file.type);
+        });
+
+        if (invalidFile) {
+            alert(`File "${invalidFile.name}" bukan format gambar yang didukung.`);
+            resetPreview();
+            return;
+        }
+
+        // Tampilkan preview
         previewCont.classList.remove('hidden');
+        dropText.textContent = files.length + ' file dipilih';
+
         Array.from(files).forEach(file => {
+
             const reader = new FileReader();
+
             reader.onload = e => {
+
                 const div = document.createElement('div');
-                div.className = 'relative group';
-                div.innerHTML = `<img src="${e.target.result}" class="h-24 w-full rounded-[14px] object-cover" />`;
+
+                div.className = 'relative group overflow-hidden rounded-[14px]';
+
+                div.innerHTML = `
+                    <img 
+                        src="${e.target.result}" 
+                        class="h-24 w-full rounded-[14px] object-cover"
+                    />
+
+                    <div class="absolute inset-0 flex items-center justify-center rounded-[14px] bg-black/40 opacity-0 transition group-hover:opacity-100">
+                        <p class="px-1 text-center text-xs font-semibold text-white">
+                            ${file.name.length > 14
+                                ? file.name.substring(0, 14) + '...'
+                                : file.name}
+                        </p>
+                    </div>
+                `;
+
                 previewGrid.appendChild(div);
             };
+
             reader.readAsDataURL(file);
         });
     }
 
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-blue-500'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
-    dropZone.addEventListener('drop', e => {
+    // Drag Over
+    dropZone.addEventListener('dragover', e => {
         e.preventDefault();
-        dropZone.classList.remove('border-blue-500');
+
+        dropZone.classList.add(
+            'border-blue-500',
+            'bg-blue-50'
+        );
+    });
+
+    // Drag Leave
+    dropZone.addEventListener('dragleave', e => {
+        if (!dropZone.contains(e.relatedTarget)) {
+            dropZone.classList.remove(
+                'border-blue-500',
+                'bg-blue-50'
+            );
+        }
+    });
+
+    // Drop File
+    dropZone.addEventListener('drop', e => {
+
+        e.preventDefault();
+
+        dropZone.classList.remove(
+            'border-blue-500',
+            'bg-blue-50'
+        );
+
         input.files = e.dataTransfer.files;
+
         renderPreviews(e.dataTransfer.files);
     });
 
     function hapusFoto(idDok) {
+
         if (!confirm('Hapus foto ini?')) return;
+
         fetch(`/guru/dokumentasi/foto/${idDok}`, {
             method: 'DELETE',
             headers: {
@@ -193,14 +308,17 @@
         })
         .then(res => res.json())
         .then(data => {
+
             if (data.status === 'success') {
+
                 document.getElementById(`foto-${idDok}`).remove();
+
             } else {
+
                 alert('Gagal menghapus foto.');
             }
         })
         .catch(() => alert('Gagal menghapus foto.'));
     }
 </script>
-
 @endsection

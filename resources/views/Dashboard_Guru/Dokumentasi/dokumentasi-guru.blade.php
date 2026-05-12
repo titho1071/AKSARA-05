@@ -59,11 +59,22 @@
                 class="flex-1 rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
             <select name="kelas"
                 class="rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
-                <option value="">Semua Kelas</option>
-                <option value="semua_kelas" {{ ($kelas ?? '') === 'semua_kelas' ? 'selected' : '' }}>Semua Kelas (Tag)</option>
-                @foreach(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as $kelasRom)
-                    <option value="{{ $kelasRom }}" {{ ($kelas ?? '') === $kelasRom ? 'selected' : '' }}>
-                        Kelas {{ $kelasRom }}
+
+                {{-- Semua data --}}
+                <option value="">
+                    Semua Dokumentasi
+                </option>
+
+                {{-- Khusus kegiatan umum --}}
+                <option value="semua_kelas"
+                    {{ ($kelas ?? '') === 'semua_kelas' ? 'selected' : '' }}>
+                    Semua Kelas
+                </option>
+
+                @foreach($kelasList as $kelasItem)
+                    <option value="{{ $kelasItem->id_kelas }}"
+                        {{ ($kelas ?? '') == $kelasItem->id_kelas ? 'selected' : '' }}>
+                        {{ $kelasItem->nama_kelas }}
                     </option>
                 @endforeach
             </select>
@@ -97,14 +108,14 @@
                         <td class="px-4 py-4 text-sm text-slate-600">{{ $index + 1 }}</td>
                         <td class="px-4 py-4 text-sm font-semibold text-slate-900">{{ $kegiatan->judul }}</td>
                         <td class="px-4 py-4 text-sm text-slate-600">
-                            @if($kegiatan->kelas_id)
-                                @if($kegiatan->kelas_id === 'semua_kelas')
-                                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
-                                @else
-                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Kelas {{ $kegiatan->kelas_id }}</span>
-                                @endif
+                            @if($kegiatan->kelas_id === 'semua_kelas')
+                                <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                                    Semua Kelas
+                                </span>
                             @else
-                                <span class="text-xs text-slate-400">-</span>
+                                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                    {{ $kegiatan->kelas->nama_kelas ?? '-' }}
+                                </span>
                             @endif
                         </td>
                         <td class="px-4 py-4 text-sm text-slate-600">

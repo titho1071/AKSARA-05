@@ -158,10 +158,21 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:orang_tua'])->prefix('orangtua')->name('orangtua.')->group(function () {
+
     Route::get('/dashboard', [OrangTuaController::class, 'dashboard'])->name('dashboard');
+
+    // Dokumentasi
+    Route::get('/dokumentasi', [OrangTuaController::class, 'dokumentasi'])->name('dokumentasi');
+    Route::get('/dokumentasi/{id}', [OrangTuaController::class, 'dokumentasiDetail'])->name('dokumentasi.detail');
+
+    // Pengumuman
     Route::get('/pengumuman', [OrangTuaController::class, 'pengumuman'])->name('pengumuman');
     Route::get('/pengumuman/{id}', [OrangTuaController::class, 'pengumumanDetail'])->name('pengumuman.detail');
+
+    // Jadwal
     Route::get('/jadwal', [OrangTuaController::class, 'jadwal'])->name('jadwal');
+
+    // Profil
     Route::get('/profil', [OrangTuaController::class, 'profil'])->name('profil');
     Route::put('/profil/update', [OrangTuaController::class, 'updateProfil'])->name('profil.update');
     Route::put('/profil/foto', [OrangTuaController::class, 'updateFoto'])->name('profil.foto');
