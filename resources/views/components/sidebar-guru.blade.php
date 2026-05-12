@@ -15,6 +15,7 @@
         $route = request()->route()?->getName();
         $dashboardActive = in_array($route, ['guru.dashboard'], true);
         $absensiActive = in_array($route, ['guru.absensi', 'guru.absensi.recap', 'guru.absensi.kelola'], true);
+        $siswaActive = in_array($route, ['guru.siswa.index', 'guru.siswa.edit', 'guru.siswa.show'], true);
     @endphp
     <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
         <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
@@ -86,7 +87,7 @@
         <div x-data="{ open: false }" class="relative">
             <button @click="open = !open"
                 class="w-full flex justify-between items-center px-3 py-2 rounded transition 
-                {{ in_array($route, ['dashboard.kelas']) 
+                {{ $siswaActive 
                     ? 'bg-[#F59E0B] text-slate-950' 
                     : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Wali Kelas
@@ -94,12 +95,12 @@
             </button>
 
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
-                <a href="#"
+                <a href="{{ route('guru.siswa.index') }}"
                     class="block px-3 py-2 rounded transition 
-                    {{ $route === 'dashboard.kelas' 
+                    {{ $siswaActive 
                         ? 'bg-[#F59E0B] text-slate-950' 
                         : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-                    Kelas
+                    Data Siswa Kelas
                 </a>
             </div>
         </div>

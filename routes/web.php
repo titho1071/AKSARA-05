@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\OrangTuaController;
+use App\Http\Controllers\Admin\Biodata\AdminController;
+use App\Http\Controllers\Admin\Biodata\GuruController;
+use App\Http\Controllers\Admin\Biodata\OrangTuaController;
+use App\Http\Controllers\Admin\Biodata\SiswaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TahunPelajaranController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\Guru\DokumentasiGuruController;
+use App\Http\Controllers\Guru\SiswaGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PengumumanController;
@@ -73,7 +75,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/orangtua/{user}', [OrangTuaController::class, 'update'])->name('orangtua.update');
 
     // Data - Biodata siswa
-    Route::get('/siswa', fn() => view('Dashboard_Admin.Biodata.biodata-siswa'))->name('siswa');
+    Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+    Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
+    Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
+    Route::get('/siswa/{id}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
+    Route::put('/siswa/{id}', [SiswaController::class, 'update'])->name('siswa.update');
+    Route::delete('/siswa/{id}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
 
     // Dokumentasi, Pengumuman, Jadwal
     Route::get('/dokumentasi', [DokumentasiAdminController::class, 'index'])->name('dokumentasi');
@@ -121,6 +128,12 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
         $pengumuman = \App\Models\Pengumuman::with('kelas')->findOrFail($id);
         return view('Dashboard_Guru.Pengumuman.pengumuman-detail-guru', compact('pengumuman'));
     })->name('pengumuman.show');
+
+    // Wali Kelas - Siswa Management
+    Route::get('/siswa', [SiswaGuruController::class, 'index'])->name('siswa.index');
+    Route::get('/siswa/{id}', [SiswaGuruController::class, 'show'])->name('siswa.show');
+    Route::get('/siswa/{id}/edit', [SiswaGuruController::class, 'edit'])->name('siswa.edit');
+    Route::put('/siswa/{id}', [SiswaGuruController::class, 'update'])->name('siswa.update');
 });
 
 

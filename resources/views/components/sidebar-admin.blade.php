@@ -97,8 +97,9 @@
                     {{ in_array($route, ['admin.guru.index', 'admin.guru.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Guru
                 </a>
-                <a href="#"
-                    class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                <a href="{{ route('admin.siswa.index') }}"
+                    class="block px-3 py-2 rounded transition
+                    {{ in_array($route, ['admin.siswa.index', 'admin.siswa.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Siswa
                 </a>
                 <a href="{{ route('admin.orangtua.index') }}"

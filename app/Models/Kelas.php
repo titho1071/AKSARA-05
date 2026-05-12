@@ -20,4 +20,20 @@ class Kelas extends Model
         'tapel_id',
         'guru_id',
     ];
+
+    /**
+     * Get all siswa in this kelas.
+     */
+    public function siswa()
+    {
+        return $this->hasMany(Siswa::class, 'kelas_id', 'id_kelas');
+    }
+
+    /**
+     * Get the guru (wali kelas) for this kelas.
+     */
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'guru_id', 'id_guru');
+    }
 }

@@ -1,133 +1,151 @@
 @extends('layouts.index')
-
-@php
-    $role = 'admin';
-@endphp
-
+@php $role = 'admin'; @endphp
 @section('title', 'Data Siswa')
 
 @section('content')
-@include('components.navbar')
+@include('components.navbar', ['role' => $role])
 
-<div class="px-4 py-6">
+<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
+        <p class="text-sm font-semibold text-slate-500">Biodata Siswa</p>
+        <h1 class="text-3xl font-bold text-slate-950">Kelola Data Siswa</h1>
+        <p class="text-sm text-slate-500">Lihat dan tambahkan data siswa sekolah.</p>
+    </div>
+    <a href="{{ route('admin.siswa.create') }}"
+        class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+        + Tambah Data Siswa
+    </a>
+</div>
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Data Siswa</h1>
-            <p class="text-gray-500 text-sm">Kelola semua siswa....</p>
-        </div>
+@if (session('success'))
+    <div class="mb-6 rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700">
+        {{ session('success') }}
+    </div>
+@endif
 
-        <div class="flex gap-3 mt-4 md:mt-0">
-            <a href="{{ route('admin.biodata.create') }}"
-                class="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow hover:bg-blue-700">
-                <!-- Heroicon Plus -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 4v16m8-8H4" />
-                </svg>
-                Tambah Data Siswa
-            </a>
-
-            <button
-                class="flex items-center gap-2 bg-yellow-400 text-white px-5 py-3 rounded-xl shadow hover:bg-yellow-500">
-                <!-- Heroicon Arrow Down -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v-8m0 8l-3-3m3 3l3-3" />
-                </svg>
-                Import Data Siswa
-            </button>
-        </div>
+<div class="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="mb-6">
+        <label class="mb-2 block text-sm font-semibold text-slate-500">Pencarian</label>
+        <form action="{{ route('admin.siswa.index') }}" method="GET">
+            <input type="text" name="search" value="{{ $search ?? '' }}"
+                placeholder="Cari nama, NIS, atau NISN siswa..."
+                class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+        </form>
     </div>
 
-    <!-- Card -->
-    <div class="bg-white border border-green-200 rounded-2xl p-6">
-
-        <!-- Search -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium mb-2">Pencarian</label>
-            <input type="text" placeholder="Cari nama siswa.."
-                class="border rounded-xl px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-
-        <!-- Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border">
-                <thead class="bg-[#2E3192] text-white">
-                    <tr>
-                        <th class="p-3">#</th>
-                        <th class="p-3 text-left">Nama</th>
-                        <th class="p-3 text-left">Kelas</th>
-                        <th class="p-3 text-left">NIS</th>
-                        <th class="p-3 text-left">NUPTK</th>
-                        <th class="p-3 text-left">Jenis Kelamin</th>
-                        <th class="p-3 text-left">Telepon</th>
-                        <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-left">Aksi</th>
-                    </tr>
-                </thead>
-
-                <tbody class="bg-gray-50">
-                    @forelse ($admins as $index => $admin)
-                        <tr class="border-t">
-                            <td class="p-3">{{ $index + 1 }}</td>
-                            <td class="p-3 font-medium">{{ $admin->nama }}</td>
-                            <td class="p-3">VII A</td>
-                            <td class="p-3">{{ $admin->nip ?? '-' }}</td>
-                            <td class="p-3">{{ $admin->nuptk ?? '-' }}</td>
-                            <td class="p-3">{{ $admin->gender ?? '-' }}</td>
-                            <td class="p-3">{{ $admin->phone ?? '-' }}</td>
-                            <td class="p-3">
-                                <span class="bg-green-500 text-white px-3 py-1 rounded text-xs">
-                                    AKTIF
-                                </span>
-                            </td>
-
-                            <!-- Aksi -->
-                            <td class="p-3 flex gap-2">
-
-                                <!-- Detail -->
-                                <button class="bg-green-500 text-white p-2 rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                </button>
-
-                                <!-- Edit -->
-                                <a href="{{ route('admin.biodata.edit', $admin->id) }}"
-                                    class="bg-blue-500 text-white p-2 rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5h2m-1-1v2m-6 8l-1 4 4-1 9-9-3-3-9 9z" />
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-[#1E2567] text-white">
+                <tr>
+                    <th class="px-4 py-4 text-left font-semibold">#</th>
+                    <th class="px-4 py-4 text-left font-semibold">Nama</th>
+                    <th class="px-4 py-4 text-left font-semibold">Kelas</th>
+                    <th class="px-4 py-4 text-left font-semibold">NIS</th>
+                    <th class="px-4 py-4 text-left font-semibold">NISN</th>
+                    <th class="px-4 py-4 text-left font-semibold">Jenis Kelamin</th>
+                    <th class="px-4 py-4 text-left font-semibold">Tanggal Lahir</th>
+                    <th class="px-4 py-4 text-left font-semibold">Status</th>
+                    <th class="px-4 py-4 text-left font-semibold">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+                @forelse ($siswas as $index => $siswa)
+                    <tr class="odd:bg-slate-50 even:bg-white">
+                        <td class="px-4 py-4 text-slate-600">{{ $index + 1 }}</td>
+                        <td class="px-4 py-4 font-semibold text-slate-900">{{ $siswa->nama }}</td>
+                        <td class="px-4 py-4 text-slate-700">
+                            {{ $siswa->kelas->nama_kelas ?? '-' }}
+                        </td>
+                        <td class="px-4 py-4 text-slate-700">{{ $siswa->nis }}</td>
+                        <td class="px-4 py-4 text-slate-700">{{ $siswa->nisn }}</td>
+                        <td class="px-4 py-4 text-slate-700">
+                            {{ $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                        </td>
+                        <td class="px-4 py-4 text-slate-700">
+                            {{ $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->format('d/m/Y') : '-' }}
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
+                                {{ $siswa->status === 'aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                                {{ ucfirst($siswa->status) }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="flex items-center gap-2">
+                                {{-- Edit --}}
+                                <a href="{{ route('admin.siswa.edit', $siswa->id_siswa) }}"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 transition hover:bg-amber-200"
+                                    title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
                                     </svg>
                                 </a>
-
-                                <!-- Delete -->
-                                <button onclick="confirmDelete('{{ route('admin.biodata.destroy', $admin->id) }}','{{ $admin->nama }}')"
-                                    class="bg-red-500 text-white p-2 rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 7h12M9 7v12m6-12v12M5 7l1-3h12l1 3" />
+                                {{-- Hapus --}}
+                                <button type="button"
+                                    onclick="confirmDelete('{{ route('admin.siswa.destroy', $siswa->id_siswa) }}', '{{ $siswa->nama }}')"
+                                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-600 transition hover:bg-red-200"
+                                    title="Hapus">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                     </svg>
                                 </button>
-
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center py-4">Tidak ada data</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr class="bg-white">
+                        <td colspan="9" class="px-4 py-6 text-center text-slate-500">Tidak ada data siswa.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
+
+{{-- Modal Konfirmasi Hapus --}}
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
+    <div class="relative w-full max-w-sm rounded-[28px] bg-white p-8 shadow-xl">
+        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-8 w-8 text-red-600">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+        </div>
+        <h2 class="mb-2 text-center text-lg font-bold text-slate-900">Hapus Siswa</h2>
+        <p class="mb-1 text-center text-sm text-slate-500">Apakah kamu yakin ingin menghapus</p>
+        <p id="deleteSiswaName" class="mb-6 text-center text-sm font-semibold text-slate-800"></p>
+        <p class="mb-6 text-center text-xs text-slate-400">Tindakan ini tidak dapat dibatalkan.</p>
+        <div class="flex gap-3">
+            <button onclick="closeDeleteModal()"
+                class="flex-1 rounded-[14px] border border-slate-200 bg-slate-50 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                Batal
+            </button>
+            <form id="deleteForm" method="POST" class="flex-1">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                    class="w-full rounded-[14px] bg-red-600 py-3 text-sm font-semibold text-white transition hover:bg-red-700">
+                    Ya, Hapus
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(actionUrl, nama) {
+        document.getElementById('deleteForm').action = actionUrl;
+        document.getElementById('deleteSiswaName').textContent = nama;
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeleteModal(); });
+</script>
+
 @endsection

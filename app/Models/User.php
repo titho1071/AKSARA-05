@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Guru;
 
 class User extends Authenticatable
 {
@@ -47,5 +48,21 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the guru profile for this user.
+     */
+    public function guru()
+    {
+        return $this->hasOne(Guru::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the orang tua profile for this user.
+     */
+    public function orangTua()
+    {
+        return $this->hasOne(OrangTua::class, 'user_id', 'id');
     }
 }
