@@ -41,6 +41,25 @@ class KelasController extends Controller
             'guru_id' => 'nullable|integer|exists:guru,id_guru',
         ]);
 
+        // Cek duplikat nama kelas
+        $exists = Kelas::whereRaw('LOWER(nama_kelas) = ?', [strtolower($request->nama_kelas)])->exists();
+        if ($exists) {
+            return response()->json([
+                'message' => 'Kelas dengan nama "' . $request->nama_kelas . '" sudah ada. Gunakan nama yang berbeda.'
+            ], 422);
+        }
+
+        // Cek 1 guru hanya boleh jadi wali 1 kelas
+        if ($request->guru_id) {
+            $guruKelas = Kelas::where('guru_id', $request->guru_id)->first();
+            if ($guruKelas) {
+                $namaGuru = DB::table('guru')->where('id_guru', $request->guru_id)->value('nama');
+                return response()->json([
+                    'message' => 'Guru "' . $namaGuru . '" sudah menjadi wali kelas "' . $guruKelas->nama_kelas . '". Satu guru hanya boleh menjadi wali kelas di satu kelas.'
+                ], 422);
+            }
+        }
+
         $kelas = Kelas::create($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id']));
 
         return response()->json($kelas, 201);
@@ -56,11 +75,34 @@ class KelasController extends Controller
         $kelas = Kelas::findOrFail($id);
 
         $request->validate([
-    'nama_kelas' => 'required|string|max:100',
-    'tingkat' => 'required|integer|min:1',
-    'tapel_id' => 'required|string|exists:tahun_pelajaran,id_tapel',
-    'guru_id' => 'nullable|integer|exists:guru,id_guru',
-]);
+            'nama_kelas' => 'required|string|max:100',
+            'tingkat' => 'required|integer|min:1',
+            'tapel_id' => 'required|string|exists:tahun_pelajaran,id_tapel',
+            'guru_id' => 'nullable|integer|exists:guru,id_guru',
+        ]);
+
+        // Cek duplikat nama kelas (kecuali record yang sedang diedit)
+        $exists = Kelas::whereRaw('LOWER(nama_kelas) = ?', [strtolower($request->nama_kelas)])
+            ->where('id_kelas', '!=', $id)
+            ->exists();
+        if ($exists) {
+            return response()->json([
+                'message' => 'Kelas dengan nama "' . $request->nama_kelas . '" sudah ada. Gunakan nama yang berbeda.'
+            ], 422);
+        }
+
+        // Cek 1 guru hanya boleh jadi wali 1 kelas (kecuali kelas yang sedang diedit)
+        if ($request->guru_id) {
+            $guruKelas = Kelas::where('guru_id', $request->guru_id)
+                ->where('id_kelas', '!=', $id)
+                ->first();
+            if ($guruKelas) {
+                $namaGuru = DB::table('guru')->where('id_guru', $request->guru_id)->value('nama');
+                return response()->json([
+                    'message' => 'Guru "' . $namaGuru . '" sudah menjadi wali kelas "' . $guruKelas->nama_kelas . '". Satu guru hanya boleh menjadi wali kelas di satu kelas.'
+                ], 422);
+            }
+        }
 
         $kelas->update($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id']));
 

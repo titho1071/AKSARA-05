@@ -56,6 +56,10 @@
             <div>
                 <label for="nama_kelas" class="block text-sm font-medium text-slate-700 mb-2">Nama Kelas</label>
                 <input id="nama_kelas" type="text" maxlength="100" placeholder="Contoh: VII A" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <p id="nama-kelas-hint" class="hidden mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 shrink-0"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
+                    <span id="nama-kelas-hint-text"></span>
+                </p>
             </div>
             <div>
                 <label for="tingkat" class="block text-sm font-medium text-slate-700 mb-2">Tingkat</label>
@@ -72,6 +76,10 @@
                 <select id="guru_id" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     <option value="">-- Pilih Guru --</option>
                 </select>
+                <p id="guru-hint" class="hidden mt-1.5 text-xs text-orange-600 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 shrink-0"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
+                    <span id="guru-hint-text"></span>
+                </p>
             </div>
             <div class="md:col-span-2">
                 <label class="inline-flex items-center gap-3 text-sm text-slate-600">
@@ -110,6 +118,11 @@
             guru_id: document.getElementById('guru_id'),
             confirm: document.getElementById('kelas-confirm')
         };
+
+        const namaKelasHint = document.getElementById('nama-kelas-hint');
+        const namaKelasHintText = document.getElementById('nama-kelas-hint-text');
+        const guruHint = document.getElementById('guru-hint');
+        const guruHintText = document.getElementById('guru-hint-text');
 
         let editingId = null;
 
@@ -263,6 +276,52 @@ function openModal(item = null) {
             alertBox.classList.remove('hidden');
         }
 
+        function checkDuplicateNama() {
+            const val = fields.nama_kelas.value.trim().toLowerCase();
+            if (!val) {
+                namaKelasHint.classList.add('hidden');
+                fields.nama_kelas.classList.remove('border-red-400', 'focus:border-red-400', 'focus:ring-red-400');
+                return false;
+            }
+            const duplicate = kelasData.find(k =>
+                k.nama_kelas.toLowerCase() === val && k.id_kelas !== editingId
+            );
+            if (duplicate) {
+                namaKelasHintText.textContent = `Kelas "${duplicate.nama_kelas}" sudah ada!`;
+                namaKelasHint.classList.remove('hidden');
+                fields.nama_kelas.classList.add('border-red-400');
+                return true;
+            } else {
+                namaKelasHint.classList.add('hidden');
+                fields.nama_kelas.classList.remove('border-red-400');
+                return false;
+            }
+        }
+
+        function checkDuplicateGuru() {
+            const guruId = fields.guru_id.value;
+            if (!guruId) {
+                guruHint.classList.add('hidden');
+                fields.guru_id.classList.remove('border-orange-400');
+                return false;
+            }
+            const guruIdNum = Number(guruId);
+            const conflict = kelasData.find(k =>
+                k.guru_id && Number(k.guru_id) === guruIdNum && k.id_kelas !== editingId
+            );
+            if (conflict) {
+                const namaGuru = fields.guru_id.options[fields.guru_id.selectedIndex]?.text || 'Guru ini';
+                guruHintText.textContent = `${namaGuru} sudah menjadi wali kelas "${conflict.nama_kelas}"!`;
+                guruHint.classList.remove('hidden');
+                fields.guru_id.classList.add('border-orange-400');
+                return true;
+            } else {
+                guruHint.classList.add('hidden');
+                fields.guru_id.classList.remove('border-orange-400');
+                return false;
+            }
+        }
+
         async function saveKelas() {
     const nama_kelas = fields.nama_kelas.value.trim();
     const tingkat = fields.tingkat.value.trim();
@@ -275,6 +334,12 @@ function openModal(item = null) {
         return;
     }
 
+    // Cek duplikat secara lokal sebelum kirim ke server
+    if (checkDuplicateNama()) {
+        showError(`Kelas "${nama_kelas}" sudah ada. Gunakan nama yang berbeda.`);
+        return;
+    }
+
     if (!tingkat || isNaN(tingkat) || Number(tingkat) <= 0) {
         showError('Masukkan tingkat kelas yang valid.');
         return;
@@ -282,6 +347,16 @@ function openModal(item = null) {
 
     if (!tapel_id) {
         showError('Pilih tahun pelajaran.');
+        return;
+    }
+
+    // Cek duplikat guru wali kelas secara lokal
+    if (checkDuplicateGuru()) {
+        const namaGuru = fields.guru_id.options[fields.guru_id.selectedIndex]?.text || 'Guru ini';
+        const conflict = kelasData.find(k =>
+            k.guru_id && Number(k.guru_id) === Number(guru_id) && k.id_kelas !== editingId
+        );
+        showError(`${namaGuru} sudah menjadi wali kelas "${conflict?.nama_kelas}". Satu guru hanya boleh di satu kelas.`);
         return;
     }
 
@@ -371,6 +446,16 @@ function openModal(item = null) {
         btnSave.addEventListener('click', function (event) {
             event.preventDefault();
             saveKelas();
+        });
+
+        // Real-time cek duplikat saat mengetik nama kelas
+        fields.nama_kelas.addEventListener('input', function () {
+            checkDuplicateNama();
+        });
+
+        // Real-time cek guru sudah jadi wali kelas lain
+        fields.guru_id.addEventListener('change', function () {
+            checkDuplicateGuru();
         });
 
         loadGuruOptions();

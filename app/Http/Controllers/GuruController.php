@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Pengumuman;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +20,32 @@ class GuruController extends Controller
 
         return DB::table('roles')->where('nama_role', 'guru')->value('id_role')
             ?: abort(500, 'Role guru tidak ditemukan.');
+    }
+
+    public function dashboard()
+    {
+        $user = auth()->user();
+        
+        // Ambil data guru berdasarkan user_id
+        $guru = DB::table('guru')->where('user_id', $user->id)->first();
+        
+        if (!$guru) {
+            // Jika data guru tidak ditemukan (mungkin baru dibuat user-nya saja)
+            $pengumuman = Pengumuman::whereNull('kelas_id')->orderByDesc('created_at')->get();
+            return view('pages.dashboard-guru', compact('pengumuman'));
+        }
+
+        // Ambil ID kelas yang diajar oleh guru ini
+        $kelasIds = Kelas::where('guru_id', $guru->id_guru)->pluck('id_kelas');
+
+        // Ambil pengumuman yang sesuai dengan kelas guru tersebut atau untuk semua kelas (kelas_id null)
+        $pengumuman = Pengumuman::whereIn('kelas_id', $kelasIds)
+            ->orWhereNull('kelas_id')
+            ->orderByDesc('created_at')
+            ->take(5) // Ambil 5 terbaru saja untuk dashboard
+            ->get();
+
+        return view('pages.dashboard-guru', compact('pengumuman'));
     }
 
     public function index(Request $request)

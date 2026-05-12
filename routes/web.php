@@ -76,20 +76,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/siswa', fn() => view('Dashboard_Admin.Biodata.biodata-siswa'))->name('siswa');
 
     // Dokumentasi, Pengumuman, Jadwal
-    Route::get('/dokumentasi', fn() => view('Dashboard_Admin.dokumentasi'))->name('dokumentasi');
-    Route::get('/pengumuman', fn() => view('Dashboard_Admin.pengumuman-admin'))->name('pengumuman');
-    Route::get('/mata-pelajaran', fn() => view('Dashboard_Admin.mata-pelajaran'))->name('mata-pelajaran');
-    Route::get('/jam-pelajaran', fn() => view('Dashboard_Admin.jam-pelajaran'))->name('jam-pelajaran');
-    Route::get('/jadwal', fn() => view('Dashboard_Admin.jadwal-admin'))->name('jadwal');
-
-Route::get('/pengumuman/create', [PengumumanController::class, 'create'])
-    ->name('pengumuman.create');
     Route::get('/dokumentasi', [DokumentasiAdminController::class, 'index'])->name('dokumentasi');
     Route::get('/dokumentasi/{id}', [DokumentasiAdminController::class, 'show'])->name('dokumentasi.show');
     Route::get('/pengumuman', fn() => view('Dashboard_Admin.Pengumuman.pengumuman-admin'))->name('pengumuman');
+    Route::get('/pengumuman/create', [PengumumanController::class, 'create'])->name('pengumuman.create');
+    Route::get('/pengumuman/{pengumuman}/edit', [PengumumanController::class, 'edit'])->name('pengumuman.edit');
+    Route::get('/pengumuman/{pengumuman}', [PengumumanController::class, 'detail'])->name('pengumuman.show');
     Route::get('/mata-pelajaran', fn() => view('Dashboard_Admin.Lainnya.mata-pelajaran'))->name('mata-pelajaran');
     Route::get('/jam-pelajaran', fn() => view('Dashboard_Admin.Lainnya.jam-pelajaran'))->name('jam-pelajaran');
-    Route::get('/pengumuman/create', fn() => view('Dashboard_Admin.Pengumuman.pengumuman-tambah'))->name('pengumuman.create');
     Route::get('/jadwal', fn() => view('Dashboard_Admin.Jadwal.jadwal-admin'))->name('jadwal');
 });
 
@@ -101,7 +95,7 @@ Route::get('/pengumuman/create', [PengumumanController::class, 'create'])
 */
 Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
 
-    Route::get('/dashboard', fn() => view('pages.dashboard-guru'))->name('dashboard');
+    Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
 
     // Absensi
     Route::get('/absensi', fn() => view('Dashboard_Guru.Absensi.absensi'))->name('absensi');
@@ -120,7 +114,13 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     Route::delete('/dokumentasi/{id}', [DokumentasiGuruController::class, 'destroy'])->name('dokumentasi.destroy');
 
     // Pengumuman
-    Route::get('/pengumuman', fn() => view('Dashboard_Guru.Pengumuman.pengumuman'))->name('pengumuman');
+    Route::get('/pengumuman', fn() => view('Dashboard_Guru.Pengumuman.pengumuman-guru'))->name('pengumuman');
+    Route::get('/pengumuman/create', fn() => view('Dashboard_Guru.Pengumuman.pengumuman-tambah-guru'))->name('pengumuman.create');
+    Route::get('/pengumuman/{id}/edit', fn() => view('Dashboard_Guru.Pengumuman.pengumuman-edit-guru'))->name('pengumuman.edit');
+    Route::get('/pengumuman/{id}', function($id) {
+        $pengumuman = \App\Models\Pengumuman::with('kelas')->findOrFail($id);
+        return view('Dashboard_Guru.Pengumuman.pengumuman-detail-guru', compact('pengumuman'));
+    })->name('pengumuman.show');
 });
 
 
@@ -130,5 +130,12 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:orang_tua'])->prefix('orangtua')->name('orangtua.')->group(function () {
-    Route::get('/dashboard', fn() => view('pages.dashboard-orangtua'))->name('dashboard');
+    Route::get('/dashboard', [OrangTuaController::class, 'dashboard'])->name('dashboard');
+    Route::get('/pengumuman', [OrangTuaController::class, 'pengumuman'])->name('pengumuman');
+    Route::get('/pengumuman/{id}', [OrangTuaController::class, 'pengumumanDetail'])->name('pengumuman.detail');
+    Route::get('/jadwal', [OrangTuaController::class, 'jadwal'])->name('jadwal');
+    Route::get('/profil', [OrangTuaController::class, 'profil'])->name('profil');
+    Route::put('/profil/update', [OrangTuaController::class, 'updateProfil'])->name('profil.update');
+    Route::put('/profil/foto', [OrangTuaController::class, 'updateFoto'])->name('profil.foto');
+    Route::put('/profil/akun', [OrangTuaController::class, 'updateAkun'])->name('profil.akun');
 });

@@ -64,9 +64,9 @@
             Dokumentasi
         </a>
 
-        <a href="#"
+        <a href="{{ route('guru.pengumuman') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'pengumuman' 
+            {{ $route === 'guru.pengumuman' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Pengumuman

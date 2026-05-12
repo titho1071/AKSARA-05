@@ -12,7 +12,7 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
                 <p class="text-gray-600 mt-1">Kelola Pengumuman</p>
             </div>
-            <a href="{{ route('admin.pengumuman.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors inline-flex">
+            <a id="btn-add-pengumuman" href="{{ route('admin.pengumuman.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors inline-flex">
                 <span>+</span> Tambah Pengumuman
             </a>
         </div>
@@ -119,12 +119,22 @@
 
     <!-- Pengumuman Table -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div id="pengumuman-detail" class="hidden mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 id="detail-judul" class="text-lg font-semibold text-slate-900">Detail Pengumuman</h3>
+                    <p id="detail-deskripsi" class="mt-2 text-sm text-slate-700"></p>
+                    <p id="detail-meta" class="mt-3 text-sm text-slate-600"></p>
+                </div>
+                <button id="btn-detail-close" type="button" class="text-slate-500 hover:text-slate-900">Tutup</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full min-w-[720px]">
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Judul</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Kelas ID</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Kelas</th>
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Mulai</th>
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Selesai</th>
                         <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Aksi</th>
@@ -154,9 +164,22 @@
             const btnCancel = document.getElementById('btn-cancel');
             const btnCancelBottom = document.getElementById('btn-cancel-bottom');
             const btnSave = document.getElementById('btn-save');
+            const btnDetailClose = document.getElementById('btn-detail-close');
             const formTitle = document.getElementById('form-title');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const defaultFetchOptions = {
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            };
             const formDescription = document.getElementById('form-description');
             const formContainer = document.getElementById('pengumuman-form');
+            const detailContainer = document.getElementById('pengumuman-detail');
+            const detailJudul = document.getElementById('detail-judul');
+            const detailDeskripsi = document.getElementById('detail-deskripsi');
+            const detailMeta = document.getElementById('detail-meta');
             const alertBox = document.getElementById('pengumuman-alert');
             const searchInput = document.getElementById('search-input');
             const tbody = document.getElementById('pengumuman-list');
@@ -208,6 +231,17 @@
                 resetForm();
             }
 
+            function showDetail(data) {
+                detailJudul.textContent = data.judul || 'Detail Pengumuman';
+                detailDeskripsi.textContent = data.deskripsi || '-';
+                detailMeta.textContent = `Kelas: ${data.kelas_id || '-'} · Mulai: ${formatDateString(data.tanggal_mulai)} · Selesai: ${formatDateString(data.tanggal_selesai)}`;
+                detailContainer.classList.remove('hidden');
+            }
+
+            function hideDetail() {
+                detailContainer.classList.add('hidden');
+            }
+
             function formatDateString(dateString) {
                 if (!dateString) return '-';
                 const date = new Date(dateString);
@@ -230,13 +264,31 @@
                                 <div>${item.judul}</div>
                                 ${item.file_url ? `<a href="${item.file_url}" class="text-blue-600 text-sm mt-1 inline-block hover:underline" target="_blank">Lampiran</a>` : ''}
                             </td>
-                            <td class="px-4 py-4 text-gray-700">${item.kelas_id || '-'}</td>
+                            <td class="px-4 py-4 text-gray-700">${item.kelas_nama || 'Semua Kelas'}</td>
                             <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_mulai)}</td>
                             <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_selesai)}</td>
                             <td class="px-4 py-4">
-                                <div class="flex gap-3">
-                                    <button type="button" data-action="edit" data-id="${item.id_pengumuman}" class="text-yellow-500 hover:text-yellow-700 transition-colors" title="Edit">Edit</button>
-                                    <button type="button" data-action="delete" data-id="${item.id_pengumuman}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">Hapus</button>
+                                <div class="flex items-center gap-2">
+                                    <a href="/admin/pengumuman/${item.id_pengumuman}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Detail">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    </a>
+                                    <a href="/admin/pengumuman/${item.id_pengumuman}/edit" class="text-yellow-500 hover:text-yellow-700 transition-colors" title="Edit">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 20h9" />
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button" data-action="delete" data-id="${item.id_pengumuman}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6" />
+                                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+                                            <line x1="10" y1="11" x2="10" y2="17" />
+                                            <line x1="14" y1="11" x2="14" y2="17" />
+                                        </svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -250,7 +302,9 @@
             async function loadPengumuman(search = '') {
                 try {
                     const url = search ? `${apiUrl}?search=${encodeURIComponent(search)}` : apiUrl;
-                    const response = await fetch(url);
+                    const response = await fetch(url, {
+                        ...defaultFetchOptions,
+                    });
                     const payload = await response.json();
 
                     if (!payload.success) {
@@ -283,6 +337,7 @@
                     }
 
                     const response = await fetch(editingId ? `${apiUrl}/${editingId}` : apiUrl, {
+                        ...defaultFetchOptions,
                         method,
                         body: payload,
                     });
@@ -309,6 +364,7 @@
 
                 try {
                     const response = await fetch(`${apiUrl}/${id}`, {
+                        ...defaultFetchOptions,
                         method: 'DELETE',
                     });
 
@@ -333,13 +389,31 @@
                 const action = button.dataset.action;
                 const id = button.dataset.id;
 
+                if (action === 'detail' && id) {
+                    closeForm();
+                    hideAlert();
+                    fetch(`${apiUrl}/${id}`, {
+                        ...defaultFetchOptions,
+                    })
+                        .then(response => response.json())
+                        .then(payload => {
+                            if (!payload.success) {
+                                throw new Error('Gagal memuat detail pengumuman');
+                            }
+                            showDetail(payload.data);
+                        })
+                        .catch(error => showAlert(error.message || 'Tidak dapat memuat detail pengumuman'));
+                }
+
                 if (action === 'edit' && id) {
                     openForm();
                     editingId = id;
                     formTitle.textContent = 'Edit Pengumuman';
                     formDescription.textContent = 'Perbarui informasi pengumuman yang dipilih.';
                     hideAlert();
-                    fetch(`${apiUrl}/${id}`)
+                    fetch(`${apiUrl}/${id}`, {
+                        ...defaultFetchOptions,
+                    })
                         .then(response => response.json())
                         .then(payload => {
                             if (!payload.success) {
@@ -361,13 +435,17 @@
                 }
             });
 
-            btnAdd.addEventListener('click', function () {
-                resetForm();
-                openForm();
-            });
+            if (btnAdd) {
+                // Let the anchor link navigate to the create page.
+            }
 
             btnCancel.addEventListener('click', closeForm);
             btnCancelBottom.addEventListener('click', closeForm);
+            if (btnDetailClose) {
+                btnDetailClose.addEventListener('click', function () {
+                    hideDetail();
+                });
+            }
             btnSearch.addEventListener('click', function () {
                 loadPengumuman(searchInput.value.trim());
             });

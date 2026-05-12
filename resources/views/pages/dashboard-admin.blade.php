@@ -1,4 +1,4 @@
-﻿@extends('layouts.index')
+@extends('layouts.index')
 
 @php
     $role = 'admin';
@@ -145,37 +145,41 @@
             <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Detail</a>
         </div>
 
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
+        <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200" x-data="pengumumanDashboard()" x-init="initPengumuman()">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-semibold text-slate-900">Pengumuman</h2>
                 </div>
-                <div x-data="{ open: false, selected: 'Kelas III A' }" class="relative">
+                <div class="relative">
                         <button @click="open = !open" class="inline-flex items-center justify-between gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 w-full sm:w-auto">
-                            <span x-text="selected"></span>
+                            <span x-text="selectedClassName"></span>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div x-show="open" x-transition @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                            <button @click="selected = 'Kelas I A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas I A</button>
-                            <button @click="selected = 'Kelas II A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas II A</button>
-                            <button @click="selected = 'Kelas III A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III A</button>
-                            <button @click="selected = 'Kelas III B'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III B</button>
+                        <div x-show="open" x-transition @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg" style="display: none;">
+                            <button @click="selectClass('', 'Semua Kelas')" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Semua Kelas</button>
+                            <template x-for="k in classes" :key="k.id_kelas">
+                                <button @click="selectClass(k.id_kelas, k.nama_kelas)" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100" x-text="k.nama_kelas"></button>
+                            </template>
                         </div>
                     </div>
             </div>
             <div class="space-y-4">
-                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="font-semibold text-slate-900">Pengumuman Libur Lebaran</p>
-                    <p class="text-slate-500 text-sm mt-1">Informasi terkait jadwal libur dan kembali sekolah.</p>
-                </div>
-                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="font-semibold text-slate-900">Pengumuman Tahun Ajaran Baru</p>
-                    <p class="text-slate-500 text-sm mt-1">Informasi terkait persiapan tahun ajaran baru 2024/2025.</p>
-                </div>
+                <template x-if="isLoading">
+                    <p class="text-sm text-slate-500">Memuat pengumuman...</p>
+                </template>
+                <template x-if="!isLoading && filteredPengumuman.length === 0">
+                    <p class="text-sm text-slate-500">Belum ada pengumuman.</p>
+                </template>
+                <template x-for="p in filteredPengumuman" :key="p.id_pengumuman">
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                        <p class="font-semibold text-slate-900" x-text="p.judul"></p>
+                        <p class="text-slate-500 text-sm mt-1" x-text="p.deskripsi"></p>
+                    </div>
+                </template>
             </div>
-            <a href="#" class="text-blue-500 text-sm font-medium mt-6 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('admin.pengumuman') }}" class="text-blue-500 text-sm font-medium mt-6 inline-block hover:underline">Lihat Semua Pengumuman</a>
         </div>
     </div>
 
@@ -245,5 +249,53 @@
                 }
             });
         }
+    });
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('pengumumanDashboard', () => ({
+            open: false,
+            selectedClassId: '',
+            selectedClassName: 'Semua Kelas',
+            classes: [],
+            pengumuman: [],
+            isLoading: true,
+            
+            async initPengumuman() {
+                this.isLoading = true;
+                try {
+                    // Fetch classes
+                    const classRes = await fetch('/admin/kelas/data');
+                    if (classRes.ok) {
+                        this.classes = await classRes.json();
+                    }
+                    
+                    // Fetch pengumuman
+                    const pengRes = await fetch('/api/pengumuman');
+                    if (pengRes.ok) {
+                        const data = await pengRes.json();
+                        if (data.success) {
+                            this.pengumuman = data.data;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error fetching data', e);
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            
+            selectClass(id, name) {
+                this.selectedClassId = id;
+                this.selectedClassName = name;
+                this.open = false;
+            },
+            
+            get filteredPengumuman() {
+                if (!this.selectedClassId) {
+                    return this.pengumuman.slice(0, 5); // Tampilkan maksimal 5 jika "Semua Kelas"
+                }
+                return this.pengumuman.filter(p => p.kelas_id == this.selectedClassId || p.kelas_id == null).slice(0, 5);
+            }
+        }));
     });
 </script>

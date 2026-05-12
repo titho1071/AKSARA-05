@@ -16,33 +16,28 @@
 
     <!-- Student Profile Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 px-4">
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-lg text-white">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-lg font-bold">YA</div>
-                <div>
-                    <p class="font-semibold">Yusuf Ahmad</p>
-                    <p class="text-sm text-blue-100">Kelas III A</p>
+        @forelse($siswa as $s)
+            @php
+                $colors = ['blue', 'green', 'purple', 'indigo', 'rose', 'amber'];
+                $color = $colors[$loop->index % count($colors)];
+                $initials = collect(explode(' ', $s->nama))->map(fn($n) => strtoupper(substr($n, 0, 1)))->take(2)->implode('');
+            @endphp
+            <div class="bg-gradient-to-br from-{{ $color }}-500 to-{{ $color }}-600 rounded-2xl p-6 shadow-lg text-white">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-lg font-bold">
+                        {{ $initials }}
+                    </div>
+                    <div>
+                        <p class="font-semibold">{{ $s->nama }}</p>
+                        <p class="text-sm text-{{ $color }}-100">{{ $s->nama_kelas }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 shadow-lg text-white">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-lg font-bold">SA</div>
-                <div>
-                    <p class="font-semibold">Siti Aiayah</p>
-                    <p class="text-sm text-green-100">Kelas V B</p>
-                </div>
+        @empty
+            <div class="col-span-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
+                <p class="text-gray-500">Data siswa tidak ditemukan.</p>
             </div>
-        </div>
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 shadow-lg text-white">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-lg font-bold">MR</div>
-                <div>
-                    <p class="font-semibold">M. Rafi</p>
-                    <p class="text-sm text-purple-100">Kelas I D</p>
-                </div>
-            </div>
-        </div>
+        @endforelse
     </div>
 
     <!-- Charts and Content Row -->
@@ -65,14 +60,23 @@
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Pengumuman</h2>
             <div class="space-y-4">
-                <div class="pb-4 border-b border-gray-200">
-                    <p class="text-gray-700 font-medium">Pengumuman Libur Lebaran</p>
-                </div>
-                <div>
-                    <p class="text-gray-700 font-medium">Pengumuman Libur Lebaran</p>
-                </div>
+                @forelse($pengumuman as $item)
+                    <div class="pb-4 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
+                        <a href="{{ route('orangtua.pengumuman.detail', $item->id_pengumuman) }}" class="text-gray-700 font-medium hover:text-blue-600 transition-colors">{{ $item->judul }}</a>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs text-gray-400">{{ $item->created_at->diffForHumans() }}</span>
+                            @if($item->kelas_id)
+                                <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">{{ $item->kelas?->nama_kelas }}</span>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-4">
+                        <p class="text-gray-500">Tidak ada pengumuman terbaru.</p>
+                    </div>
+                @endforelse
             </div>
-            <a href="#" class="text-blue-500 text-sm font-medium mt-6 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('orangtua.pengumuman') }}" class="text-blue-500 text-sm font-medium mt-6 inline-block hover:underline">Lihat Detail</a>
         </div>
     </div>
 

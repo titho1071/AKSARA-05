@@ -13,13 +13,22 @@ class PengumumanController extends Controller
     {
         $search = $request->query('search');
 
-        $query = Pengumuman::query();
+        $query = Pengumuman::with('kelas');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('judul', 'like', "%{$search}%")
                     ->orWhere('deskripsi', 'like', "%{$search}%")
                     ->orWhere('kelas_id', 'like', "%{$search}%");
+            })->orWhereHas('kelas', function ($q) use ($search) {
+                $q->where('nama_kelas', 'like', "%{$search}%");
+            });
+        }
+
+        $kelasId = $request->query('kelas_id');
+        if ($kelasId !== null) {
+            $query->where(function ($q) use ($kelasId) {
+                $q->where('kelas_id', $kelasId)->orWhereNull('kelas_id');
             });
         }
 
@@ -29,6 +38,7 @@ class PengumumanController extends Controller
                 'judul' => $pengumuman->judul,
                 'deskripsi' => $pengumuman->deskripsi,
                 'kelas_id' => $pengumuman->kelas_id,
+                'kelas_nama' => $pengumuman->kelas ? $pengumuman->kelas->nama_kelas : 'Semua Kelas',
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
@@ -53,6 +63,7 @@ class PengumumanController extends Controller
                 'judul' => $pengumuman->judul,
                 'deskripsi' => $pengumuman->deskripsi,
                 'kelas_id' => $pengumuman->kelas_id,
+                'kelas_nama' => $pengumuman->kelas ? $pengumuman->kelas->nama_kelas : 'Semua Kelas',
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
@@ -125,9 +136,21 @@ class PengumumanController extends Controller
         ]);
     }
     public function create()
-{
-    $kelas = Kelas::all();
+    {
+        $kelas = Kelas::all();
 
-    return view('Dashboard_Admin.pengumuman-tambah', compact('kelas'));
-}
+        return view('Dashboard_Admin.Pengumuman.pengumuman-tambah', compact('kelas'));
+    }
+
+    public function edit(Pengumuman $pengumuman)
+    {
+        $kelas = Kelas::all();
+
+        return view('Dashboard_Admin.Pengumuman.pengumuman-edit', compact('pengumuman', 'kelas'));
+    }
+
+    public function detail(Pengumuman $pengumuman)
+    {
+        return view('Dashboard_Admin.Pengumuman.pengumuman-detail', compact('pengumuman'));
+    }
 }

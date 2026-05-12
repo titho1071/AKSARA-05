@@ -15,9 +15,9 @@
     <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
         <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
 
-        <a href="{{ route('admin.dashboard') }}"
+        <a href="{{ route('orangtua.dashboard') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.dashboard' 
+            {{ $route === 'orangtua.dashboard' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }} ">
             Dashboard
@@ -39,36 +39,35 @@
             Dokumentasi
         </a>
 
-        <a href="{{ route('admin.pengumuman') }}"
+        <a href="{{ route('orangtua.pengumuman') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.pengumuman' 
+            {{ $route === 'orangtua.pengumuman' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Pengumuman
         </a>
 
-        <a href="{{ route('admin.jadwal') }}"
+        <a href="{{ route('orangtua.jadwal') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'admin.jadwal' 
+            {{ $route === 'orangtua.jadwal' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Jadwal
         </a>
         <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Saya</div>
-            <a 
+        <a href="{{ route('orangtua.profil') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
+            {{ $route === 'orangtua.profil' 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Profil
-            </a>
-            <a 
-            class="block px-3 py-2 rounded transition 
-            {{ $route === '#' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-            Logout
-            </a>
+        </a>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="w-full text-left block px-3 py-2 rounded transition bg-white/10 hover:bg-red-500 hover:text-white">
+                Logout
+            </button>
+        </form>
         </div>
     </nav>
 
