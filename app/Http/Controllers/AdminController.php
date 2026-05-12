@@ -171,4 +171,82 @@ class AdminController extends Controller
         return redirect()->route('admin.biodata.index')
             ->with('success', 'Admin berhasil dihapus.');
     }
+
+    public function profil()
+    {
+        $user = auth()->user();
+        $admin = DB::table('admin')->where('user_id', $user->id)->first();
+        
+        return view('Dashboard_Admin.Profil.profil-admin', compact('user', 'admin'));
+    }
+
+    public function updateProfil(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:100',
+            'gender' => 'required|in:Laki-laki,Perempuan',
+            'nip' => 'nullable|string|max:50',
+            'nuptk' => 'nullable|string|max:50',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+        ]);
+
+        $user = auth()->user();
+        
+        DB::table('admin')->where('user_id', $user->id)->update([
+            'nama' => $request->nama,
+            'jenis_kelamin' => $request->gender,
+            'nip' => $request->nip,
+            'nuptk' => $request->nuptk,
+            'no_hp' => $request->phone,
+            'alamat' => $request->address,
+        ]);
+
+        return back()->with('success', 'Profil berhasil diperbarui');
+    }
+
+    public function updateFoto(Request $request)
+    {
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = auth()->user();
+        
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('profil-admin', 'public');
+            DB::table('admin')->where('user_id', $user->id)->update([
+                'foto_profil' => $path
+            ]);
+        }
+
+        return back()->with('success', 'Foto profil berhasil diperbarui');
+    }
+
+    public function updateAkun(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:100|unique:users,username,' . auth()->id(),
+            'email' => 'required|email|max:255|unique:users,email,' . auth()->id(),
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user = User::findOrFail(auth()->id());
+        
+        $user->username = $request->username;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        $message = 'Data akun berhasil diperbarui.';
+        if ($request->filled('password')) {
+            $message .= ' Silakan gunakan password baru Anda untuk login berikutnya.';
+        }
+
+        return back()->with('success', $message);
+    }
 }

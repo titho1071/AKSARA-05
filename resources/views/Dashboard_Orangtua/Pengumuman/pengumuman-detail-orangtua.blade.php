@@ -44,7 +44,7 @@
                         </svg>
                     </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900">{{ basename($pengumuman->file) }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ $pengumuman->nama_file ?: basename($pengumuman->file) }}</p>
                         <a href="{{ asset('storage/' . $pengumuman->file) }}" target="_blank" class="text-blue-600 hover:underline text-sm">
                             Download Dokumen
                         </a>

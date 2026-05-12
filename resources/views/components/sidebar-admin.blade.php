@@ -1,4 +1,4 @@
-﻿<script src="//unpkg.com/alpinejs" defer></script>
+<script src="//unpkg.com/alpinejs" defer></script>
 
 <!-- Sidebar -->
 <aside class="hidden lg:flex fixed inset-y-0 left-0 z-40 w-56 flex-col bg-[#1E2567] text-white rounded-e-md border-r border-white/10">
@@ -144,8 +144,9 @@
         {{-- SAYA --}}
         <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Saya</div>
 
-        <a href="#"
-            class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+        <a href="{{ route('admin.profil') }}"
+            class="block px-3 py-2 rounded transition
+            {{ $route === 'admin.profil' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Profil
         </a>
 

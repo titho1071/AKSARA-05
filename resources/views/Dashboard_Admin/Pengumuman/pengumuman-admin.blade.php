@@ -262,7 +262,7 @@
                         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-4 text-gray-900 font-medium">
                                 <div>${item.judul}</div>
-                                ${item.file_url ? `<a href="${item.file_url}" class="text-blue-600 text-sm mt-1 inline-block hover:underline" target="_blank">Lampiran</a>` : ''}
+                                ${item.file_url ? `<a href="${item.file_url}" class="text-blue-600 text-sm mt-1 inline-block hover:underline" target="_blank">${item.nama_file || 'Lampiran'}</a>` : ''}
                             </td>
                             <td class="px-4 py-4 text-gray-700">${item.kelas_nama || 'Semua Kelas'}</td>
                             <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_mulai)}</td>

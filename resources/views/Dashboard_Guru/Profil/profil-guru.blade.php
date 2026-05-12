@@ -1,10 +1,10 @@
 @extends('layouts.index')
 
 @php
-    $role = 'orangtua';
+    $role = 'guru';
 @endphp
 
-@section('title', 'Profil Saya - Orang Tua')
+@section('title', 'Profil Saya - Guru')
 
 @section('content')
 @include('components.navbar', ['role' => $role])
@@ -28,8 +28,8 @@
         <div class="lg:col-span-1">
             <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
                 <div class="relative w-32 h-32 mx-auto mb-6">
-                    @if($ortu->foto_profil)
-                        <img src="{{ asset('storage/' . $ortu->foto_profil) }}" alt="Foto Profil" class="w-full h-full rounded-full object-cover border-4 border-white shadow-md">
+                    @if($guru->foto_profil)
+                        <img src="{{ asset('storage/' . $guru->foto_profil) }}" alt="Foto Profil" class="w-full h-full rounded-full object-cover border-4 border-white shadow-md">
                     @else
                         <div class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-md">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,8 +39,8 @@
                     @endif
                 </div>
                 
-                <h2 class="text-2xl font-bold text-gray-900">{{ $ortu->nama ?? 'Orang tua' }}</h2>
-                <p class="text-gray-500 mb-8">Orang tua</p>
+                <h2 class="text-2xl font-bold text-gray-900">{{ $guru->nama ?? 'Guru' }}</h2>
+                <p class="text-gray-500 mb-8">Guru Pengajar</p>
 
                 <div class="space-y-4 text-left border-t border-gray-100 pt-6">
                     <div class="flex justify-between items-center">
@@ -53,7 +53,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-gray-500 text-sm">Role</span>
-                        <span class="font-medium text-gray-900">Orang tua</span>
+                        <span class="font-medium text-gray-900 capitalize">{{ $role }}</span>
                     </div>
                 </div>
             </div>
@@ -79,40 +79,46 @@
                 <div class="p-8">
                     <!-- Edit Profil Form -->
                     <div x-show="activeTab === 'edit-profil'">
-                        <form action="{{ route('orangtua.profil.update') }}" method="POST" class="space-y-6">
+                        <form action="{{ route('guru.profil.update') }}" method="POST" class="space-y-6">
                             @csrf
                             @method('PUT')
                             <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
                                 <label class="md:col-span-1 font-bold text-gray-700">Nama</label>
                                 <div class="md:col-span-3">
-                                    <input type="text" name="nama" value="{{ old('nama', $ortu->nama) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                    <input type="text" name="nama" value="{{ old('nama', $guru->nama) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+                                <label class="md:col-span-1 font-bold text-gray-700">NIP</label>
+                                <div class="md:col-span-3">
+                                    <input type="text" name="nip" value="{{ old('nip', $guru->nip) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
+                                <label class="md:col-span-1 font-bold text-gray-700">NUPTK</label>
+                                <div class="md:col-span-3">
+                                    <input type="text" name="nuptk" value="{{ old('nuptk', $guru->nuptk) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
                                 <label class="md:col-span-1 font-bold text-gray-700">Jenis Kelamin</label>
                                 <div class="md:col-span-3">
-                                    <select name="jenis_kelamin" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke=%22%236b7280%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M19 9l-7 7-7-7%22 /%3E%3C/svg%3E');">
-                                        <option value="Laki-laki" {{ old('jenis_kelamin', $ortu->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="Perempuan" {{ old('jenis_kelamin', $ortu->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                    <select name="gender" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke=%22%236b7280%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M19 9l-7 7-7-7%22 /%3E%3C/svg%3E');">
+                                        <option value="Laki-laki" {{ old('gender', $guru->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ old('gender', $guru->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
-                                <label class="md:col-span-1 font-bold text-gray-700">NIK</label>
-                                <div class="md:col-span-3">
-                                    <input type="text" name="nik" value="{{ old('nik', $ortu->nik) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
                                 <label class="md:col-span-1 font-bold text-gray-700">No. Hp</label>
                                 <div class="md:col-span-3">
-                                    <input type="text" name="no_hp" value="{{ old('no_hp', $ortu->no_hp) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
+                                    <input type="text" name="phone" value="{{ old('phone', $guru->no_hp) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 items-start gap-4">
                                 <label class="md:col-span-1 font-bold text-gray-700 pt-3">Alamat</label>
                                 <div class="md:col-span-3">
-                                    <textarea name="alamat" rows="4" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">{{ old('alamat', $ortu->alamat) }}</textarea>
+                                    <textarea name="address" rows="4" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">{{ old('address', $guru->alamat) }}</textarea>
                                 </div>
                             </div>
 
@@ -130,13 +136,13 @@
 
                     <!-- Edit Foto Form -->
                     <div x-show="activeTab === 'edit-foto'" style="display: none;">
-                        <form action="{{ route('orangtua.profil.foto') }}" method="POST" enctype="multipart/form-data" class="text-center">
+                        <form action="{{ route('guru.profil.foto') }}" method="POST" enctype="multipart/form-data" class="text-center">
                             @csrf
                             @method('PUT')
                             <h3 class="text-lg font-bold mb-6">Foto</h3>
                             <div class="w-32 h-32 mx-auto mb-8 relative group">
-                                @if($ortu->foto_profil)
-                                    <img src="{{ asset('storage/' . $ortu->foto_profil) }}" alt="Preview" class="w-full h-full rounded-full object-cover">
+                                @if($guru->foto_profil)
+                                    <img src="{{ asset('storage/' . $guru->foto_profil) }}" alt="Preview" class="w-full h-full rounded-full object-cover">
                                 @else
                                     <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,7 +165,7 @@
 
                     <!-- Edit Akun Form -->
                     <div x-show="activeTab === 'edit-akun'" style="display: none;">
-                        <form id="form-edit-akun" action="{{ route('orangtua.profil.akun') }}" method="POST" class="space-y-6">
+                        <form id="form-edit-akun" action="{{ route('guru.profil.akun') }}" method="POST" class="space-y-6">
                             @csrf
                             @method('PUT')
                             <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
@@ -169,7 +175,7 @@
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 items-center gap-4">
-                                <label class="md:col-span-1 font-bold text-gray-700">Email <span class="text-xs font-normal text-gray-400">(Opsional)</span></label>
+                                <label class="md:col-span-1 font-bold text-gray-700">Email</label>
                                 <div class="md:col-span-3">
                                     <input type="email" name="email" value="{{ old('email', $user->email) }}" class="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all">
                                 </div>

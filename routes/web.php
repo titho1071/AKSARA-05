@@ -85,6 +85,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/mata-pelajaran', fn() => view('Dashboard_Admin.Lainnya.mata-pelajaran'))->name('mata-pelajaran');
     Route::get('/jam-pelajaran', fn() => view('Dashboard_Admin.Lainnya.jam-pelajaran'))->name('jam-pelajaran');
     Route::get('/jadwal', fn() => view('Dashboard_Admin.Jadwal.jadwal-admin'))->name('jadwal');
+
+    // Profil
+    Route::get('/profil', [AdminController::class, 'profil'])->name('profil');
+    Route::put('/profil/update', [AdminController::class, 'updateProfil'])->name('profil.update');
+    Route::put('/profil/foto', [AdminController::class, 'updateFoto'])->name('profil.foto');
+    Route::put('/profil/akun', [AdminController::class, 'updateAkun'])->name('profil.akun');
 });
 
 
@@ -121,6 +127,15 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
         $pengumuman = \App\Models\Pengumuman::with('kelas')->findOrFail($id);
         return view('Dashboard_Guru.Pengumuman.pengumuman-detail-guru', compact('pengumuman'));
     })->name('pengumuman.show');
+
+    // Jadwal
+    Route::get('/jadwal', fn() => view('Dashboard_Guru.Jadwal.index'))->name('jadwal');
+
+    // Profil
+    Route::get('/profil', [GuruController::class, 'profil'])->name('profil');
+    Route::put('/profil/update', [GuruController::class, 'updateProfil'])->name('profil.update');
+    Route::put('/profil/foto', [GuruController::class, 'updateFoto'])->name('profil.foto');
+    Route::put('/profil/akun', [GuruController::class, 'updateAkun'])->name('profil.akun');
 });
 
 

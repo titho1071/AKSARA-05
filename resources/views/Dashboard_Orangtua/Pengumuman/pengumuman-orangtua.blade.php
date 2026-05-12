@@ -35,7 +35,7 @@
                                     </svg>
                                 </div>
                                 <a href="{{ asset('storage/' . $item->file) }}" target="_blank" class="text-blue-600 hover:underline font-medium">
-                                    {{ basename($item->file) }}
+                                    {{ $item->nama_file ?: basename($item->file) }}
                                 </a>
                             </div>
                         @endif

@@ -42,6 +42,7 @@ class PengumumanController extends Controller
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
+                'nama_file' => $pengumuman->nama_file ?: basename($pengumuman->file),
                 'file_url' => $pengumuman->file ? asset('storage/' . $pengumuman->file) : null,
                 'created_at' => $pengumuman->created_at->toDateTimeString(),
                 'updated_at' => $pengumuman->updated_at->toDateTimeString(),
@@ -67,6 +68,7 @@ class PengumumanController extends Controller
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
+                'nama_file' => $pengumuman->nama_file ?: basename($pengumuman->file),
                 'file_url' => $pengumuman->file ? asset('storage/' . $pengumuman->file) : null,
             ],
         ]);
@@ -77,7 +79,9 @@ class PengumumanController extends Controller
         $validated = $this->validateRequest($request);
 
         if ($request->hasFile('file')) {
-            $validated['file'] = $request->file('file')->store('pengumuman', 'public');
+            $file = $request->file('file');
+            $validated['file'] = $file->store('pengumuman', 'public');
+            $validated['nama_file'] = $file->getClientOriginalName();
         }
 
         $pengumuman = Pengumuman::create($validated);
@@ -98,7 +102,9 @@ class PengumumanController extends Controller
                 Storage::disk('public')->delete($pengumuman->file);
             }
 
-            $validated['file'] = $request->file('file')->store('pengumuman', 'public');
+            $file = $request->file('file');
+            $validated['file'] = $file->store('pengumuman', 'public');
+            $validated['nama_file'] = $file->getClientOriginalName();
         }
 
         $pengumuman->update($validated);
