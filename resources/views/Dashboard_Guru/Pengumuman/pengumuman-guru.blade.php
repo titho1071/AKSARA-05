@@ -141,27 +141,29 @@
                                 ${item.file_url ? `<a href="${item.file_url}" class="text-blue-600 text-sm mt-1 inline-block hover:underline" target="_blank">${item.nama_file || 'Lampiran'}</a>` : ''}
                             </td>
                             <td class="px-4 py-4 text-gray-700">
-                                ${item.kelas_nama || 'Semua Kelas'}
-                                ${!isOwnClass ? '<span class="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Publik</span>' : ''}
+                                ${(!item.kelas_nama || item.kelas_nama === 'Semua Kelas')
+                                    ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">Semua Kelas</span>' 
+                                    : `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">${item.kelas_nama}</span>`
+                                }
+                                ${!isOwnClass ? '<span class="ml-2 inline-flex items-center text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Publik</span>' : ''}
                             </td>
                             <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_mulai)}</td>
                             <td class="px-4 py-4 text-gray-600">${formatDateString(item.tanggal_selesai)}</td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-2">
-                                    <a href="/guru/pengumuman/${item.id_pengumuman}" class="text-blue-600 hover:text-blue-800 transition-colors" title="Detail">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
+                                    <a href="/guru/pengumuman/${item.id_pengumuman}" class="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" title="Detail">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                            <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a3 3 0 1 1 5.37-1.83l2.6 2.6a.75.75 0 1 1-1.06 1.06l-2.6-2.6A3 3 0 0 1 7.5 15Z" />
+                                            <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
                                         </svg>
                                     </a>
                                     ${isOwnClass ? `
-                                    <a href="/guru/pengumuman/${item.id_pengumuman}/edit" class="text-yellow-500 hover:text-yellow-700 transition-colors" title="Edit">
+                                    <a href="/guru/pengumuman/${item.id_pengumuman}/edit" class="flex items-center justify-center w-9 h-9 rounded-xl bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M12 20h9" />
                                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
                                         </svg>
                                     </a>
-                                    <button type="button" data-action="delete" data-id="${item.id_pengumuman}" class="text-red-500 hover:text-red-700 transition-colors" title="Hapus">
+                                    <button type="button" data-action="delete" data-id="${item.id_pengumuman}" class="flex items-center justify-center w-9 h-9 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 transition-colors" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="3 6 5 6 21 6" />
                                             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />

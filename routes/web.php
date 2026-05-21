@@ -30,7 +30,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/dashboard', fn() => view('pages.dashboard-admin'))->name('dashboard');
+    Route::get('/dashboard', function () {
+        $countAdmin = \Illuminate\Support\Facades\DB::table('admin')->count();
+        $countGuru = \App\Models\Guru::count();
+        $countSiswa = \App\Models\Siswa::count();
+        $countOrangTua = \App\Models\OrangTua::count();
+        $countKelas = \App\Models\Kelas::count();
+
+        return view('pages.dashboard-admin', compact('countAdmin', 'countGuru', 'countSiswa', 'countOrangTua', 'countKelas'));
+    })->name('dashboard');
 
     // Biodata Admin
     Route::get('/biodata', [AdminController::class, 'index'])->name('biodata.index');

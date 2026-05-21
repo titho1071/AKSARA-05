@@ -15,26 +15,25 @@
     </div>
 
     <!-- Student Profile Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 px-4">
+    <div class="flex flex-wrap items-center gap-4 mb-8 px-4">
         @forelse($siswa as $s)
             @php
-                $colors = ['blue', 'green', 'purple', 'indigo', 'rose', 'amber'];
-                $color = $colors[$loop->index % count($colors)];
                 $initials = collect(explode(' ', $s->nama))->map(fn($n) => strtoupper(substr($n, 0, 1)))->take(2)->implode('');
+                $isActive = isset($activeSiswa) && $activeSiswa->id_siswa == $s->id_siswa;
             @endphp
-            <div class="bg-gradient-to-br from-{{ $color }}-500 to-{{ $color }}-600 rounded-2xl p-6 shadow-lg text-white">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 bg-white/30 rounded-full flex items-center justify-center text-lg font-bold">
+            <a href="{{ route('orangtua.dashboard', ['siswa_id' => $s->id_siswa]) }}" class="inline-block">
+                <div class="flex items-center gap-3 px-5 py-3 rounded-2xl transition-colors {{ $isActive ? 'bg-[#313589] text-white shadow-md' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold {{ $isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600' }}">
                         {{ $initials }}
                     </div>
                     <div>
-                        <p class="font-semibold">{{ $s->nama }}</p>
-                        <p class="text-sm text-{{ $color }}-100">{{ $s->nama_kelas }}</p>
+                        <p class="font-bold text-sm {{ $isActive ? 'text-white' : 'text-slate-900' }}">{{ $s->nama }}</p>
+                        <p class="text-xs {{ $isActive ? 'text-slate-300' : 'text-slate-500' }}">{{ $s->nama_kelas }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
         @empty
-            <div class="col-span-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
+            <div class="w-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
                 <p class="text-gray-500">Data siswa tidak ditemukan.</p>
             </div>
         @endforelse
@@ -59,14 +58,17 @@
         <!-- Pengumuman -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Pengumuman</h2>
-            <div class="space-y-4">
+            <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
                 @forelse($pengumuman as $item)
-                    <div class="pb-4 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
-                        <a href="{{ route('orangtua.pengumuman.detail', $item->id_pengumuman) }}" class="text-gray-700 font-medium hover:text-blue-600 transition-colors">{{ $item->judul }}</a>
-                        <div class="flex items-center gap-2 mt-1">
+                    <div class="border-l-4 {{ $item->kelas_id ? 'border-blue-500' : 'border-green-500' }} pl-4 py-3">
+                        <a href="{{ route('orangtua.pengumuman.detail', $item->id_pengumuman) }}" class="block text-gray-700 font-medium hover:text-blue-600 transition-colors">{{ $item->judul }}</a>
+                        <p class="text-gray-500 text-sm mt-1">{{ Str::limit($item->deskripsi, 100) }}</p>
+                        <div class="flex items-center gap-2 mt-2">
                             <span class="text-xs text-gray-400">{{ $item->created_at->diffForHumans() }}</span>
-                            @if($item->kelas_id)
-                                <span class="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">{{ $item->kelas?->nama_kelas }}</span>
+                            @if($item->kelas)
+                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{{ $item->kelas->nama_kelas }}</span>
+                            @else
+                                <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Semua Kelas</span>
                             @endif
                         </div>
                     </div>
@@ -101,7 +103,7 @@
             <div class="space-y-4">
                 <div class="pb-4 border-b border-gray-200">
                     <p class="font-semibold text-gray-900 mb-2">Jadwal Pelajaran Hari ini</p>
-                    <p class="text-sm text-gray-600">07:30 - 09:00: Motomatika</p>
+                    <p class="text-sm text-gray-600">07:30 - 09:00: Matematika</p>
                 </div>
             </div>
             <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Detail</a>

@@ -28,10 +28,10 @@
             <div class="flex flex-col gap-4">
                 @php
                     $classes = [
-                        ['name' => 'Kelas III A', 'teacher' => 'Budi Santoso, S.Pd', 'students' => 10, 'status' => 'Sudah diisi hari ini', 'badge' => 'green'],
-                        ['name' => 'Kelas III B', 'teacher' => 'Nurul Aini, S.Pd', 'students' => 31, 'status' => 'Belum diisi hari ini', 'badge' => 'amber'],
-                        ['name' => 'Kelas IV A', 'teacher' => 'Hendra Putra, S.Pd', 'students' => 26, 'status' => 'Sudah diisi hari ini', 'badge' => 'green'],
-                        ['name' => 'Kelas IV B', 'teacher' => 'Fitriana, S.Pd', 'students' => 32, 'status' => 'Belum diisi hari ini', 'badge' => 'amber'],
+                        ['name' => 'Kelas III A', 'teacher' => 'Budi Santoso, S.Pd', 'students' => 10,  'badge' => 'green'],
+                        ['name' => 'Kelas III B', 'teacher' => 'Nurul Aini, S.Pd', 'students' => 31, 'badge' => 'amber'],
+                        ['name' => 'Kelas IV A', 'teacher' => 'Hendra Putra, S.Pd', 'students' => 26, 'badge' => 'green'],
+                        ['name' => 'Kelas IV B', 'teacher' => 'Fitriana, S.Pd', 'students' => 32, 'badge' => 'amber'],
                     ];
                 @endphp
 
@@ -48,10 +48,7 @@
                                     <a href="{{ route('guru.absensi.detail') }}" class="rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-slate-300">Detail</a>
                                     <a href="{{ route('guru.absensi.kelola') }}" class="rounded-[16px] bg-[#F59E0B] px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-[#d97706]">Kelola</a>
                                 </div>
-                                <div class="mt-4 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100">
-                                    <span class="h-2.5 w-2.5 rounded-full bg-{{ $class['badge'] === 'green' ? 'emerald-500' : 'amber-500' }}"></span>
-                                    {{ $class['status'] }}
-                                </div>
+            
                             </div>
                         </div>
                     @endforeach

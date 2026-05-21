@@ -45,6 +45,7 @@ class PengumumanController extends Controller
                 'nama_file' => $pengumuman->nama_file ?: basename($pengumuman->file),
                 'file_url' => $pengumuman->file ? asset('storage/' . $pengumuman->file) : null,
                 'created_at' => $pengumuman->created_at->toDateTimeString(),
+                'created_at_human' => $pengumuman->created_at->diffForHumans(),
                 'updated_at' => $pengumuman->updated_at->toDateTimeString(),
             ];
         });
@@ -138,7 +139,7 @@ class PengumumanController extends Controller
             'kelas_id' => ['nullable', 'integer'],
             'tanggal_mulai' => ['nullable', 'date'],
             'tanggal_selesai' => ['nullable', 'date', 'after_or_equal:tanggal_mulai'],
-            'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:10240'],
+            'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:2048'],
         ]);
     }
     public function create()

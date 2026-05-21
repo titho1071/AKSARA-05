@@ -1,14 +1,28 @@
 @php
     // default kalau tidak dikirim dari halaman
     $role = $role ?? 'admin';
+    $user = auth()->user();
+    
+    $nama = 'User';
+    $foto = null;
 
-    // mapping nama
-    $nama = match($role) {
-        'admin' => 'Admin Sekolah',
-        'guru' => 'Guru',
-        'orangtua' => 'Orang Tua',
-        default => 'User'
-    };
+    if ($user) {
+        $profil = null;
+        if ($role === 'admin') {
+            $profil = \Illuminate\Support\Facades\DB::table('admin')->where('user_id', $user->id)->first();
+        } elseif ($role === 'guru') {
+            $profil = \Illuminate\Support\Facades\DB::table('guru')->where('user_id', $user->id)->first();
+        } elseif ($role === 'orangtua') {
+            $profil = \Illuminate\Support\Facades\DB::table('orang_tua')->where('user_id', $user->id)->first();
+        }
+        
+        if ($profil) {
+            $nama = $profil->nama ?? $user->username ?? 'User';
+            $foto = $profil->foto_profil ?? null;
+        } else {
+            $nama = $user->username ?? 'User';
+        }
+    }
 @endphp
 
 <!-- Navbar -->
@@ -25,14 +39,18 @@
                 </span>
 
                 <!-- Foto (dynamic juga) -->
-                <img src="https://ui-avatars.com/api/?name={{ urlencode($nama) }}&background=3B82F6&color=fff"
-                     class="w-9 h-9 rounded-full border">
+                @if($foto)
+                    <img src="{{ asset('storage/' . $foto) }}" class="w-9 h-9 rounded-full border object-cover">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($nama) }}&background=3B82F6&color=fff"
+                         class="w-9 h-9 rounded-full border">
+                @endif
 
             </button>
 
             <!-- Dropdown -->
             <div id="dropdownMenu" 
-                 class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md">
+                 class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md overflow-hidden">
 
                 @php
                     $profilRoute = match($role) {

@@ -32,16 +32,39 @@ class GuruController extends Controller
         
         if (!$guru) {
             // Jika data guru tidak ditemukan (mungkin baru dibuat user-nya saja)
-            $pengumuman = Pengumuman::whereNull('kelas_id')->orderByDesc('created_at')->get();
+            $today = now()->format('Y-m-d');
+            $pengumuman = Pengumuman::whereNull('kelas_id')
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
+                })
+                ->orderByDesc('created_at')
+                ->take(5)
+                ->get();
             return view('pages.dashboard-guru', compact('pengumuman'));
         }
 
         // Ambil ID kelas yang diajar oleh guru ini
         $kelasIds = Kelas::where('guru_id', $guru->id_guru)->pluck('id_kelas');
 
+        $today = now()->format('Y-m-d');
         // Ambil pengumuman yang sesuai dengan kelas guru tersebut atau untuk semua kelas (kelas_id null)
-        $pengumuman = Pengumuman::whereIn('kelas_id', $kelasIds)
-            ->orWhereNull('kelas_id')
+        $pengumuman = Pengumuman::where(function ($query) use ($kelasIds) {
+                $query->whereIn('kelas_id', $kelasIds)
+                      ->orWhereNull('kelas_id');
+            })
+            ->where(function ($query) use ($today) {
+                $query->whereNull('tanggal_mulai')
+                      ->orWhereDate('tanggal_mulai', '<=', $today);
+            })
+            ->where(function ($query) use ($today) {
+                $query->whereNull('tanggal_selesai')
+                      ->orWhereDate('tanggal_selesai', '>=', $today);
+            })
             ->orderByDesc('created_at')
             ->take(5) // Ambil 5 terbaru saja untuk dashboard
             ->get();

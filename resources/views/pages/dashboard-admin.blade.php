@@ -26,7 +26,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-3xl font-bold text-slate-900">1</p>
+                    <p class="text-3xl font-bold text-slate-900">{{ $countAdmin }}</p>
                     <p class="text-sm text-slate-500">Data Admin</p>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-3xl font-bold text-slate-900">1</p>
+                    <p class="text-3xl font-bold text-slate-900">{{ $countGuru }}</p>
                     <p class="text-sm text-slate-500">Data Guru</p>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-3xl font-bold text-slate-900">1</p>
+                    <p class="text-3xl font-bold text-slate-900">{{ $countSiswa }}</p>
                     <p class="text-sm text-slate-500">Data Siswa</p>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-3xl font-bold text-slate-900">1</p>
+                    <p class="text-3xl font-bold text-slate-900">{{ $countOrangTua }}</p>
                     <p class="text-sm text-slate-500">Data Orang Tua</p>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-3xl font-bold text-slate-900">1</p>
+                    <p class="text-3xl font-bold text-slate-900">{{ $countKelas }}</p>
                     <p class="text-sm text-slate-500">Data Kelas</p>
                 </div>
             </div>
@@ -165,7 +165,7 @@
                         </div>
                     </div>
             </div>
-            <div class="space-y-4">
+            <div class="space-y-4 max-h-96 overflow-y-auto pr-2">
                 <template x-if="isLoading">
                     <p class="text-sm text-slate-500">Memuat pengumuman...</p>
                 </template>
@@ -173,9 +173,18 @@
                     <p class="text-sm text-slate-500">Belum ada pengumuman.</p>
                 </template>
                 <template x-for="p in filteredPengumuman" :key="p.id_pengumuman">
-                    <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="font-semibold text-slate-900" x-text="p.judul"></p>
-                        <p class="text-slate-500 text-sm mt-1" x-text="p.deskripsi"></p>
+                    <div class="border-l-4 pl-4 py-3" :class="p.kelas_id ? 'border-blue-500' : 'border-green-500'">
+                        <p class="text-gray-700 font-medium" x-text="p.judul"></p>
+                        <p class="text-gray-500 text-sm mt-1" x-text="p.deskripsi.substring(0, 100) + (p.deskripsi.length > 100 ? '...' : '')"></p>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-xs text-gray-400" x-text="p.created_at_human"></span>
+                            <template x-if="p.kelas_id">
+                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full" x-text="p.kelas_nama"></span>
+                            </template>
+                            <template x-if="!p.kelas_id">
+                                <span class="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Semua Kelas</span>
+                            </template>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -291,10 +300,19 @@
             },
             
             get filteredPengumuman() {
+                const today = new Date().toISOString().split('T')[0];
+                let activePengumuman = this.pengumuman.filter(p => {
+                    const mulai = p.tanggal_mulai;
+                    const selesai = p.tanggal_selesai;
+                    if (mulai && mulai > today) return false;
+                    if (selesai && selesai < today) return false;
+                    return true;
+                });
+
                 if (!this.selectedClassId) {
-                    return this.pengumuman.slice(0, 5); // Tampilkan maksimal 5 jika "Semua Kelas"
+                    return activePengumuman.slice(0, 5); // Tampilkan maksimal 5 jika "Semua Kelas"
                 }
-                return this.pengumuman.filter(p => p.kelas_id == this.selectedClassId || p.kelas_id == null).slice(0, 5);
+                return activePengumuman.filter(p => p.kelas_id == this.selectedClassId || p.kelas_id == null).slice(0, 5);
             }
         }));
     });

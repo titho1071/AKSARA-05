@@ -54,21 +54,6 @@
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Jadwal
         </a>
-        <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Saya</div>
-        <a href="{{ route('orangtua.profil') }}"
-            class="block px-3 py-2 rounded transition 
-            {{ $route === 'orangtua.profil' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-            Profil
-        </a>
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full text-left block px-3 py-2 rounded transition bg-white/10 hover:bg-red-500 hover:text-white">
-                Logout
-            </button>
-        </form>
-        </div>
     </nav>
 
 <style>

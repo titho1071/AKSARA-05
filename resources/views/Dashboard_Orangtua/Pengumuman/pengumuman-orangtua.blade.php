@@ -78,15 +78,15 @@
                             </div>
                         @endif
                     </div>
+                </div>
 
-                    <div class="md:text-right mt-4 md:mt-0">
-                        <a href="{{ route('orangtua.pengumuman.detail', $item->id_pengumuman) }}" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-2">
-                            Lihat Detail Pengumuman
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    </div>
+                <div class="flex justify-end mt-4">
+                    <a href="{{ route('orangtua.pengumuman.detail', $item->id_pengumuman) }}" class="text-blue-600 hover:underline font-medium inline-flex items-center gap-2">
+                        Lihat Detail Pengumuman
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
                 </div>
                 
                 @if($item->kelas)

@@ -105,21 +105,6 @@
                 </a>
             </div>
         </div>
-        <div class="my-6 form-label text-slate-400 uppercase text-xs tracking-wider">Saya</div>
-        <a href="{{ route('guru.profil') }}"
-            class="block px-3 py-2 rounded transition 
-            {{ $route === 'guru.profil' 
-                ? 'bg-[#F59E0B] text-slate-950' 
-                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
-            Profil
-        </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="m-0">
-                @csrf
-                <button type="submit" class="w-full text-left block rounded-3xl px-3 py-2 bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950 transition">
-                    Logout
-                </button>
-            </form>
-        </div>
     </nav>
 <style>
         .sidebar-scrollbar {

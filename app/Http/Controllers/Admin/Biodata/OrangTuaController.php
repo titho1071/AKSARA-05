@@ -22,7 +22,7 @@ class OrangTuaController extends Controller
             ?: abort(500, 'Role orang tua tidak ditemukan.');
     }
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = auth()->user();
 
@@ -31,10 +31,18 @@ class OrangTuaController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
+        $today = now()->format('Y-m-d');
+
         if (!$ortu) {
             return view('pages.dashboard-orangtua', [
                 'siswa' => collect(),
+                'activeSiswa' => null,
                 'pengumuman' => Pengumuman::whereNull('kelas_id')
+                    ->where(function ($query) use ($today) {
+                        $query->whereNull('tanggal_mulai')->orWhereDate('tanggal_mulai', '<=', $today);
+                    })->where(function ($query) use ($today) {
+                        $query->whereNull('tanggal_selesai')->orWhereDate('tanggal_selesai', '>=', $today);
+                    })
                     ->orderByDesc('created_at')
                     ->take(5)
                     ->get()
@@ -48,16 +56,43 @@ class OrangTuaController extends Controller
             ->select('siswa.*', 'kelas.nama_kelas')
             ->get();
 
-        $kelasIds = $siswa->pluck('kelas_id');
+        // Anak aktif
+        $activeSiswaId = $request->query('siswa_id', $siswa->first()?->id_siswa);
+        $activeSiswa = $siswa->where('id_siswa', $activeSiswaId)->first();
 
         // Ambil pengumuman terbaru
-        $pengumuman = Pengumuman::whereIn('kelas_id', $kelasIds)
-            ->orWhereNull('kelas_id')
-            ->orderByDesc('created_at')
-            ->take(5)
-            ->get();
+        if ($activeSiswa) {
+            $pengumuman = Pengumuman::where(function ($query) use ($activeSiswa) {
+                    $query->where('kelas_id', $activeSiswa->kelas_id)
+                          ->orWhereNull('kelas_id');
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
+                })
+                ->orderByDesc('created_at')
+                ->take(5)
+                ->get();
+        } else {
+            $pengumuman = Pengumuman::whereNull('kelas_id')
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
+                })
+                ->orderByDesc('created_at')
+                ->take(5)
+                ->get();
+        }
 
-        return view('pages.dashboard-orangtua', compact('siswa', 'pengumuman'));
+        return view('pages.dashboard-orangtua', compact('siswa', 'activeSiswa', 'pengumuman'));
     }
 
     public function profil()
@@ -214,11 +249,24 @@ class OrangTuaController extends Controller
             ->where('user_id', $user->id)
             ->first();
 
+        $today = now()->format('Y-m-d');
+
         if (!$ortu) {
+            $pengumuman = Pengumuman::whereNull('kelas_id')
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
+                })
+                ->orderByDesc('created_at')
+                ->get();
             return view(
                 'Dashboard_Orangtua.Pengumuman.pengumuman-orangtua',
                 [
-                    'pengumuman' => collect(),
+                    'pengumuman' => $pengumuman,
                     'siswa' => collect(),
                     'activeSiswa' => null,
                 ]
@@ -243,13 +291,31 @@ class OrangTuaController extends Controller
             ->first();
 
         // Pengumuman
-        $pengumuman = collect();
-
         if ($activeSiswa) {
             $pengumuman = Pengumuman::with('kelas')
                 ->where(function ($query) use ($activeSiswa) {
                     $query->where('kelas_id', $activeSiswa->kelas_id)
                         ->orWhereNull('kelas_id');
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
+                })
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            $pengumuman = Pengumuman::whereNull('kelas_id')
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_mulai')
+                          ->orWhereDate('tanggal_mulai', '<=', $today);
+                })
+                ->where(function ($query) use ($today) {
+                    $query->whereNull('tanggal_selesai')
+                          ->orWhereDate('tanggal_selesai', '>=', $today);
                 })
                 ->orderByDesc('created_at')
                 ->get();

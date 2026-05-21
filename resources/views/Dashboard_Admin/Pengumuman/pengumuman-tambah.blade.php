@@ -111,8 +111,28 @@
                     accept=".jpg,.jpeg,.png,.svg,.pdf"
                 >
                 <small class="text-gray-500 mt-2 block">
-                    Format: JPG, JPEG, PNG, SVG, PDF — Maksimal 10 MB
+                    Format: JPG, JPEG, PNG, SVG, PDF — Maksimal 2 MB
                 </small>
+                <!-- File Preview -->
+                <div id="file-preview" class="hidden mt-3 flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                    <div id="preview-image-wrap" class="hidden">
+                        <img id="preview-img" src="" alt="Preview" class="h-16 w-16 object-cover rounded-lg border">
+                    </div>
+                    <div id="preview-pdf-wrap" class="hidden flex items-center justify-center h-16 w-16 rounded-lg bg-red-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p id="preview-name" class="text-sm font-medium text-gray-800"></p>
+                        <p id="preview-size" class="text-xs text-gray-500 mt-0.5"></p>
+                    </div>
+                    <button type="button" id="btn-remove-file" class="ml-auto text-gray-400 hover:text-red-500 transition-colors" title="Hapus file">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -137,6 +157,47 @@
     document.addEventListener('DOMContentLoaded', function () {
         const form = document.getElementById('pengumuman-form');
         const alertBox = document.getElementById('form-alert');
+
+        // File preview
+        const fileInput = document.getElementById('file');
+        const filePreview = document.getElementById('file-preview');
+        const previewImg = document.getElementById('preview-img');
+        const previewImgWrap = document.getElementById('preview-image-wrap');
+        const previewPdfWrap = document.getElementById('preview-pdf-wrap');
+        const previewName = document.getElementById('preview-name');
+        const previewSize = document.getElementById('preview-size');
+        const btnRemoveFile = document.getElementById('btn-remove-file');
+
+        fileInput.addEventListener('change', function () {
+            const file = fileInput.files[0];
+            if (!file) { filePreview.classList.add('hidden'); return; }
+            if (file.size > 2 * 1024 * 1024) {
+                showAlert('Ukuran file melebihi 2 MB. Silakan pilih file yang lebih kecil.', 'error');
+                fileInput.value = '';
+                filePreview.classList.add('hidden');
+                return;
+            }
+            const isPdf = file.type === 'application/pdf';
+            previewName.textContent = file.name;
+            previewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+            if (isPdf) {
+                previewImgWrap.classList.add('hidden');
+                previewPdfWrap.classList.remove('hidden');
+            } else {
+                previewPdfWrap.classList.add('hidden');
+                previewImgWrap.classList.remove('hidden');
+                const reader = new FileReader();
+                reader.onload = e => { previewImg.src = e.target.result; };
+                reader.readAsDataURL(file);
+            }
+            filePreview.classList.remove('hidden');
+        });
+
+        btnRemoveFile.addEventListener('click', function () {
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+            previewImg.src = '';
+        });
 
         function showAlert(message, type = 'error') {
             alertBox.textContent = message;
