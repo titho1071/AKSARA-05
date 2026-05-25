@@ -212,7 +212,18 @@
 
 
             async function deletePengumuman(id) {
-                if (!confirm('Yakin ingin menghapus pengumuman ini?')) {
+                const result = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Pengumuman yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (!result.isConfirmed) {
                     return;
                 }
 
@@ -229,8 +240,15 @@
                         throw new Error(message);
                     }
 
-                    showAlert(payloadResponse.message || 'Pengumuman berhasil dihapus', 'success');
-                    loadPengumuman(searchInput.value.trim());
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus!',
+                        text: payloadResponse.message || 'Pengumuman berhasil dihapus',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    }).then(() => {
+                        loadPengumuman(searchInput.value.trim());
+                    });
                 } catch (error) {
                     showAlert(error.message || 'Terjadi kesalahan saat menghapus data');
                 }

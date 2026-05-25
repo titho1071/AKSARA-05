@@ -1,7 +1,7 @@
 @extends('layouts.index')
 
 @php
-    $role = 'guru';
+    $role = 'admin';
 @endphp
 
 @section('content')
@@ -32,7 +32,7 @@
                         <p class="text-base font-semibold text-slate-900">Januari 2025</p>
                     </div>
                 </div>
-                <a href="{{ route('guru.absensi.pilih-bulan') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
+                <a href="{{ route('admin.absensi.pilih-bulan', $id ?? 1) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.66667 12L4 7.33333L8.66667 2.66667" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -68,49 +68,50 @@
                 <table class="min-w-[1700px] w-full table-fixed border-collapse text-[11px] text-slate-900">
                     <thead class="bg-[#1E2567] text-white text-[10px] uppercase tracking-[0.08em]">
                         <tr>
-                        <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">#</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[6.5rem]">Nama Siswa</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[6.5rem]">NIS</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[3rem]">L/P</th>
-                        @foreach ($days as $day)
-                            <th class="border border-slate-700 px-1 py-3 text-center">
-                                <a href="{{ route('guru.absensi.kelola') }}" class="hover:text-amber-300 transition-colors cursor-pointer" title="Kelola absensi tanggal {{ $day }}">{{ sprintf('%02d', $day) }}</a>
-                            </th>
-                        @endforeach
-                        <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">H</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">S</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">I</th>
-                        <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">A</th>
-                    </tr>
-                </thead>
-                <tbody class="text-[10px]">
-                    @foreach ($students as $index => $student)
-                        @php
-                            $totals = ['H' => 0, 'S' => 0, 'I' => 0, 'A' => 0];
-                            foreach ($student['attendance'] as $status) {
-                                if (isset($totals[$status])) {
-                                    $totals[$status]++;
-                                }
-                            }
-                        @endphp
-                        <tr class="odd:bg-white even:bg-slate-100">
-                            <td class="border border-slate-200 px-2 py-2 text-center text-slate-600">{{ $index + 1 }}</td>
-                            <td class="border border-slate-200 px-2 py-2 font-semibold text-slate-900">{{ $student['name'] }}</td>
-                            <td class="border border-slate-200 px-2 py-2 text-slate-700">{{ $student['nis'] }}</td>
-                            <td class="border border-slate-200 px-2 py-2 text-center text-slate-700">{{ $student['gender'] }}</td>
-                            @foreach ($student['attendance'] as $status)
-                                <td class="border border-slate-200 px-1 py-2 text-center">
-                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg {{ $statusColors[$status] }} font-semibold">{{ $status }}</span>
-                                </td>
+                            <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">#</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[6.5rem]">Nama Siswa</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[6.5rem]">NIS</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[3rem]">L/P</th>
+                            @foreach ($days as $day)
+                                <th class="border border-slate-700 px-1 py-3 text-center">
+                                    {{ sprintf('%02d', $day) }}
+                                </th>
                             @endforeach
-                            <td class="border border-slate-200 px-2 py-2 text-center text-emerald-700">{{ $totals['H'] }}</td>
-                            <td class="border border-slate-200 px-2 py-2 text-center text-sky-700">{{ $totals['S'] }}</td>
-                            <td class="border border-slate-200 px-2 py-2 text-center text-amber-700">{{ $totals['I'] }}</td>
-                            <td class="border border-slate-200 px-2 py-2 text-center text-red-700">{{ $totals['A'] }}</td>
+                            <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">H</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">S</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">I</th>
+                            <th class="border border-slate-700 px-2 py-3 w-[2.5rem]">A</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="text-[10px]">
+                        @foreach ($students as $index => $student)
+                            @php
+                                $totals = ['H' => 0, 'S' => 0, 'I' => 0, 'A' => 0];
+                                foreach ($student['attendance'] as $status) {
+                                    if (isset($totals[$status])) {
+                                        $totals[$status]++;
+                                    }
+                                }
+                            @endphp
+                            <tr class="odd:bg-white even:bg-slate-100">
+                                <td class="border border-slate-200 px-2 py-2 text-center text-slate-600">{{ $index + 1 }}</td>
+                                <td class="border border-slate-200 px-2 py-2 font-semibold text-slate-900">{{ $student['name'] }}</td>
+                                <td class="border border-slate-200 px-2 py-2 text-slate-700">{{ $student['nis'] }}</td>
+                                <td class="border border-slate-200 px-2 py-2 text-center text-slate-700">{{ $student['gender'] }}</td>
+                                @foreach ($student['attendance'] as $status)
+                                    <td class="border border-slate-200 px-1 py-2 text-center">
+                                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-lg {{ $statusColors[$status] }} font-semibold">{{ $status }}</span>
+                                    </td>
+                                @endforeach
+                                <td class="border border-slate-200 px-2 py-2 text-center text-emerald-700">{{ $totals['H'] }}</td>
+                                <td class="border border-slate-200 px-2 py-2 text-center text-sky-700">{{ $totals['S'] }}</td>
+                                <td class="border border-slate-200 px-2 py-2 text-center text-amber-700">{{ $totals['I'] }}</td>
+                                <td class="border border-slate-200 px-2 py-2 text-center text-red-700">{{ $totals['A'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 @endsection

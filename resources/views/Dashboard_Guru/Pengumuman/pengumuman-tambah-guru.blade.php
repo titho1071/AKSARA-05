@@ -221,10 +221,15 @@
                     return;
                 }
 
-                showAlert('Pengumuman berhasil disimpan!', 'success');
-                setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pengumuman berhasil disimpan!',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6366f1'
+                }).then(() => {
                     window.location.href = '{{ route('guru.pengumuman') }}';
-                }, 1500);
+                });
             } catch (error) {
                 showAlert(error.message || 'Terjadi kesalahan saat menyimpan data');
             }

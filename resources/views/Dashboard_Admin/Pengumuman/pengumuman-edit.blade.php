@@ -261,10 +261,15 @@
                 return;
             }
 
-            showAlert('Pengumuman berhasil diperbarui!', 'success');
-            setTimeout(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Pengumuman berhasil diperbarui!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6366f1'
+            }).then(() => {
                 window.location.href = '{{ route('admin.pengumuman') }}';
-            }, 1200);
+            });
         }
 
         form.addEventListener('submit', updatePengumuman);

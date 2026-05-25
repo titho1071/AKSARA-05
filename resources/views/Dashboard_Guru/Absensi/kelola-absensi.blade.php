@@ -5,108 +5,107 @@
 @endphp
 
 @section('content')
-    <div class="max-w-[1180px] mx-auto space-y-8">
-        <div class="space-y-2">
-            <p class="text-sm font-semibold text-slate-600">Absensi Siswa</p>
-            <h1 class="text-3xl font-semibold text-slate-950">Kelola Absensi</h1>
-            <p class="text-sm text-slate-500">Isi dan perbarui data absensi untuk kelas ini.</p>
+    <div class="max-w-[1400px] mx-auto space-y-6">
+
+        <!-- Header -->
+        <div class="space-y-1">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Absensi</h1>
+            <p class="text-sm text-gray-500">Kelola Absensi</p>
         </div>
 
-        <div class="rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] mb-6">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="space-y-2">
-                        <p class="text-xs uppercase tracking-[0.3em] text-amber-600">Kelas</p>
-                        <p class="text-base font-semibold text-slate-900">III A</p>
-                    </div>
-                    <div class="space-y-2">
-                        <p class="text-xs uppercase tracking-[0.3em] text-amber-600">Wali Kelas</p>
-                        <p class="text-base font-semibold text-slate-900">Budi Santoso, S.Pd</p>
-                    </div>
-                    <div class="space-y-2">
-                        <p class="text-xs uppercase tracking-[0.3em] text-amber-600">Tahun Pelajaran</p>
-                        <p class="text-base font-semibold text-slate-900">2023/2024 - Semester 1</p>
-                    </div>
-                    <div class="space-y-2">
-                        <p class="text-xs uppercase tracking-[0.3em] text-amber-600">Hari, Tanggal</p>
-                        <p class="text-base font-semibold text-slate-900">Kamis, 7 September 2023</p>
+        <!-- Back Link -->
+        <a href="{{ route('guru.absensi.detail') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-[#1e2567] hover:text-blue-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Detail Absensi
+        </a>
+
+        <!-- Info Card -->
+        <div class="bg-white rounded-[20px] shadow-sm border border-slate-200">
+            <div class="flex">
+                <div class="w-1.5 bg-amber-400 rounded-l-[20px] flex-shrink-0"></div>
+                <div class="p-6 w-full">
+                    <div class="space-y-1">
+                        <p class="text-sm text-slate-800">
+                            <span class="font-bold">Kelas</span> : III A
+                        </p>
+                        <p class="text-sm text-slate-800">
+                            <span class="font-bold">Wali Kelas</span> : Nama Wali Kelas, S.Pd
+                        </p>
+                        <p class="text-sm text-slate-800">
+                            <span class="font-bold">Tahun Pelajaran</span> : 2024/2025 - Semester 2
+                        </p>
+                        <p class="text-sm text-slate-800">
+                            <span class="font-bold">Hari, Tanggal</span> : Kamis, 7 Februari 2025
+                        </p>
                     </div>
                 </div>
-                <a href="{{ route('guru.absensi') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8.66667 12L4 7.33333L8.66667 2.66667" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Kembali ke Pilihan Kelas
-                </a>
             </div>
         </div>
 
-            <div class="grid gap-4 md:grid-cols-5 mb-6">
-                <div class="rounded-[24px] border border-slate-200 bg-white p-5 text-center">
-                    <p class="text-sm text-slate-500">Hadir</p>
-                    <p class="mt-3 text-3xl font-semibold text-emerald-600">6</p>
-                </div>
-                <div class="rounded-[24px] border border-slate-200 bg-white p-5 text-center">
-                    <p class="text-sm text-slate-500">Sakit</p>
-                    <p class="mt-3 text-3xl font-semibold text-sky-600">2</p>
-                </div>
-                <div class="rounded-[24px] border border-slate-200 bg-white p-5 text-center">
-                    <p class="text-sm text-slate-500">Izin</p>
-                    <p class="mt-3 text-3xl font-semibold text-amber-500">1</p>
-                </div>
-                <div class="rounded-[24px] border border-slate-200 bg-white p-5 text-center">
-                    <p class="text-sm text-slate-500">Alpha</p>
-                    <p class="mt-3 text-3xl font-semibold text-red-600">1</p>
-                </div>
-                <div class="rounded-[24px] border border-slate-200 bg-[#1E2567] p-5 text-center text-white">
-                    <p class="text-sm">Total Siswa</p>
-                    <p class="mt-3 text-3xl font-semibold">10</p>
-                </div>
-            </div>
-
+        <!-- Table -->
+        <div class="bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200 text-sm">
-                    <thead class="bg-[#1E2567] text-white">
-                        <tr>
-                            <th class="px-4 py-4 text-left font-semibold">#</th>
-                            <th class="px-4 py-4 text-left font-semibold">NIS</th>
-                            <th class="px-4 py-4 text-left font-semibold">Nama Siswa</th>
-                            <th class="px-4 py-4 text-left font-semibold">L/P</th>
-                            <th class="px-4 py-4 text-left font-semibold">Status</th>
-                            <th class="px-4 py-4 text-left font-semibold">Keterangan</th>
+                @php
+                    $students = [
+                        ['nis' => '024342412', 'name' => 'ELFAN', 'gender' => 'L', 'status' => 'H'],
+                        ['nis' => '024342121', 'name' => 'BUNGA', 'gender' => 'P', 'status' => 'I'],
+                        ['nis' => '024342401', 'name' => 'ANDRE', 'gender' => 'L', 'status' => 'H'],
+                        ['nis' => '024342402', 'name' => 'RENAL', 'gender' => 'L', 'status' => 'I'],
+                        ['nis' => '024342404', 'name' => 'DIMAS', 'gender' => 'L', 'status' => 'H'],
+                        ['nis' => '024342406', 'name' => 'RAFLI', 'gender' => 'L', 'status' => 'S'],
+                        ['nis' => '024342407', 'name' => 'KHIKMAL', 'gender' => 'L', 'status' => 'I'],
+                        ['nis' => '024342408', 'name' => 'TRIO', 'gender' => 'L', 'status' => 'I'],
+                        ['nis' => '024342409', 'name' => 'DWI', 'gender' => 'P', 'status' => 'H'],
+                        ['nis' => '024112410', 'name' => 'RIFAUL', 'gender' => 'P', 'status' => 'S'],
+                    ];
+                    $statusOptions = ['H', 'S', 'I', 'A'];
+                    $statusLabels = [
+                        'H' => 'Hadir',
+                        'S' => 'Sakit',
+                        'I' => 'Izin',
+                        'A' => 'Alpha',
+                    ];
+                @endphp
+
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-[#1e2567] text-white">
+                            <th class="px-4 py-4 font-semibold text-center w-14">#</th>
+                            <th class="px-4 py-4 font-semibold text-center w-32">NIS</th>
+                            <th class="px-4 py-4 font-semibold text-center">Nama Siswa</th>
+                            <th class="px-4 py-4 font-semibold text-center w-16">L/P</th>
+                            @foreach ($statusOptions as $opt)
+                                <th class="px-3 py-4 font-semibold text-center w-16">
+                                    <div class="flex flex-col items-center gap-0.5">
+                                        <span class="text-[10px] font-normal text-slate-300 uppercase">{{ $statusLabels[$opt] }}</span>
+                                        <span>{{ $opt }}</span>
+                                    </div>
+                                </th>
+                            @endforeach
+                            <th class="px-4 py-4 font-semibold text-center w-44">Keterangan</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 bg-slate-50">
-                        @php
-                            $students = [
-                                ['nis' => '024342412', 'name' => 'ELFAN', 'gender' => 'L', 'status' => 'Hadir'],
-                                ['nis' => '024342121', 'name' => 'BUNGA', 'gender' => 'P', 'status' => 'Sakit'],
-                                ['nis' => '024342401', 'name' => 'ANDRE', 'gender' => 'L', 'status' => 'Izin'],
-                                ['nis' => '024342402', 'name' => 'RENAL', 'gender' => 'L', 'status' => 'Alpha'],
-                                ['nis' => '024342404', 'name' => 'DIMAS', 'gender' => 'L', 'status' => 'Hadir'],
-                                ['nis' => '024342406', 'name' => 'RAFLI', 'gender' => 'L', 'status' => 'Sakit'],
-                                ['nis' => '024342407', 'name' => 'KHIKMAL', 'gender' => 'L', 'status' => 'Izin'],
-                                ['nis' => '024342408', 'name' => 'TRIO', 'gender' => 'L', 'status' => 'Alpha'],
-                                ['nis' => '024342409', 'name' => 'DWI', 'gender' => 'P', 'status' => 'Hadir'],
-                                ['nis' => '024112410', 'name' => 'RIFAUL', 'gender' => 'P', 'status' => 'Sakit'],
-                            ];
-                            $options = ['Hadir', 'Sakit', 'Izin', 'Alpha'];
-                        @endphp
+                    <tbody>
                         @foreach ($students as $index => $student)
-                            <tr class="odd:bg-slate-50 even:bg-white">
-                                <td class="px-4 py-4 text-slate-600">{{ $index + 1 }}</td>
-                                <td class="px-4 py-4 text-slate-700">{{ $student['nis'] }}</td>
-                                <td class="px-4 py-4 font-semibold text-slate-900">{{ $student['name'] }}</td>
-                                <td class="px-4 py-4 text-slate-700">{{ $student['gender'] }}</td>
+                            <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50/60' }} border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td class="px-4 py-4 text-center text-slate-500">{{ $index + 1 }}</td>
+                                <td class="px-4 py-4 text-center text-slate-700">{{ $student['nis'] }}</td>
+                                <td class="px-4 py-4 text-center font-semibold text-slate-900">{{ $student['name'] }}</td>
+                                <td class="px-4 py-4 text-center text-slate-600">{{ $student['gender'] }}</td>
+                                @foreach ($statusOptions as $opt)
+                                    <td class="px-3 py-4 text-center">
+                                        <label class="inline-flex items-center justify-center cursor-pointer">
+                                            <input type="radio" name="status_{{ $index }}" value="{{ $opt }}" class="sr-only peer" {{ $student['status'] === $opt ? 'checked' : '' }}>
+                                            <span class="w-6 h-6 rounded-full border-2 border-slate-300 peer-checked:border-[#1e2567] peer-checked:bg-[#1e2567] flex items-center justify-center transition-all duration-200">
+                                                <span class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></span>
+                                            </span>
+                                        </label>
+                                    </td>
+                                @endforeach
                                 <td class="px-4 py-4">
-                                    <select class="w-full rounded-[12px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100">
-                                        @foreach ($options as $option)
-                                            <option value="{{ $option }}" {{ $student['status'] === $option ? 'selected' : '' }}>{{ $option }}</option>
-                                        @endforeach
-                                    </select>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <input type="text" class="w-full rounded-[12px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100" placeholder="Keterangan..." />
+                                    <input type="text" name="keterangan_{{ $index }}" placeholder="Keterangan..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-slate-50 focus:outline-none focus:border-[#1e2567] focus:ring-1 focus:ring-[#1e2567] focus:bg-white transition-all placeholder-slate-400">
                                 </td>
                             </tr>
                         @endforeach
@@ -114,13 +113,28 @@
                 </table>
             </div>
 
-            <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <label class="inline-flex items-center gap-3 text-sm text-slate-700">
-                    <input type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
+            <!-- Footer -->
+            <div class="px-6 py-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-4">
+                <label class="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                    <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-[#1e2567] focus:ring-[#1e2567] cursor-pointer">
                     Saya yakin akan mengubah data tersebut
                 </label>
-                <button class="inline-flex h-12 items-center justify-center rounded-[16px] bg-emerald-500 px-6 text-sm font-semibold text-white transition hover:bg-emerald-600">Simpan</button>
+                <button class="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+                    Simpan
+                </button>
             </div>
         </div>
+
     </div>
+
+    <style>
+        /* Custom radio button styling */
+        input[type="radio"].sr-only:checked + span {
+            border-color: #1e2567;
+            background-color: #1e2567;
+        }
+        input[type="radio"].sr-only:checked + span > span {
+            opacity: 1;
+        }
+    </style>
 @endsection

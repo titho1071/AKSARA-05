@@ -51,6 +51,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Absensi Admin
     Route::get('/absensi', fn() => view('Dashboard_Admin.Absensi.absensi-admin'))->name('absensi');
     Route::get('/absensi/rekap', fn() => view('Dashboard_Admin.Absensi.rekap-absensi'))->name('absensi.rekap');
+    Route::get('/absensi/{id}/pilih-bulan', fn($id) => view('Dashboard_Admin.Absensi.pilih_bulan_admin', ['id' => $id]))->name('absensi.pilih-bulan');
+Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail-absensi', ['id' => $id, 'month' => $month]))->name('absensi.detail');
+Route::get('/absensi/{id}/pilih-bulan', fn($id) => view('Dashboard_Admin.Absensi.pilih_bulan_admin', ['id' => $id]))->name('absensi.pilih-bulan');
+Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail_absensi_admin', ['id' => $id, 'month' => $month]))->name('absensi.detail');
     Route::get('/tahun-pelajaran', fn() => view('Dashboard_Admin.Lainnya.tahun-pelajaran'))->name('tahun-pelajaran');
     Route::get('/tahun-pelajaran/data', [TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.data');
     Route::post('/tahun-pelajaran', [TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
@@ -121,6 +125,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     // Absensi
     Route::get('/absensi', fn() => view('Dashboard_Guru.Absensi.absensi'))->name('absensi');
     Route::get('/absensi/recap', fn() => view('Dashboard_Guru.Absensi.rekap-absensi'))->name('absensi.recap');
+    Route::get('/absensi/pilih-bulan', fn() => view('Dashboard_Guru.Absensi.pilih-bulan'))->name('absensi.pilih-bulan');
     Route::get('/absensi/kelola', fn() => view('Dashboard_Guru.Absensi.kelola-absensi'))->name('absensi.kelola');
     Route::get('/absensi/detail', fn() => view('Dashboard_Guru.Absensi.detail-absensi'))->name('absensi.detail');
 
@@ -168,7 +173,7 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 Route::middleware(['auth', 'role:orang_tua'])->prefix('orangtua')->name('orangtua.')->group(function () {
 
     Route::get('/dashboard', [OrangTuaController::class, 'dashboard'])->name('dashboard');
-
+    Route::get('/absensi', fn() => view('Dashboard_Orangtua.Absensi.absensi_orangtua'))->name('absensi');
     // Dokumentasi
     Route::get('/dokumentasi', [OrangTuaController::class, 'dokumentasi'])->name('dokumentasi');
     Route::get('/dokumentasi/{id}', [OrangTuaController::class, 'dokumentasiDetail'])->name('dokumentasi.detail');

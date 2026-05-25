@@ -296,29 +296,42 @@
     });
 
     function hapusFoto(idDok) {
-
-        if (!confirm('Hapus foto ini?')) return;
-
-        fetch(`/guru/dokumentasi/foto/${idDok}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
+        Swal.fire({
+            title: 'Hapus foto ini?',
+            text: "Foto yang dihapus tidak dapat dikembalikan.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/guru/dokumentasi/foto/${idDok}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById(`foto-${idDok}`).remove();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Foto berhasil dihapus.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('Gagal!', 'Gagal menghapus foto.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Gagal!', 'Terjadi kesalahan saat menghapus foto.', 'error'));
             }
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.status === 'success') {
-
-                document.getElementById(`foto-${idDok}`).remove();
-
-            } else {
-
-                alert('Gagal menghapus foto.');
-            }
-        })
-        .catch(() => alert('Gagal menghapus foto.'));
+        });
     }
 </script>
 @endsection

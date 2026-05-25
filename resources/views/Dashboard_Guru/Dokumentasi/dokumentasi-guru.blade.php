@@ -23,15 +23,29 @@
 </div>
 
 @if (session('success'))
-    <div class="mb-6 rounded-[16px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-700">
-        {{ session('success') }}
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#2563eb'
+            });
+        });
+    </script>
 @endif
 
 @if (session('error'))
-    <div class="mb-6 rounded-[16px] border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700">
-        {{ session('error') }}
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#2563eb'
+            });
+        });
+    </script>
 @endif
 
 {{-- Statistik --}}
@@ -177,50 +191,40 @@
     </div>
 </div>
 
-{{-- Modal Konfirmasi Hapus --}}
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
-    <div class="relative w-full max-w-sm rounded-[28px] bg-white p-8 shadow-xl">
-        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-8 w-8 text-red-600">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-            </svg>
-        </div>
-        <h2 class="mb-2 text-center text-lg font-bold text-slate-900">Hapus Kegiatan</h2>
-        <p class="mb-1 text-center text-sm text-slate-500">Apakah kamu yakin ingin menghapus</p>
-        <p id="deleteNama" class="mb-6 text-center text-sm font-semibold text-slate-800"></p>
-        <p class="mb-6 text-center text-xs text-slate-400">Semua foto dokumentasi juga akan ikut terhapus.</p>
-        <div class="flex gap-3">
-            <button onclick="closeDeleteModal()"
-                class="flex-1 rounded-[14px] border border-slate-200 bg-slate-50 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-                Batal
-            </button>
-            <form id="deleteForm" method="POST" class="flex-1">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                    class="w-full rounded-[14px] bg-red-600 py-3 text-sm font-semibold text-white transition hover:bg-red-700">
-                    Ya, Hapus
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
 <script>
     function confirmDelete(actionUrl, nama) {
-        document.getElementById('deleteForm').action = actionUrl;
-        document.getElementById('deleteNama').textContent = nama;
-        const modal = document.getElementById('deleteModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        Swal.fire({
+            title: 'Hapus Kegiatan?',
+            text: "Apakah kamu yakin ingin menghapus " + nama + "? Semua foto dokumentasi juga akan ikut terhapus.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = actionUrl;
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                
+                const method = document.createElement('input');
+                method.type = 'hidden';
+                method.name = '_method';
+                method.value = 'DELETE';
+                
+                form.appendChild(csrfToken);
+                form.appendChild(method);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
     }
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDeleteModal(); });
 </script>
 
 @endsection

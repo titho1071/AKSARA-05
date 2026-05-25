@@ -14,14 +14,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Profil Saya</h1>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            {{ session('success') }}
-        </div>
-    @endif
+
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: User Info -->
@@ -117,10 +110,6 @@
                             </div>
 
                             <div class="pt-6">
-                                <label class="flex items-center gap-3 cursor-pointer group mb-6">
-                                    <input type="checkbox" required class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-all">
-                                    <span class="text-sm text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Saya yakin akan mengubah data tersebut</span>
-                                </label>
                                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md">
                                     Simpan
                                 </button>
@@ -135,21 +124,19 @@
                             @method('PUT')
                             <h3 class="text-lg font-bold mb-6">Foto</h3>
                             <div class="w-32 h-32 mx-auto mb-8 relative group">
-                                @if($ortu->foto_profil)
-                                    <img src="{{ asset('storage/' . $ortu->foto_profil) }}" alt="Preview" class="w-full h-full rounded-full object-cover">
-                                @else
-                                    <div class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
-                                @endif
+                                <img id="preview-image" src="{{ $ortu->foto_profil ? asset('storage/' . $ortu->foto_profil) : '' }}" alt="Preview" class="w-full h-full rounded-full object-cover {{ $ortu->foto_profil ? '' : 'hidden' }}">
+                                
+                                <div id="preview-placeholder" class="w-full h-full rounded-full bg-gray-100 flex items-center justify-center {{ $ortu->foto_profil ? 'hidden' : '' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
                             </div>
 
                             <p class="text-gray-400 text-xs italic mb-4">Ganti foto user</p>
                             
                             <div class="flex max-w-md mx-auto items-center border border-gray-200 rounded-lg overflow-hidden mb-6">
-                                <input type="file" name="foto" class="flex-1 px-4 py-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                                <input type="file" id="foto-input" name="foto" accept="image/*" class="flex-1 px-4 py-2 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
                                 <button type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 text-sm font-bold transition-colors">
                                     Update
                                 </button>
@@ -212,10 +199,6 @@
                             </div>
 
                             <div class="pt-6">
-                                <label class="flex items-center gap-3 cursor-pointer group mb-6">
-                                    <input type="checkbox" required class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 transition-all">
-                                    <span class="text-sm text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Saya yakin akan mengubah data tersebut</span>
-                                </label>
                                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md">
                                     Simpan
                                 </button>
@@ -290,5 +273,37 @@
             this.classList.remove('border-red-400');
         });
     }
+
+    // Preview Foto
+    const fotoInput = document.getElementById('foto-input');
+    const previewImage = document.getElementById('preview-image');
+    const previewPlaceholder = document.getElementById('preview-placeholder');
+
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('hidden');
+                    if (previewPlaceholder) {
+                        previewPlaceholder.classList.add('hidden');
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil',
+            text: '{{ session('success') }}',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#6366f1'
+        });
+    @endif
 </script>
 @endpush
