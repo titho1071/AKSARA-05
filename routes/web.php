@@ -9,6 +9,7 @@ use App\Http\Controllers\TahunPelajaranController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\Guru\DokumentasiGuruController;
 use App\Http\Controllers\Guru\SiswaGuruController;
+use App\Http\Controllers\Guru\AbsensiGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PengumumanController;
@@ -52,13 +53,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/absensi', fn() => view('Dashboard_Admin.Absensi.absensi-admin'))->name('absensi');
     Route::get('/absensi/rekap', fn() => view('Dashboard_Admin.Absensi.rekap-absensi'))->name('absensi.rekap');
     Route::get('/absensi/{id}/pilih-bulan', fn($id) => view('Dashboard_Admin.Absensi.pilih_bulan_admin', ['id' => $id]))->name('absensi.pilih-bulan');
-Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail-absensi', ['id' => $id, 'month' => $month]))->name('absensi.detail');
-Route::get('/absensi/{id}/pilih-bulan', fn($id) => view('Dashboard_Admin.Absensi.pilih_bulan_admin', ['id' => $id]))->name('absensi.pilih-bulan');
-Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail_absensi_admin', ['id' => $id, 'month' => $month]))->name('absensi.detail');
+    Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail_absensi_admin', ['id' => $id, 'month' => $month]))->name('absensi.detail');
     Route::get('/tahun-pelajaran', fn() => view('Dashboard_Admin.Lainnya.tahun-pelajaran'))->name('tahun-pelajaran');
     Route::get('/tahun-pelajaran/data', [TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.data');
     Route::post('/tahun-pelajaran', [TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
     Route::put('/tahun-pelajaran/{id}', [TahunPelajaranController::class, 'update'])->name('tahun-pelajaran.update');
+    Route::put('/tahun-pelajaran/{id}/aktif',[TahunPelajaranController::class, 'setAktif'])->name('tahun-pelajaran.aktif');
     Route::delete('/tahun-pelajaran/{id}', [TahunPelajaranController::class, 'destroy'])->name('tahun-pelajaran.destroy');
 
     // Master Data - Kelas
@@ -123,11 +123,37 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
     Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
 
     // Absensi
-    Route::get('/absensi', fn() => view('Dashboard_Guru.Absensi.absensi'))->name('absensi');
-    Route::get('/absensi/recap', fn() => view('Dashboard_Guru.Absensi.rekap-absensi'))->name('absensi.recap');
-    Route::get('/absensi/pilih-bulan', fn() => view('Dashboard_Guru.Absensi.pilih-bulan'))->name('absensi.pilih-bulan');
-    Route::get('/absensi/kelola', fn() => view('Dashboard_Guru.Absensi.kelola-absensi'))->name('absensi.kelola');
-    Route::get('/absensi/detail', fn() => view('Dashboard_Guru.Absensi.detail-absensi'))->name('absensi.detail');
+    Route::get('/absensi', [AbsensiGuruController::class, 'index'])
+        ->name('absensi');
+
+    Route::get('/absensi/{id}/pilih-bulan', function ($id) {
+        $kelas = \App\Models\Kelas::with('guru', 'tahunPelajaran')
+            ->findOrFail($id);
+
+        return view(
+            'Dashboard_Guru.Absensi.pilih-bulan',
+            compact('kelas')
+        );
+    })->name('absensi.pilih-bulan');
+
+    Route::get(
+        '/absensi/{id}/kelola/{bulan}/{tanggal}',
+        [AbsensiGuruController::class, 'kelola']
+    )->name('absensi.kelola');
+
+    Route::post(
+        '/absensi/{id}/kelola/{bulan}/{tanggal}',
+        [AbsensiGuruController::class, 'simpan']
+    )->name('absensi.simpan');
+
+    Route::get(
+        '/absensi/{id}/detail/{bulan}',
+        [AbsensiGuruController::class, 'detail']
+    )->name('absensi.detail');
+
+    Route::get('/absensi/recap', fn() =>
+        view('Dashboard_Guru.Absensi.rekap-absensi')
+    )->name('absensi.recap');
 
     // Dokumentasi
     Route::get('/dokumentasi', [DokumentasiGuruController::class, 'index'])->name('dokumentasi.index');

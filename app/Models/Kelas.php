@@ -34,6 +34,18 @@ class Kelas extends Model
      */
     public function guru()
     {
-        return $this->belongsTo(Guru::class, 'guru_id', 'id_guru');
+        return $this->belongsTo(\App\Models\Guru::class, 'guru_id', 'id_guru');
+    }
+
+    /**
+     * Get the tahun pelajaran for this kelas.
+     */
+    public function tahunPelajaran()
+    {
+        return $this->belongsTo(
+            TahunPelajaran::class,
+            'tapel_id',
+            'id_tapel'
+        );
     }
 }

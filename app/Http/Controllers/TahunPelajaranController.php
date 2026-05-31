@@ -8,60 +8,70 @@ use Illuminate\Http\Request;
 class TahunPelajaranController extends Controller
 {
     public function index()
-{
-    $tahunPelajaran = \DB::table('tahun_pelajaran')
-        ->leftJoin(
-            'kelas',
-            'tahun_pelajaran.id_tapel',
-            '=',
-            'kelas.tapel_id'
-        )
-        ->select(
-            'tahun_pelajaran.id_tapel',
-            'tahun_pelajaran.tahun_pelajaran',
-            'tahun_pelajaran.semester',
-            \DB::raw('COUNT(kelas.id_kelas) as jumlah_kelas')
-        )
-        ->groupBy(
-            'tahun_pelajaran.id_tapel',
-            'tahun_pelajaran.tahun_pelajaran',
-            'tahun_pelajaran.semester'
-        )
-        ->get();
+    {
+        $tahunPelajaran = \DB::table('tahun_pelajaran')
+            ->leftJoin(
+                'kelas',
+                'tahun_pelajaran.id_tapel',
+                '=',
+                'kelas.tapel_id'
+            )
+            ->select(
+                'tahun_pelajaran.id_tapel',
+                'tahun_pelajaran.tahun_pelajaran',
+                'tahun_pelajaran.semester',
+                'tahun_pelajaran.is_active',
+                \DB::raw('COUNT(kelas.id_kelas) as jumlah_kelas')
+            )
+            ->groupBy(
+                'tahun_pelajaran.id_tapel',
+                'tahun_pelajaran.tahun_pelajaran',
+                'tahun_pelajaran.semester',
+                'tahun_pelajaran.is_active'
+            )
+            ->get();
 
-    return response()->json($tahunPelajaran);
-}
-    public function store(Request $request)
-{
-    $request->validate([
-        'semester' => 'required|string',
-        'tahun_pelajaran' => 'required|string',
-    ]);
-
-    // Ambil ID terakhir
-    $lastData = TahunPelajaran::orderBy('id_tapel', 'desc')->first();
-
-    if ($lastData) {
-
-        $lastNumber = (int) substr($lastData->id_tapel, 2);
-        $newNumber = $lastNumber + 1;
-
-    } else {
-
-        $newNumber = 1;
+        return response()->json($tahunPelajaran);
     }
 
-    // Format: TP001
-    $id_tapel = 'TP' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'semester' => 'required|string',
+            'tahun_pelajaran' => 'required|string',
+        ]);
 
-    $tahunPelajaran = TahunPelajaran::create([
-        'id_tapel' => $id_tapel,
-        'semester' => $request->semester,
-        'tahun_pelajaran' => $request->tahun_pelajaran,
-    ]);
+        // Ambil ID terakhir
+        $lastData = TahunPelajaran::orderBy('id_tapel', 'desc')->first();
 
-    return response()->json($tahunPelajaran, 201);
-}
+        if ($lastData) {
+
+            $lastNumber = (int) substr($lastData->id_tapel, 2);
+            $newNumber = $lastNumber + 1;
+
+        } else {
+
+            $newNumber = 1;
+        }
+
+        // Format: TP001
+        $id_tapel = 'TP' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
+
+        if ($request->is_active) {
+            TahunPelajaran::query()->update([
+                'is_active' => false
+            ]);
+        }
+
+        $tahunPelajaran = TahunPelajaran::create([
+            'id_tapel' => $id_tapel,
+            'semester' => $request->semester,
+            'tahun_pelajaran' => $request->tahun_pelajaran,
+            'is_active' => $request->is_active ? true : false,
+        ]);
+
+        return response()->json($tahunPelajaran, 201);
+    }
 
     public function show($id)
     {
@@ -82,26 +92,48 @@ class TahunPelajaranController extends Controller
         return response()->json($tahunPelajaran);
     }
 
-    public function destroy($id)
-{
-    $tahunPelajaran = TahunPelajaran::findOrFail($id);
+    public function setAktif($id)
+    {
+        TahunPelajaran::query()->update([
+            'is_active' => false
+        ]);
 
-    // Cek apakah masih dipakai di tabel kelas
-    $kelasCount = \DB::table('kelas')
-        ->where('tapel_id', $tahunPelajaran->id_tapel)
-        ->count();
-
-    if ($kelasCount > 0) {
+        TahunPelajaran::where('id_tapel', $id)
+            ->update([
+                'is_active' => true
+            ]);
 
         return response()->json([
-            'message' => 'Tidak dapat menghapus tahun pelajaran karena masih digunakan oleh data kelas.'
-        ], 400);
+            'success' => true
+        ]);
     }
 
-    $tahunPelajaran->delete();
+    public function destroy($id)
+    {
+        $tahunPelajaran = TahunPelajaran::findOrFail($id);
 
-    return response()->json([
-        'message' => 'Data berhasil dihapus'
-    ]);
-}
+        // Cek apakah masih dipakai di tabel kelas
+        $kelasCount = \DB::table('kelas')
+            ->where('tapel_id', $tahunPelajaran->id_tapel)
+            ->count();
+
+        if ($kelasCount > 0) {
+
+            return response()->json([
+                'message' => 'Tidak dapat menghapus tahun pelajaran karena masih digunakan oleh data kelas.'
+            ], 400);
+        }
+
+        if ($tahunPelajaran->is_active) {
+            return response()->json([
+                'message' => 'Tahun pelajaran aktif tidak dapat dihapus.'
+            ], 400);
+        }
+
+        $tahunPelajaran->delete();
+
+        return response()->json([
+            'message' => 'Data berhasil dihapus'
+        ]);
+    }
 }

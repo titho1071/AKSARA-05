@@ -35,13 +35,13 @@
                 <div class="w-1.5 bg-amber-400 rounded-l-[20px] flex-shrink-0"></div>
                 <div class="p-6 space-y-1">
                     <p class="text-sm text-slate-800">
-                        <span class="font-bold">Kelas</span> : III A
+                        <span class="font-bold">Kelas</span> : {{ $kelas->nama_kelas }}
                     </p>
                     <p class="text-sm text-slate-800">
-                        <span class="font-bold">Wali Kelas</span> : Nama Wali Kelas, S.Pd
+                        <span class="font-bold">Wali Kelas</span> : {{ $kelas->guru->nama ?? '-' }}
                     </p>
                     <p class="text-sm text-slate-800">
-                        <span class="font-bold">Tahun Pelajaran</span> : 2024/2025 - Semester 2
+                        <span class="font-bold">Tahun Pelajaran</span> : {{ $kelas->tahunPelajaran->tahun_pelajaran ?? '-' }}
                     </p>
                 </div>
             </div>
@@ -50,7 +50,7 @@
         <!-- Month Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             @foreach ($months as $month)
-                <a href="{{ route('guru.absensi.detail') }}" class="group bg-white rounded-[16px] border border-slate-200 p-5 flex items-center gap-4 transition-all duration-200 shadow-sm hover:shadow-md {{ $month['card_hover'] }}">
+                <a href="{{ route('guru.absensi.detail', ['id' => $kelas->id_kelas, 'bulan' => strtolower(explode(' ', $month['name'])[0])]) }}" class="group bg-white rounded-[16px] border border-slate-200 p-5 flex items-center gap-4 transition-all duration-200 shadow-sm hover:shadow-md {{ $month['card_hover'] }}">
                     <!-- Calendar Icon -->
                     <div class="w-12 h-12 rounded-xl {{ $month['icon_bg'] }} flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

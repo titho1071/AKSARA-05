@@ -36,4 +36,16 @@ class Siswa extends Model
     {
         return $this->belongsTo(OrangTua::class, 'orang_tua_id', 'id_orang_tua');
     }
+
+    /**
+     * Get all absensi records for this siswa.
+     */
+    public function absensi()
+    {
+        return $this->hasMany(
+            Absensi::class,
+            'siswa_id',
+            'id_siswa'
+        );
+    }
 }

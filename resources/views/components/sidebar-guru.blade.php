@@ -14,7 +14,22 @@
     @php
         $route = request()->route()?->getName();
         $dashboardActive = in_array($route, ['guru.dashboard'], true);
-        $absensiActive = in_array($route, ['guru.absensi', 'guru.absensi.recap', 'guru.absensi.kelola'], true);
+        $absensiActive = in_array($route, [
+            'guru.absensi',
+            'guru.absensi.recap',
+            'guru.absensi.kelola',
+            'guru.absensi.detail',
+            'guru.absensi.pilih-bulan',
+        ], true);
+        $kelolaAbsensiActive = in_array($route, [
+            'guru.absensi',
+            'guru.absensi.kelola',
+            'guru.absensi.detail',
+            'guru.absensi.pilih-bulan',
+        ], true);
+        $recapAbsensiActive = $route === 'guru.absensi.recap';
+        $dokumentasiActive = in_array($route, ['guru.dokumentasi.index', 'guru.dokumentasi.create', 'guru.dokumentasi.edit', 'guru.dokumentasi.show'], true);
+        $pengumumanActive = in_array($route, ['guru.pengumuman', 'guru.pengumuman.create', 'guru.pengumuman.edit', 'guru.pengumuman.show'], true);
         $jadwalActive = in_array($route, ['guru.jadwal'], true);
         $siswaActive = in_array($route, ['guru.siswa.index', 'guru.siswa.edit', 'guru.siswa.show'], true);
     @endphp
@@ -30,7 +45,7 @@
         </a>
 
         <!-- Dropdown Menu Absensi -->
-        <div x-data="{ open: false }" class="relative">
+        <div x-data="{ open: {{ $absensiActive ? 'true' : 'false' }} }" class="relative">
             <button @click="open = !open"
                 class="w-full flex justify-between items-center px-3 py-2 rounded transition 
                 {{ $absensiActive 
@@ -43,14 +58,14 @@
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
                 <a href="{{ route('guru.absensi') }}"
                     class="block px-3 py-2 rounded transition 
-                    {{ $route === 'guru.absensi' 
+                    {{ $kelolaAbsensiActive 
                         ? 'bg-[#F59E0B] text-slate-950' 
                         : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Kelola Absensi
                 </a>
                 <a href="{{ route('guru.absensi.recap') }}"
                     class="block px-3 py-2 rounded transition 
-                    {{ $route === 'guru.absensi.recap' 
+                    {{ $recapAbsensiActive 
                         ? 'bg-[#F59E0B] text-slate-950' 
                         : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Recap Absensi
@@ -60,7 +75,7 @@
 
         <a href="{{ route('guru.dokumentasi.index') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'guru.dokumentasi.index' 
+            {{ $dokumentasiActive 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Dokumentasi
@@ -68,7 +83,7 @@
 
         <a href="{{ route('guru.pengumuman') }}"
             class="block px-3 py-2 rounded transition 
-            {{ $route === 'guru.pengumuman' 
+            {{ $pengumumanActive 
                 ? 'bg-[#F59E0B] text-slate-950' 
                 : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
             Pengumuman
@@ -85,7 +100,7 @@
         <div class="my-4 form-label text-slate-400 uppercase text-xs tracking-wider">Data</div>
 
         <!-- Dropdown Menu -->
-        <div x-data="{ open: false }" class="relative">
+        <div x-data="{ open: {{ $siswaActive ? 'true' : 'false' }} }" class="relative">
             <button @click="open = !open"
                 class="w-full flex justify-between items-center px-3 py-2 rounded transition 
                 {{ $siswaActive 

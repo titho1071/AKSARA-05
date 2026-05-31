@@ -18,36 +18,40 @@
     </div>
 </div>
 
-<div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+<div class="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead class="bg-slate-900 text-white">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-[#1E2567] text-white">
                 <tr>
-                    <th class="px-6 py-4 font-semibold">No</th>
-                    <th class="px-6 py-4 font-semibold">Tahun Pelajaran</th>
-                    <th class="px-6 py-4 font-semibold">Semester</th>
-                    <th class="px-6 py-4 font-semibold">Jumlah Kelas</th>
-                    <th class="px-6 py-4 font-semibold">Aksi</th>
+                    <th class="px-4 py-4 text-left font-semibold">#</th>
+                    <th class="px-4 py-4 text-left font-semibold">Tahun Pelajaran</th>
+                    <th class="px-4 py-4 text-left font-semibold">Semester</th>
+                    <th class="px-4 py-4 text-left font-semibold">Status</th>
+                    <th class="px-4 py-4 text-left font-semibold">Jumlah Kelas</th>
+                    <th class="px-4 py-4 text-left font-semibold">Aksi</th>
                 </tr>
             </thead>
-            <tbody id="tapel-table-body" class="divide-y divide-slate-200 bg-white text-slate-700">
-                <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-slate-500">Memuat data tahun pelajaran...</td>
+            <tbody id="tapel-table-body" class="divide-y divide-slate-200 bg-slate-50">
+                <tr class="bg-white">
+                    <td colspan="5" class="px-4 py-6 text-center text-slate-500">Memuat data tahun pelajaran...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal Tambah/Edit Tahun Pelajaran -->
+<!-- Modal Tambah Tahun Pelajaran -->
 <div id="tapel-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 py-6">
     <div class="w-full max-w-xl rounded-[2rem] bg-white p-6 shadow-2xl">
         <div class="flex items-start justify-between gap-4 mb-6">
-            <div>
-                <h2 id="modal-title" class="text-2xl font-bold text-slate-900">Tambah Data Tapel</h2>
-                <p id="modal-desc" class="text-sm text-slate-500 mt-1">Isi tahun pelajaran dan semester baru.</p>
+            <div class="mb-6">
+                <h2 id="modal-title" class="text-2xl font-bold text-slate-900">
+                    Tambah Data Tapel
+                </h2>
+                <p id="modal-desc" class="text-sm text-slate-500 mt-1">
+                    Isi tahun pelajaran dan semester baru.
+                </p>
             </div>
-            <button id="modal-close" class="rounded-full bg-slate-100 p-3 text-slate-700 hover:bg-slate-200">×</button>
         </div>
 
         <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
@@ -68,6 +72,15 @@
                     <option value="Ganjil">Ganjil</option>
                     <option value="Genap">Genap</option>
                 </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="inline-flex items-center gap-3 text-sm text-slate-600">
+                    <input
+                        id="is_active"
+                        type="checkbox"
+                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                    <span>Jadikan sebagai Tahun Pelajaran Aktif</span>
+                </label>
             </div>
             <div class="md:col-span-2">
                 <label class="inline-flex items-center gap-3 text-sm text-slate-600">
@@ -92,7 +105,6 @@
         const countEl = null;
         const modal = document.getElementById('tapel-modal');
         const btnAdd = document.getElementById('btn-add-tapel');
-        const btnClose = document.getElementById('modal-close');
         const btnCancel = document.getElementById('modal-cancel');
         const btnSave = document.getElementById('modal-save');
         const modalTitle = document.getElementById('modal-title');
@@ -103,10 +115,9 @@
             tahun_awal: document.getElementById('tahun_awal'),
             tahun_akhir: document.getElementById('tahun_akhir'),
             semester: document.getElementById('semester'),
+            is_active: document.getElementById('is_active'),
             confirm: document.getElementById('tapel-confirm')
         };
-
-
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -131,15 +142,47 @@
             }
 
             tableBody.innerHTML = tapelData.map((item, index) => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-medium text-slate-700">${index + 1}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.tahun_pelajaran}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.semester}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.jumlah_kelas || 0}</td>
+                <tr class="odd:bg-slate-50 even:bg-white">
+                    <td class="px-4 py-4 text-slate-600">${index + 1}</td>
+                    <td class="px-4 py-4 font-semibold text-slate-900">
+                        ${item.tahun_pelajaran}
+                    </td>
+
+                    <td class="px-4 py-4 text-slate-700">
+                        ${item.semester}
+                    </td>
+
+                    <td class="px-4 py-4">
+                        ${
+                            item.is_active
+                            ? `<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                                    Aktif
+                            </span>`
+                            : `<span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                    Tidak Aktif
+                            </span>`
+                        }
+                    </td>
+
+                    <td class="px-4 py-4 text-slate-700">
+                        ${item.jumlah_kelas || 0}
+                    </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
+                            ${!item.is_active ? `
+                            <button
+                                data-id="${item.id_tapel}"
+                                data-action="activate"
+                                class="inline-flex items-center rounded-xl bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200">
+                                Jadikan Aktif
+                            </button>
+                            ` : ''}
 
-                            <button data-id="${item.id_tapel}" data-action="delete" title="Hapus" class="rounded-lg p-2 text-red-600 hover:bg-red-100">
+                            <button
+                                data-id="${item.id_tapel}"
+                                data-action="delete"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-600 transition hover:bg-red-200"
+                                title="Hapus">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                                     <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
                                 </svg>
@@ -158,6 +201,7 @@
             fields.tahun_awal.value = '';
             fields.tahun_akhir.value = '';
             fields.semester.value = '';
+            fields.is_active.checked = false;
             fields.confirm.checked = false;
 
             modal.classList.remove('hidden');
@@ -178,6 +222,7 @@
             const tahun_awal = fields.tahun_awal.value.trim();
             const tahun_akhir = fields.tahun_akhir.value.trim();
             const semester = fields.semester.value;
+            const is_active = fields.is_active.checked ? 1 : 0;
             const confirmed = fields.confirm.checked;
 
             if (!tahun_awal.match(/^20\d{2}$/) || !tahun_akhir.match(/^20\d{2}$/)) {
@@ -198,9 +243,10 @@
             const tahun_pelajaran = `${tahun_awal}/${tahun_akhir}-${semester}`;
 
             const data = {
-            tahun_pelajaran,
-            semester,
-            _token: csrfToken
+                tahun_pelajaran,
+                semester,
+                is_active,
+                _token: csrfToken
             };
 
             try {
@@ -231,25 +277,57 @@
 
             const action = button.dataset.action;
             const id = button.dataset.id;
-            const item = tapelData.find(t => t.id_tapel === id);
+            const item = tapelData.find(t => t.id_tapel == id);
 
+            // Set aktif
+            if (action === 'activate') {
 
+                if (!confirm('Jadikan tahun pelajaran ini sebagai yang aktif?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/admin/tahun-pelajaran/${id}/aktif`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        loadTapelData();
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.message || 'Gagal mengubah status aktif');
+                    }
+
+                } catch (error) {
+                    alert('Terjadi kesalahan: ' + error.message);
+                }
+
+                return;
+            }
+
+            // Hapus
             if (action === 'delete' && item) {
                 if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
                     try {
                         const response = await fetch(`/admin/tahun-pelajaran/${id}`, {
-    method: 'DELETE',
-    headers: {
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json'
-    }
-});
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        });
+
                         if (response.ok) {
                             loadTapelData();
                         } else {
                             const errorData = await response.json();
                             alert(errorData.message || 'Gagal menghapus data');
                         }
+
                     } catch (error) {
                         alert('Terjadi kesalahan: ' + error.message);
                     }
@@ -260,7 +338,6 @@
         btnAdd.addEventListener('click', function () {
             openModal('create');
         });
-        btnClose.addEventListener('click', closeModal);
         btnCancel.addEventListener('click', closeModal);
         btnSave.addEventListener('click', function (event) {
             event.preventDefault();

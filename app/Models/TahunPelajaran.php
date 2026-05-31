@@ -15,6 +15,6 @@ class TahunPelajaran extends Model
         'id_tapel',
         'semester',
         'tahun_pelajaran',
-        'kelas_id',
+        'is_active'
     ];
 }
