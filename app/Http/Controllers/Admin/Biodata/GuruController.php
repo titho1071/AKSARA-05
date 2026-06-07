@@ -88,7 +88,8 @@ class GuruController extends Controller
                 'guru.nuptk',
                 'guru.jenis_kelamin as gender',
                 'guru.no_hp as phone',
-                'guru.alamat as address'
+                'guru.alamat as address',
+                'guru.status'
             )
             ->join('guru', 'guru.user_id', '=', 'users.id')
             ->where('users.role_id', $guruRoleId);
@@ -126,6 +127,7 @@ class GuruController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         // Simpan ke tabel users
@@ -145,6 +147,7 @@ class GuruController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.guru.index')
@@ -182,6 +185,7 @@ class GuruController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         $userData = [
@@ -200,6 +204,7 @@ class GuruController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.guru.index')
@@ -207,20 +212,21 @@ class GuruController extends Controller
     }
 
     public function destroy(User $user)
-    {
-        $guruRoleId = $this->getGuruRoleId();
+{
+    $guruRoleId = $this->getGuruRoleId();
 
-        if ($user->role_id !== $guruRoleId) {
-            abort(404);
-        }
-
-        // Hapus data profil guru dulu, baru user
-        DB::table('guru')->where('user_id', $user->id)->delete();
-        $user->delete();
-
-        return redirect()->route('admin.guru.index')
-            ->with('success', 'Guru berhasil dihapus.');
+    if ($user->role_id !== $guruRoleId) {
+        abort(404);
     }
+
+    DB::table('guru')->where('user_id', $user->id)->delete();
+    $user->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Guru berhasil dihapus.'
+    ]);
+}
 
     public function profil()
     {

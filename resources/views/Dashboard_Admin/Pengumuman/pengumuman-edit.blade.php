@@ -11,7 +11,7 @@
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Edit Pengumuman</h1>
             <p class="text-gray-600 mt-1">Perbarui pengumuman yang sudah ada.</p>
         </div>
-        <a href="{{ route('admin.pengumuman') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors justify-center">
+        <a href="{{ route('admin.pengumuman') }}" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
             <span>←</span> Kembali
         </a>
     </div>

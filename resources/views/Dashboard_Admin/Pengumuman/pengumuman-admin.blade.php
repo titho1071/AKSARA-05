@@ -12,8 +12,8 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
                 <p class="text-gray-600 mt-1">Kelola Pengumuman</p>
             </div>
-            <a id="btn-add-pengumuman" href="{{ route('admin.pengumuman.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors inline-flex">
-                <span>+</span> Tambah Pengumuman
+            <a id="btn-add-pengumuman" href="{{ route('admin.pengumuman.create') }}" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                + Tambah Pengumuman
             </a>
         </div>
     </div>

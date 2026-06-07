@@ -6,10 +6,13 @@
 
 @section('content')
     <div class="max-w-[1600px] mx-auto px-4 space-y-8">
-        <div class="space-y-2">
-            <p class="text-sm font-semibold text-slate-600">Detail Absensi</p>
-            <h1 class="text-3xl font-semibold text-slate-950">Detail Absensi Siswa</h1>
-            <p class="text-sm text-slate-500">Lihat ringkasan hadir, sakit, izin, dan alpha per siswa.</p>
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Detail Absensi Siswa</h1>
+                    <p class="text-gray-600 mt-1">Lihat ringkasan hadir, sakit, izin, dan alpha per siswa.</p>
+                </div>
+            </div>
         </div>
 
         <div class="rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">

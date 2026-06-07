@@ -16,18 +16,20 @@
     <div class="max-w-[1400px] mx-auto space-y-6">
 
         <!-- Header -->
-        <div class="space-y-1">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Absensi</h1>
-            <p class="text-sm text-gray-500">Pilih Bulan</p>
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Absensi</h1>
+                    <p class="text-gray-600 mt-1">Pilih Bulan</p>
+                </div>
+                <a href="{{ route('admin.absensi') }}" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Pilih Kelas
+                </a>
+            </div>
         </div>
-
-        <!-- Back Link -->
-        <a href="{{ route('admin.absensi') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-[#1e2567] hover:text-blue-700 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Pilih Kelas
-        </a>
 
         <!-- Info Card -->
         <div class="bg-white rounded-[20px] shadow-sm border border-slate-200">

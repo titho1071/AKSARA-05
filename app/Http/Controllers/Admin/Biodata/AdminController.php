@@ -37,7 +37,8 @@ class AdminController extends Controller
                 'admin.nuptk',
                 'admin.jenis_kelamin as gender',
                 'admin.no_hp as phone',
-                'admin.alamat as address'
+                'admin.alamat as address',
+                'admin.status'
             )
             ->join('admin', 'admin.user_id', '=', 'users.id')
             ->where('users.role_id', $adminRoleId);
@@ -75,6 +76,7 @@ class AdminController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         // Simpan ke tabel users
@@ -94,6 +96,7 @@ class AdminController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.biodata.index')
@@ -131,6 +134,7 @@ class AdminController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         // Update tabel users
@@ -151,6 +155,7 @@ class AdminController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.biodata.index')
@@ -158,20 +163,21 @@ class AdminController extends Controller
     }
 
     public function destroy(User $user)
-    {
-        $adminRoleId = $this->getAdminRoleId();
+{
+    $adminRoleId = $this->getAdminRoleId();
 
-        if ($user->role_id !== $adminRoleId) {
-            abort(404);
-        }
-
-        // Hapus data profil admin dulu, baru user
-        DB::table('admin')->where('user_id', $user->id)->delete();
-        $user->delete();
-
-        return redirect()->route('admin.biodata.index')
-            ->with('success', 'Admin berhasil dihapus.');
+    if ($user->role_id !== $adminRoleId) {
+        abort(404);
     }
+
+    DB::table('admin')->where('user_id', $user->id)->delete();
+    $user->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Admin berhasil dihapus.'
+    ]);
+}
 
     public function profil()
     {

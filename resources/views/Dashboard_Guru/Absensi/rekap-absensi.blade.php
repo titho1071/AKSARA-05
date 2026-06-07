@@ -1,109 +1,84 @@
 @extends('layouts.index')
-@php $role = 'guru'; @endphp
+@php
+    $role = 'guru';
+    /** @var \Illuminate\Pagination\LengthAwarePaginator $kelas */
+    /** @var \Illuminate\Support\Collection $tahunPelajaran */
+@endphp
 @section('title', 'Rekap Absensi')
 
 @section('content')
 @include('components.navbar', ['role' => $role])
-    <div class="max-w-[1180px] mx-auto space-y-8">
-        <div class="space-y-2">
-            <p class="text-sm font-semibold text-slate-600">Download Rekap Absensi</p>
-            <h1 class="text-3xl font-semibold text-slate-950">Download Rekap Absensi</h1>
-            <p class="text-sm text-slate-500">Unduh laporan absensi siswa per kelas atau keseluruhan.</p>
+
+    <div class="mb-8">
+        <div class="px-4 py-2 pt-4 mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Rekap Absensi</h1>
+            <p class="text-gray-600 mt-1">Pilih Kelas</p>
         </div>
 
-        <div class="rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-                <a href="{{ route('guru.absensi') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8.66667 12L4 7.33333L8.66667 2.66667" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Kembali ke Pilihan Kelas
-                </a>
-                <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-                    <span class="text-slate-300">›</span>
-                    <span class="font-semibold text-slate-900">Download Rekap</span>
-                </div>
+        <div class="bg-white rounded-[24px] shadow-sm border border-slate-200">
+            <!-- Header Section -->
+            <div class="p-6 border-b border-slate-100">
+                <h2 class="text-xl font-bold text-[#1e2567]">Daftar Kelas</h2>
+                <p class="text-sm text-slate-500 mt-1 mb-4">Tahun Pelajaran</p>
             </div>
 
-            <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-6 shadow-sm mb-8">
-                <div class="grid gap-4 md:grid-cols-3">
-                    <div>
-                        <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Kelas</label>
-                        <select class="w-full rounded-[16px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100">
-                            <option>Semua Kelas</option>
-                            <option>Kelas I A</option>
-                            <option>Kelas I B</option>
-                            <option>Kelas II A</option>
-                            <option>Kelas III A</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Tahun Pelajaran</label>
-                        <select class="w-full rounded-[16px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100">
-                            <option>2023/2024 Semester 1</option>
-                            <option>2023/2024 Semester 2</option>
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button class="w-full rounded-[16px] bg-[#1E2567] px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Terapkan Filter</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Table Section -->
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-700">
+                    <thead>
+                        <tr class="bg-[#1e2567] text-white">
+                            <th class="px-6 py-4 font-semibold text-center rounded-l-xl w-16">No</th>
+                            <th class="px-6 py-4 font-semibold text-center w-1/4">Kelas</th>
+                            <th class="px-6 py-4 font-semibold text-center w-1/3">Wali Kelas</th>
+                            <th class="px-6 py-4 font-semibold text-center rounded-r-xl w-48">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-transparent">
+                        @forelse($kelas as $item)
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 text-center">
+                                {{ $kelas->firstItem() + $loop->index }}
+                            </td>
 
-            <div class="space-y-6">
-                <div>
-                    <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-slate-900">Rekap Per Kelas</p>
-                            <p class="text-sm text-slate-500">Tahun Pelajaran 2023/2024 · Semester 1</p>
-                        </div>
-                    </div>
-                    <div class="grid gap-4 xl:grid-cols-4">
-                        @php
-                            $classes = [
-                                ['name' => 'Kelas I A',   'teacher' => 'Siti Rahayu, S.Pd',  'students' => 28, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas I B',   'teacher' => 'Ahmad Fauzi, S.Pd',   'students' => 30, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas II A',  'teacher' => 'Dewi Lestari, S.Pd',  'students' => 27, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas II B',  'teacher' => 'Rizal Hidayat, S.Pd', 'students' => 29, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas III A', 'teacher' => 'Budi Santoso, S.Pd',  'students' => 10, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas III B', 'teacher' => 'Nurul Aini, S.Pd',    'students' => 31, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas IV A',  'teacher' => 'Hendra Putra, S.Pd',  'students' => 26, 'tahun' => '2023/2024 - Semester 1'],
-                                ['name' => 'Kelas IV B',  'teacher' => 'Fitriana, S.Pd',       'students' => 32, 'tahun' => '2023/2024 - Semester 1'],
-                            ];
-                        @endphp
-                        @foreach ($classes as $class)
-                            <div class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm">
-                                <div class="space-y-4">
-                                    <div>
-                                        <p class="text-base font-semibold text-slate-900">{{ $class['name'] }}</p>
-                                        <p class="text-sm text-slate-500">Wali: {{ $class['teacher'] }}</p>
-                                    </div>
-                                    <div class="flex flex-wrap gap-2 text-sm text-slate-600">
-                                        <span class="rounded-full border border-slate-200 bg-emerald-50 px-3 py-1">{{ $class['students'] }} siswa</span>
-                                    </div>
-                                    <div class="flex flex-wrap gap-3">
-                                        <button
-                                            onclick="openPdfModal('{{ $class['name'] }}', '{{ $class['tahun'] }}')"
-                                            class="inline-flex items-center gap-2 justify-center rounded-[16px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                            </svg>
-                                            PDF
-                                        </button>
-                                    </div>
+                            <td class="px-6 py-4 text-center font-medium">
+                                {{ $item->nama_kelas }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                {{ $item->guru->nama ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                <button
+                                    onclick="openRekapModal('{{ $item->nama_kelas }}', '{{ $item->id_kelas }}')"
+                                    class="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                                    </svg>
+                                    Cetak Rekapitulasi
+                                </button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                                <div class="flex flex-col items-center gap-2">
+                                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <p class="text-sm">Tidak ada kelas yang tersedia</p>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-
-    <!-- ===== MODAL REKAPITULASI ABSENSI ===== -->
-    <div id="pdfModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 py-6">
-        <!-- Modal Box -->
+    <!-- ===== MODAL CETAK REKAPITULASI ===== -->
+    <div id="rekapModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 py-6">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
 
             <!-- Header -->
@@ -112,30 +87,33 @@
                     <h2 class="text-2xl font-bold text-slate-900">Rekapitulasi Absensi</h2>
                     <p class="text-sm text-gray-500 mt-1">Pilih rentang waktu untuk mengunduh laporan PDF.</p>
                 </div>
-
+                <button onclick="closeRekapModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <!-- Info Kelas -->
             <div class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 mb-6 space-y-1 text-sm text-slate-600">
-                <p>Kelas : <span id="modalKelas" class="font-bold text-slate-900"></span></p>
-                <p>Tahun Pelajaran : <span id="modalTahun" class="font-bold text-slate-900"></span></p>
+                <p>Kelas : <span id="modalNamaKelas" class="font-bold text-slate-900"></span></p>
             </div>
 
             <!-- Pilihan Rentang Waktu -->
             <div class="grid grid-cols-2 gap-3 mb-8">
-                <button onclick="downloadPdf('bulan')"
+                <button onclick="downloadRekap('bulan')"
                     class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
                     Per 1 Bulan
                 </button>
-                <button onclick="downloadPdf('3bulan')"
+                <button onclick="downloadRekap('3bulan')"
                     class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
                     Per 3 Bulan
                 </button>
-                <button onclick="downloadPdf('semester')"
+                <button onclick="downloadRekap('semester')"
                     class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
                     Per Semester
                 </button>
-                <button onclick="downloadPdf('tahun')"
+                <button onclick="downloadRekap('tahun')"
                     class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors">
                     Per Tahun
                 </button>
@@ -143,7 +121,7 @@
 
             <!-- Footer -->
             <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
-                <button id="cancel-pdf-modal"
+                <button onclick="closeRekapModal()"
                     class="bg-slate-200 hover:bg-slate-300 text-slate-900 px-6 py-3 rounded-xl font-medium transition-colors">
                     Batal
                 </button>
@@ -152,39 +130,41 @@
     </div>
 
     <script>
-        let currentKelas = '';
-        let currentTahun = '';
+        let currentKelasId = '';
+        let currentNamaKelas = '';
 
-        function openPdfModal(kelas, tahun) {
-            currentKelas = kelas;
-            currentTahun = tahun;
-            document.getElementById('modalKelas').textContent = kelas;
-            document.getElementById('modalTahun').textContent = tahun;
-            const modal = document.getElementById('pdfModal');
+        function openRekapModal(namaKelas, kelasId) {
+            currentKelasId = kelasId;
+            currentNamaKelas = namaKelas;
+            document.getElementById('modalNamaKelas').textContent = namaKelas;
+            const modal = document.getElementById('rekapModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
-        function closePdfModal() {
-            const modal = document.getElementById('pdfModal');
+        function closeRekapModal() {
+            const modal = document.getElementById('rekapModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
 
-        function downloadPdf(rentang) {
+        function downloadRekap(rentang) {
             const params = new URLSearchParams({
-                kelas: currentKelas,
-                tahun: currentTahun,
+                kelas_id: currentKelasId,
+                kelas: currentNamaKelas,
                 rentang: rentang
             });
-            window.location.href = `/admin/absensi/download-pdf?${params.toString()}`;
+            window.location.href = `/guru/absensi/rekap/download?${params.toString()}`;
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('cancel-pdf-modal').addEventListener('click', closePdfModal);
-
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closePdfModal();
+                if (e.key === 'Escape') closeRekapModal();
+            });
+
+            // Klik di luar modal untuk menutup
+            document.getElementById('rekapModal').addEventListener('click', function(e) {
+                if (e.target === this) closeRekapModal();
             });
         });
     </script>

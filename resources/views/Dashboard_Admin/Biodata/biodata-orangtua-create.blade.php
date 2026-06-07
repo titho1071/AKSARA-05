@@ -10,11 +10,10 @@
 @include('components.navbar', ['role' => $role])
 
 <div class="mb-8">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
         <div>
-            <p class="text-sm font-semibold text-slate-500">Tambah Data Orang Tua</p>
-            <h1 class="text-3xl font-bold text-slate-950">Tambah Data Orang Tua</h1>
-            <p class="text-sm text-slate-500">Masukkan informasi lengkap untuk orang tua siswa baru.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Tambah Data Orang Tua</h1>
+            <p class="text-gray-600 mt-1">Masukkan informasi lengkap untuk orang tua siswa baru.</p>
         </div>
         <a href="{{ route('admin.orangtua.index') }}"
             class="inline-flex items-center gap-2 rounded-[16px] border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
@@ -34,7 +33,7 @@
 @endif
 
 <div class="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
-    <form action="{{ route('admin.orangtua.store') }}" method="POST" class="space-y-6">
+    <form id="biodata-form" action="{{ route('admin.orangtua.store') }}" method="POST" class="space-y-6">
         @csrf
         <div class="grid gap-6 lg:grid-cols-2">
             <div>
@@ -65,6 +64,13 @@
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Alamat</label>
                 <input type="text" name="address" value="{{ old('address') }}" placeholder="Masukkan alamat"
                     class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-semibold text-slate-700">Status</label>
+                <select name="status" class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100" required>
+                    <option value="aktif" {{ old('status', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="tidak_aktif" {{ old('status') === 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                </select>
             </div>
             <div>
                 <label class="mb-2 block text-sm font-semibold text-slate-700">Email</label>
@@ -107,15 +113,7 @@
             </div>
         </div>
 
-        <label class="inline-flex items-center gap-3 text-sm text-slate-700">
-            <input type="checkbox" required class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-            Saya yakin sudah mengisi dengan benar
-        </label>
-
-        <button type="submit"
-            class="inline-flex items-center justify-center rounded-[16px] bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
-            Simpan
-        </button>
+        <button type="submit" class="inline-flex items-center justify-center rounded-[16px] bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">Simpan</button>
     </form>
 </div>
 
@@ -131,20 +129,10 @@
             : `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.574-3.007-9.964-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />`;
     }
 
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const password = document.getElementById('password').value;
-        const confirm = document.getElementById('password_confirmation').value;
-        const msg = document.getElementById('password-match-msg');
 
-        if (password !== confirm) {
-            e.preventDefault();
-            msg.classList.remove('hidden');
-            document.getElementById('password_confirmation').classList.add('border-red-400', 'ring-red-100');
-        }
-    });
 
-    document.getElementById('password_confirmation').addEventListener('input', function () {
-        document.getElementById('password-match-msg').classList.add('hidden');
+    document.getElementById('password_confirmation')?.addEventListener('input', function () {
+        document.getElementById('password-match-msg')?.classList.add('hidden');
         this.classList.remove('border-red-400', 'ring-red-100');
     });
 </script>

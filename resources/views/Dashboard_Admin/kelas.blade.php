@@ -9,11 +9,10 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
         <div>
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Data Kelas</h1>
-            <p class="text-gray-500 mt-2">Kelola semua data kelas dan guru wali kelas.</p>
+            <p class="text-gray-600 mt-1">Kelola semua data kelas dan guru wali kelas.</p>
         </div>
-        <button id="btn-add-kelas" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
-            <span class="text-xl">+</span>
-            Tambah Data Kelas
+        <button id="btn-add-kelas" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+            + Tambah Data Kelas
         </button>
     </div>
 </div>

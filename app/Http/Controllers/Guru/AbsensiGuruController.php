@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
 use App\Models\Absensi;
+use App\Models\Guru;
 use App\Models\TahunPelajaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AbsensiGuruController extends Controller
 {
@@ -20,8 +22,13 @@ class AbsensiGuruController extends Controller
             ?? $tapelAktif?->id_tapel
             ?? $tahunPelajaran->first()?->id_tapel;
 
+        // Ambil data guru yang sedang login
+        $guru = Guru::where('user_id', Auth::id())->first();
+
+        // Filter hanya kelas yang diwali oleh guru yang login
         $kelas = Kelas::with('guru')
             ->where('tapel_id', $tapelId)
+            ->where('guru_id', $guru?->id_guru)
             ->orderBy('tingkat')
             ->orderBy('nama_kelas')
             ->paginate(10)
@@ -32,6 +39,40 @@ class AbsensiGuruController extends Controller
             'tahunPelajaran',
             'tapelId',
             'tapelAktif'
+        ));
+    }
+
+    public function recap(Request $request)
+    {
+        $tahunPelajaran = TahunPelajaran::orderByDesc('created_at')->get();
+
+        $tapelAktif = TahunPelajaran::where('is_active', 1)->first();
+
+        $tapelId = $request->tapel
+            ?? $tapelAktif?->id_tapel
+            ?? $tahunPelajaran->first()?->id_tapel;
+
+        // Ambil data guru yang sedang login
+        $guru = Guru::where('user_id', Auth::id())->first();
+
+        $search = $request->search;
+
+        // Filter hanya kelas yang diwali oleh guru yang login
+        $kelas = Kelas::with('guru')
+            ->where('tapel_id', $tapelId)
+            ->where('guru_id', $guru?->id_guru)
+            ->when($search, fn($q) => $q->where('nama_kelas', 'like', "%{$search}%"))
+            ->orderBy('tingkat')
+            ->orderBy('nama_kelas')
+            ->paginate($request->per_page ?? 10)
+            ->withQueryString();
+
+        return view('Dashboard_Guru.Absensi.rekap-absensi', compact(
+            'kelas',
+            'tahunPelajaran',
+            'tapelId',
+            'tapelAktif',
+            'search'
         ));
     }
 

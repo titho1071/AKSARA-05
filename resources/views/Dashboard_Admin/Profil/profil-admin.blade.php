@@ -11,7 +11,12 @@
 
 <div class="px-4 py-6" x-data="{ activeTab: 'edit-profil' }">
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Profil Saya</h1>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Profil Saya</h1>
+                <p class="text-gray-600 mt-1">Kelola dan perbarui informasi profil Anda.</p>
+            </div>
+        </div>
     </div>
 
 

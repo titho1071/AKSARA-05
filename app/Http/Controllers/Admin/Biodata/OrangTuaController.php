@@ -410,7 +410,8 @@ class OrangTuaController extends Controller
                 'orang_tua.nik',
                 'orang_tua.jenis_kelamin as gender',
                 'orang_tua.no_hp as phone',
-                'orang_tua.alamat as address'
+                'orang_tua.alamat as address',
+                'orang_tua.status'
             )
             ->join('orang_tua', 'orang_tua.user_id', '=', 'users.id')
             ->where('users.role_id', $orangTuaRoleId);
@@ -447,6 +448,7 @@ class OrangTuaController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         // Simpan ke tabel users
@@ -465,6 +467,7 @@ class OrangTuaController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.orangtua.index')
@@ -501,6 +504,7 @@ class OrangTuaController extends Controller
             'gender' => ['nullable', 'string', 'in:Laki-laki,Perempuan'],
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:500'],
+            'status' => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         $userData = [
@@ -518,6 +522,7 @@ class OrangTuaController extends Controller
             'jenis_kelamin' => $validated['gender'] ?? null,
             'no_hp' => $validated['phone'] ?? null,
             'alamat' => $validated['address'] ?? null,
+            'status' => $validated['status'] ?? 'aktif',
         ]);
 
         return redirect()->route('admin.orangtua.index')
@@ -525,17 +530,19 @@ class OrangTuaController extends Controller
     }
 
     public function destroy(User $user)
-    {
-        $orangTuaRoleId = $this->getOrangTuaRoleId();
+{
+    $orangTuaRoleId = $this->getOrangTuaRoleId();
 
-        if ($user->role_id !== $orangTuaRoleId) {
-            abort(404);
-        }
-
-        DB::table('orang_tua')->where('user_id', $user->id)->delete();
-        $user->delete();
-
-        return redirect()->route('admin.orangtua.index')
-            ->with('success', 'Data orang tua berhasil dihapus.');
+    if ($user->role_id !== $orangTuaRoleId) {
+        abort(404);
     }
+
+    DB::table('orang_tua')->where('user_id', $user->id)->delete();
+    $user->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data orang tua berhasil dihapus.'
+    ]);
+}
 }

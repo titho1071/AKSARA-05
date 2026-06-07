@@ -9,11 +9,10 @@
 @section('content')
 @include('components.navbar', ['role' => $role])
 
-    <div class="max-w-[1400px] mx-auto space-y-6">
-        
-        <div class="space-y-1">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Absensi</h1>
-            <p class="text-sm text-gray-500">Pilih Kelas</p>
+    <div class="mb-8">
+        <div class="px-4 py-2 pt-4 mb-8" >
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Absensi</h1>
+            <p class="text-gray-600 mt-1">Daftar Kelas</p>
         </div>
 
         <div class="bg-white rounded-[24px] shadow-sm border border-slate-200">
@@ -71,26 +70,6 @@
                                 </div>
                             </details>
                         </div>
-
-                        <!-- Dropdown Entries -->
-                        <div class="relative">
-                            <select class="appearance-none border border-slate-200 rounded-xl px-4 py-2.5 pr-8 bg-white text-sm text-slate-700 focus:outline-none focus:border-[#1e2567] focus:ring-1 focus:ring-[#1e2567]">
-                                <option>10</option>
-                                <option>25</option>
-                                <option>50</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Search -->
-                    <div class="relative w-full md:w-[320px]">
-                        <input type="text" placeholder="Cari nama kelas..." class="w-full border border-slate-200 rounded-xl pl-4 pr-10 py-2.5 text-sm focus:outline-none focus:border-[#1e2567] focus:ring-1 focus:ring-[#1e2567] transition-all">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -100,7 +79,7 @@
                 <table class="w-full text-left text-sm text-slate-700">
                     <thead>
                         <tr class="bg-[#1e2567] text-white">
-                            <th class="px-6 py-4 font-semibold text-center rounded-l-xl w-16">#</th>
+                            <th class="px-6 py-4 font-semibold text-center rounded-l-xl w-16">No</th>
                             <th class="px-6 py-4 font-semibold text-center w-1/4">Kelas</th>
                             <th class="px-6 py-4 font-semibold text-center w-1/3">Wali Kelas</th>
                             <th class="px-6 py-4 font-semibold text-center rounded-r-xl w-32">Aksi</th>
@@ -131,16 +110,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Pagination Section -->
-            <div class="px-6 py-4 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-sm text-slate-500">
-                    Menampilkan {{ $kelas->firstItem() }}–{{ $kelas->lastItem() }}
-                    dari {{ $kelas->total() }} kelas
-                </p>
-
-                {{ $kelas->links() }}
             </div>
         </div>
     </div>

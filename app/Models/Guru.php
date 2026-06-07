@@ -17,6 +17,7 @@ class Guru extends Model
         'jenis_kelamin',
         'no_hp',
         'alamat',
+        'status',
     ];
 
     /**

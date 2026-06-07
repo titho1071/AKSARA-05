@@ -44,6 +44,7 @@ class SiswaController extends Controller
             'kelas_id'      => ['nullable', 'exists:kelas,id_kelas'],
             'alamat'        => ['nullable', 'string'],
             'tanggal_lahir' => ['nullable', 'date'],
+            'status'        => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         Siswa::create([
@@ -54,7 +55,7 @@ class SiswaController extends Controller
             'kelas_id'      => $request->kelas_id ?: null,
             'alamat'        => $request->alamat,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'status'        => 'aktif',
+            'status'        => $request->status ?? 'aktif',
         ]);
 
         return redirect()->route('admin.siswa.index')
@@ -80,6 +81,7 @@ class SiswaController extends Controller
             'kelas_id'      => ['nullable', 'exists:kelas,id_kelas'],
             'alamat'        => ['nullable', 'string'],
             'tanggal_lahir' => ['nullable', 'date'],
+            'status'        => ['nullable', 'string', 'in:aktif,tidak_aktif'],
         ]);
 
         $siswa->update([
@@ -90,6 +92,7 @@ class SiswaController extends Controller
             'kelas_id'      => $request->kelas_id ?: null,
             'alamat'        => $request->alamat,
             'tanggal_lahir' => $request->tanggal_lahir,
+            'status'        => $request->status ?? 'aktif',
         ]);
 
         return redirect()->route('admin.siswa.index')
@@ -97,11 +100,13 @@ class SiswaController extends Controller
     }
 
     public function destroy($id)
-    {
-        $siswa = Siswa::findOrFail($id);
-        $siswa->delete();
+{
+    $siswa = Siswa::findOrFail($id);
+    $siswa->delete();
 
-        return redirect()->route('admin.siswa.index')
-            ->with('success', 'Data siswa berhasil dihapus.');
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Data siswa berhasil dihapus.'
+    ]);
+}
 }

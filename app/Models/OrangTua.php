@@ -16,6 +16,7 @@ class OrangTua extends Model
         'jenis_kelamin',
         'no_hp',
         'alamat',
+        'status',
     ];
 
     /**

@@ -9,11 +9,11 @@
 <div class="mb-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
         <div>
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
-            <p class="text-gray-600 mt-1">semua pengumuman</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Detail Pengumuman</h1>
+            <p class="text-gray-600 mt-1">Informasi lengkap detail pengumuman.</p>
         </div>
         <a href="{{ route('admin.pengumuman') }}"
-           class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors justify-center">
+           class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 5l-7 7 7 7"/>

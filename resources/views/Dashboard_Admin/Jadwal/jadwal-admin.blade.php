@@ -11,8 +11,8 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Jadwal Pelajaran</h1>
                 <p class="text-gray-600 mt-1">Kelola Jadwal Pelajaran untuk seluruh kelas</p>
             </div>
-            <button id="btn-add-schedule" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors">
-                <span>+</span> Tambah Jadwal Pelajaran
+            <button id="btn-add-schedule" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                + Tambah Jadwal Pelajaran
             </button>
         </div>
     </div>
