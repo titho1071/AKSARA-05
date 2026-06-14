@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AbsensiAdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\Orangtua\OrangtuaJadwalController;
+use App\Http\Controllers\Orangtua\OrangtuaAbsensiController;
 use App\Http\Controllers\Guru\GuruJadwalController;
 
 /*
@@ -57,10 +58,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/biodata/{user}', [AdminController::class, 'update'])->name('biodata.update');
 
     // Absensi Admin
-    Route::get('/absensi', [AbsensiAdminController::class, 'index'])->name('absensi');
-    Route::get('/absensi/rekap', [AbsensiAdminController::class, 'recap'])->name('absensi.rekap');
-    Route::get('/absensi/{id}/pilih-bulan', fn($id) => view('Dashboard_Admin.Absensi.pilih-bulan-admin', ['id' => $id]))->name('absensi.pilih-bulan');
-    Route::get('/absensi/{id}/detail/{month}', fn($id, $month) => view('Dashboard_Admin.Absensi.detail-absensi-admin', ['id' => $id, 'month' => $month]))->name('absensi.detail');
+    Route::get('/absensi', [AbsensiAdminController::class, 'index'])
+        ->name('absensi');
+
+    Route::get('/absensi/rekap', [AbsensiAdminController::class, 'recap'])
+        ->name('absensi.rekap');
+
+    Route::get(
+        '/absensi/{id}/pilih-bulan',
+        [AbsensiAdminController::class, 'pilihBulan']
+    )->name('absensi.pilih-bulan');
+
+    Route::get(
+        '/absensi/{id}/detail/{bulan}',
+        [AbsensiAdminController::class, 'detail']
+    )->name('absensi.detail');
     Route::get('/tahun-pelajaran', fn() => view('Dashboard_Admin.Lainnya.tahun-pelajaran'))->name('tahun-pelajaran');
     Route::get('/tahun-pelajaran/data', [TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.data');
     Route::post('/tahun-pelajaran', [TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
@@ -203,23 +215,43 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
 | ORANG TUA
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'role:orang_tua'])->prefix('orangtua')->name('orangtua.')->group(function () {
+Route::middleware(['auth', 'role:orang_tua'])
+    ->prefix('orangtua')
+    ->name('orangtua.')
+    ->group(function () {
 
-    Route::get('/dashboard', [OrangTuaController::class, 'dashboard'])->name('dashboard');
-    Route::get('/absensi', fn() => view('Dashboard_Orangtua.Absensi.absensi-orangtua'))->name('absensi');
+    Route::get('/dashboard', [OrangTuaController::class, 'dashboard'])
+        ->name('dashboard');
 
-    Route::get('/dokumentasi', [OrangTuaController::class, 'dokumentasi'])->name('dokumentasi');
-    Route::get('/dokumentasi/{id}', [OrangTuaController::class, 'dokumentasiDetail'])->name('dokumentasi.detail');
+    Route::get('/absensi', [OrangtuaAbsensiController::class, 'index'])
+        ->name('absensi');
 
-    Route::get('/pengumuman', [OrangTuaController::class, 'pengumuman'])->name('pengumuman');
-    Route::get('/pengumuman/{id}', [OrangTuaController::class, 'pengumumanDetail'])->name('pengumuman.detail');
+    Route::get('/dokumentasi', [OrangTuaController::class, 'dokumentasi'])
+        ->name('dokumentasi');
 
-    Route::get('/jadwal', [OrangtuaJadwalController::class, 'index'])->name('jadwal'); // ← satu ini saja
+    Route::get('/dokumentasi/{id}', [OrangTuaController::class, 'dokumentasiDetail'])
+        ->name('dokumentasi.detail');
 
-    Route::get('/profil', [OrangTuaController::class, 'profil'])->name('profil');
-    Route::put('/profil/update', [OrangTuaController::class, 'updateProfil'])->name('profil.update');
-    Route::put('/profil/foto', [OrangTuaController::class, 'updateFoto'])->name('profil.foto');
-    Route::put('/profil/akun', [OrangTuaController::class, 'updateAkun'])->name('profil.akun');
+    Route::get('/pengumuman', [OrangTuaController::class, 'pengumuman'])
+        ->name('pengumuman');
+
+    Route::get('/pengumuman/{id}', [OrangTuaController::class, 'pengumumanDetail'])
+        ->name('pengumuman.detail');
+
+    Route::get('/jadwal', [OrangtuaJadwalController::class, 'index'])
+        ->name('jadwal');
+
+    Route::get('/profil', [OrangTuaController::class, 'profil'])
+        ->name('profil');
+
+    Route::put('/profil/update', [OrangTuaController::class, 'updateProfil'])
+        ->name('profil.update');
+
+    Route::put('/profil/foto', [OrangTuaController::class, 'updateFoto'])
+        ->name('profil.foto');
+
+    Route::put('/profil/akun', [OrangTuaController::class, 'updateAkun'])
+        ->name('profil.akun');
 });
 
 

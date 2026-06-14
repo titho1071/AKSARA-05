@@ -13,7 +13,7 @@
 
     @php
         $route = request()->route()?->getName();
-        $absensiActive = in_array($route, ['admin.absensi', 'admin.absensi.rekap', 'admin.absensi.detail'], true);
+        $absensiActive = in_array($route, ['admin.absensi', 'admin.absensi.rekap', 'admin.absensi.detail', 'admin.absensi.pilih-bulan'], true);
     @endphp
 
     <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
@@ -37,7 +37,7 @@
             <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
                 <a href="{{ route('admin.absensi') }}"
                     class="block px-3 py-2 rounded transition
-                    {{ $route === 'admin.absensi' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                    {{ in_array($route, ['admin.absensi', 'admin.absensi.pilih-bulan', 'admin.absensi.detail']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Absensi
                 </a>
                 <a href="{{ route('admin.absensi.rekap') }}"
