@@ -6,11 +6,10 @@
 @include('components.navbar', ['role' => $role])
 
 <div class="mb-8">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
         <div>
-            <p class="text-sm font-semibold text-slate-500">Dokumentasi</p>
-            <h1 class="text-3xl font-bold text-slate-950">Dokumentasi Kegiatan</h1>
-            <p class="text-sm text-slate-500">Kelola dokumentasi foto kegiatan sekolah.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Kelola Dokumentasi</h1>
+            <p class="text-gray-600 mt-1">Kelola dokumentasi foto kegiatan sekolah.</p>
         </div>
         <a href="{{ route('guru.dokumentasi.create') }}"
             class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
@@ -108,7 +107,7 @@
         <table class="w-full">
             <thead>
                 <tr class="border-b border-slate-200">
-                    <th class="px-4 py-4 text-left text-sm font-semibold text-slate-700">#</th>
+                    <th class="px-4 py-4 text-left text-sm font-semibold text-slate-700">No</th>
                     <th class="px-4 py-4 text-left text-sm font-semibold text-slate-700">Judul</th>
                     <th class="px-4 py-4 text-left text-sm font-semibold text-slate-700">Kelas</th>
                     <th class="px-4 py-4 text-left text-sm font-semibold text-slate-700">Tanggal</th>

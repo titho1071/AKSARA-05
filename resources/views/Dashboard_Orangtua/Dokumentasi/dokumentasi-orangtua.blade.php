@@ -98,7 +98,7 @@
         <table class="w-full">
             <thead>
                 <tr class="border-b border-gray-200">
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">#</th>
+                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">No</th>
                     <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Judul</th>
                     <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Guru</th>
                     <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Kelas</th>

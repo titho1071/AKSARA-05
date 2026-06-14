@@ -221,8 +221,8 @@
         // Show existing file
         @if($pengumuman->file)
         document.getElementById('current-file-info').classList.remove('hidden');
-        document.getElementById('current-file-link').href = '{{ asset("storage/" . $pengumuman->file) }}';
-        document.getElementById('current-file-link').textContent = '{{ $pengumuman->nama_file ?? basename($pengumuman->file) }}';
+        document.getElementById('current-file-link').href = @json($pengumuman->file_url);
+        document.getElementById('current-file-link').textContent = @json($pengumuman->display_file_name);
         @endif
         function showAlert(message, type = 'error') {
             alertBox.textContent = message;
@@ -239,6 +239,9 @@
 
             const formData = new FormData(form);
             formData.append('_method', 'PUT');
+            if (fileInput.files.length) {
+                formData.set('nama_file', fileInput.files[0].name);
+            }
 
             const response = await fetch(apiUrl, {
                 method: 'POST',

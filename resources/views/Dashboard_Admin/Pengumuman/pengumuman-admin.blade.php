@@ -332,6 +332,7 @@
 
                 if (fields.file.files.length) {
                     payload.append('file', fields.file.files[0]);
+                    payload.append('nama_file', fields.file.files[0].name);
                 }
 
                 try {

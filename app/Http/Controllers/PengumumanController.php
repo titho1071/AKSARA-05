@@ -42,8 +42,8 @@ class PengumumanController extends Controller
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
-                'nama_file' => $pengumuman->nama_file ?: basename($pengumuman->file),
-                'file_url' => $pengumuman->file ? asset('storage/' . $pengumuman->file) : null,
+                'nama_file' => $pengumuman->display_file_name,
+                'file_url' => $pengumuman->file ? route('pengumuman.file', $pengumuman->id_pengumuman) : null,
                 'created_at' => $pengumuman->created_at->toDateTimeString(),
                 'created_at_human' => $pengumuman->created_at->diffForHumans(),
                 'updated_at' => $pengumuman->updated_at->toDateTimeString(),
@@ -69,8 +69,8 @@ class PengumumanController extends Controller
                 'tanggal_mulai' => optional($pengumuman->tanggal_mulai)->format('Y-m-d'),
                 'tanggal_selesai' => optional($pengumuman->tanggal_selesai)->format('Y-m-d'),
                 'file' => $pengumuman->file,
-                'nama_file' => $pengumuman->nama_file ?: basename($pengumuman->file),
-                'file_url' => $pengumuman->file ? asset('storage/' . $pengumuman->file) : null,
+                'nama_file' => $pengumuman->display_file_name,
+                'file_url' => $pengumuman->file ? route('pengumuman.file', $pengumuman->id_pengumuman) : null,
             ],
         ]);
     }
@@ -78,12 +78,7 @@ class PengumumanController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateRequest($request);
-
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $validated['file'] = $file->store('pengumuman', 'public');
-            $validated['nama_file'] = $file->getClientOriginalName();
-        }
+        $this->handleFileUpload($request, $validated);
 
         $pengumuman = Pengumuman::create($validated);
 
@@ -103,9 +98,9 @@ class PengumumanController extends Controller
                 Storage::disk('public')->delete($pengumuman->file);
             }
 
-            $file = $request->file('file');
-            $validated['file'] = $file->store('pengumuman', 'public');
-            $validated['nama_file'] = $file->getClientOriginalName();
+            $this->handleFileUpload($request, $validated);
+        } else {
+            unset($validated['file'], $validated['nama_file']);
         }
 
         $pengumuman->update($validated);
@@ -133,6 +128,10 @@ class PengumumanController extends Controller
 
     protected function validateRequest(Request $request, ?int $id = null): array
     {
+        if ($request->input('kelas_id') === '') {
+            $request->merge(['kelas_id' => null]);
+        }
+
         return $request->validate([
             'judul' => ['required', 'string', 'max:255'],
             'deskripsi' => ['required', 'string'],
@@ -140,7 +139,21 @@ class PengumumanController extends Controller
             'tanggal_mulai' => ['nullable', 'date'],
             'tanggal_selesai' => ['nullable', 'date', 'after_or_equal:tanggal_mulai'],
             'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:2048'],
+            'nama_file' => ['nullable', 'string', 'max:255'],
         ]);
+    }
+
+    protected function handleFileUpload(Request $request, array &$validated): void
+    {
+        if (!$request->hasFile('file')) {
+            unset($validated['file']);
+
+            return;
+        }
+
+        $file = $request->file('file');
+        $validated['file'] = $file->store('pengumuman', 'public');
+        $validated['nama_file'] = $request->input('nama_file') ?: $file->getClientOriginalName();
     }
     public function create()
     {
@@ -159,5 +172,19 @@ class PengumumanController extends Controller
     public function detail(Pengumuman $pengumuman)
     {
         return view('Dashboard_Admin.Pengumuman.pengumuman-detail', compact('pengumuman'));
+    }
+
+    public function file(Pengumuman $pengumuman)
+    {
+        if (!$pengumuman->file || !Storage::disk('public')->exists($pengumuman->file)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        return response()->download(
+            Storage::disk('public')->path($pengumuman->file),
+            $pengumuman->display_file_name,
+            ['Content-Type' => Storage::disk('public')->mimeType($pengumuman->file) ?: 'application/octet-stream'],
+            'inline'
+        );
     }
 }

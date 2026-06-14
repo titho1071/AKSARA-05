@@ -11,9 +11,11 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Jadwal Pelajaran</h1>
                 <p class="text-gray-600 mt-1">Kelola Jadwal Pelajaran untuk seluruh kelas</p>
             </div>
-            <button id="btn-add-schedule" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
-                + Tambah Jadwal Pelajaran
-            </button>
+            <div class="flex gap-3">
+                <button id="btn-add-schedule" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                    + Tambah Jadwal Pelajaran
+                </button>
+            </div>
         </div>
     </div>
 
@@ -39,9 +41,14 @@
                 <h2 class="text-xl font-bold text-gray-900">Jadwal Mingguan</h2>
                 <p class="text-gray-500 text-sm">Lihat dan edit jadwal pelajaran per jam dan per kelas.</p>
             </div>
-            <div class="text-sm text-gray-500">
-                <span id="schedule-summary">Menampilkan semua kelas</span>
+            <div class="flex items-center gap-3">
+                <label for="filter-kelas" class="text-sm font-medium text-gray-700">Kelas:</label>
+                <select id="filter-kelas" class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"></select>
             </div>
+        </div>
+
+        <div class="mb-4">
+            <span id="schedule-summary" class="text-sm text-gray-600">Pilih kelas untuk melihat jadwal</span>
         </div>
 
         <div class="overflow-x-auto">
@@ -56,8 +63,7 @@
                         <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Jumat</th>
                     </tr>
                 </thead>
-                <tbody id="schedule-table-body">
-                </tbody>
+                <tbody id="schedule-table-body"></tbody>
             </table>
         </div>
     </div>
@@ -70,7 +76,6 @@
                     <h2 id="modal-title" class="text-2xl font-bold text-slate-900">Tambah Jadwal</h2>
                     <p id="modal-subtitle" class="text-sm text-gray-500 mt-1">Buat jadwal pelajaran baru untuk kelas dan jam yang dipilih.</p>
                 </div>
-                <button id="close-modal" class="rounded-lg border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200">Batal</button>
             </div>
 
             <div id="modal-alert" class="hidden mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
@@ -79,6 +84,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="hari">Hari</label>
                     <select id="hari" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">-- Pilih Hari --</option>
                         <option value="Senin">Senin</option>
                         <option value="Selasa">Selasa</option>
                         <option value="Rabu">Rabu</option>
@@ -87,48 +93,48 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="jam">Jam Ke-</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="jam">Jam Pelajaran</label>
                     <select id="jam" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="1">Jam 1 (07:00 - 07:45)</option>
-                        <option value="2">Jam 2 (07:45 - 08:30)</option>
-                        <option value="3">Jam 3 (08:30 - 09:15)</option>
-                        <option value="4">Jam 4 (09:30 - 10:15)</option>
-                        <option value="5">Jam 5 (10:15 - 11:00)</option>
-                        <option value="6">Jam 6 (11:00 - 11:45)</option>
-                        <option value="7">Jam 7 (12:30 - 13:15)</option>
-                        <option value="8">Jam 8 (13:15 - 14:00)</option>
-                        <option value="9">Jam 9 (14:00 - 14:45)</option>
+                        <option value="">-- Pilih Jam --</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas">Kelas</label>
                     <select id="kelas" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="VII-A">VII-A</option>
-                        <option value="VII-B">VII-B</option>
-                        <option value="VIII-A">VIII-A</option>
-                        <option value="VIII-B">VIII-B</option>
-                        <option value="IX-A">IX-A</option>
+                        <option value="">-- Pilih Kelas --</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="mapel">Mata Pelajaran</label>
                     <select id="mapel" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="Matematika">Matematika</option>
-                        <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                        <option value="Bahasa Inggris">Bahasa Inggris</option>
-                        <option value="IPA">IPA</option>
-                        <option value="IPS">IPS</option>
-                        <option value="PPKN">PPKN</option>
+                        <option value="">-- Pilih Mata Pelajaran --</option>
                     </select>
                 </div>
+
+                {{-- ── GURU (optional) ── --}}
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="guru">Guru Pengajar</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="guru">
+                        Guru Pengajar
+                        <span class="ml-1 text-xs font-normal text-gray-400">(Opsional)</span>
+                    </label>
                     <select id="guru" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="Budi Santoso">Budi Santoso</option>
-                        <option value="Rina Hastuti, S.Pd">Rina Hastuti, S.Pd</option>
-                        <option value="Sari Dewi">Sari Dewi</option>
-                        <option value="Doni Kusuma">Doni Kusuma</option>
+                        <option value="">-- Tidak Ada / Pilih Guru --</option>
                     </select>
+                </div>
+
+                {{-- ── KEGIATAN (optional) ── --}}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2" for="kegiatan">
+                        Kegiatan
+                        <span class="ml-1 text-xs font-normal text-gray-400">(Opsional — kosongkan jika tidak ada kegiatan)</span>
+                    </label>
+                    <select id="kegiatan" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500">
+                        <option value="">-- Tidak Ada Kegiatan --</option>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1.5">
+                        Pilih kegiatan jika slot ini digunakan untuk kegiatan sekolah (upacara, dll).
+                        Kegiatan dikelola oleh guru.
+                    </p>
                 </div>
             </div>
 
@@ -141,99 +147,266 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const scheduleData = [
-                { id: 1, hari: 'Senin', jam: '1', kelas: 'VII-A', mapel: 'Matematika', guru: 'Budi Santoso', waktu: '07:00 - 07:45' },
-                { id: 2, hari: 'Selasa', jam: '2', kelas: 'VII-A', mapel: 'Bahasa Inggris', guru: 'Rina Hastuti, S.Pd', waktu: '07:45 - 08:30' },
-                { id: 3, hari: 'Rabu', jam: '3', kelas: 'VII-A', mapel: 'IPS', guru: 'Doni Kusuma', waktu: '08:30 - 09:15' }
-            ];
+            let jadwalData         = [];
+            let jadwalDataFiltered = {};
+            let jamPelajaranData   = [];
+            let kelasData          = [];
+            let mataPelajaranData  = [];
+            let kegiatanData       = [];   // ← tambahan
+            let guruData          = [];
+            let currentEditId      = null;
+            let selectedKelasId    = null;
 
-            const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
-            const times = [
-                { jam: '1', label: '07:00 - 07:45' },
-                { jam: '2', label: '07:45 - 08:30' },
-                { jam: '3', label: '08:30 - 09:15' },
-                { jam: '4', label: '09:30 - 10:15' },
-                { jam: '5', label: '10:15 - 11:00' },
-                { jam: '6', label: '11:00 - 11:45' },
-                { jam: '7', label: '12:30 - 13:15' },
-                { jam: '8', label: '13:15 - 14:00' },
-                { jam: '9', label: '14:00 - 14:45' }
-            ];
-
-            let currentEditId = null;
-
-            const tableBody = document.getElementById('schedule-table-body');
-            const countEl = document.getElementById('schedule-count');
-            const summaryEl = document.getElementById('schedule-summary');
-            const modal = document.getElementById('schedule-modal');
-            const modalTitle = document.getElementById('modal-title');
+            const tableBody   = document.getElementById('schedule-table-body');
+            const countEl     = document.getElementById('schedule-count');
+            const summaryEl   = document.getElementById('schedule-summary');
+            const modal       = document.getElementById('schedule-modal');
+            const modalTitle  = document.getElementById('modal-title');
             const modalSubtitle = document.getElementById('modal-subtitle');
-            const alertBox = document.getElementById('modal-alert');
-            const btnAdd = document.getElementById('btn-add-schedule');
-            const btnClose = document.getElementById('close-modal');
-            const btnCancel = document.getElementById('modal-cancel');
-            const btnSave = document.getElementById('modal-save');
+            const alertBox    = document.getElementById('modal-alert');
+            const btnAdd      = document.getElementById('btn-add-schedule');
+            const btnCancel   = document.getElementById('modal-cancel');
+            const btnSave     = document.getElementById('modal-save');
+            const filterKelas = document.getElementById('filter-kelas');
 
             const fields = {
-                hari: document.getElementById('hari'),
-                jam: document.getElementById('jam'),
-                kelas: document.getElementById('kelas'),
-                mapel: document.getElementById('mapel'),
-                guru: document.getElementById('guru')
+                hari:     document.getElementById('hari'),
+                jam:      document.getElementById('jam'),
+                kelas:    document.getElementById('kelas'),
+                mapel:    document.getElementById('mapel'),
+                kegiatan: document.getElementById('kegiatan'),  // ← tambahan
+                guru:     document.getElementById('guru'),
             };
 
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+
+            // ── Fetch semua master data ──
+            async function fetchMasterData() {
+                try {
+                    const [jamRes, kelasRes, mapelRes, kegiatanRes, guruRes] = await Promise.all([
+                        fetch('/api/jam-pelajaran',      { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/kelas',              { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/mata-pelajaran',     { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/kegiatan-jadwal',    { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/guru-jadwal',        { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                    ]);
+
+                    const jamResult     = await jamRes.json();
+                    const mapelResult   = await mapelRes.json();
+                    const kegiatanResult = await kegiatanRes.json();
+                    kelasData           = await kelasRes.json();
+
+                    if (jamResult.success)      { jamPelajaranData  = jamResult.data;      populateJamDropdown(); }
+                    if (mapelResult.success)    { mataPelajaranData = mapelResult.data;    populateMapelDropdown(); }
+                    if (kegiatanResult.success) { kegiatanData      = kegiatanResult.data; populateKegiatanDropdown(); }
+                    const guruResult = await guruRes.json();
+                    if (guruResult.success)     { guruData         = guruResult.data;     populateGuruDropdown(); }
+
+                    populateKelasDropdown();
+                    populateKelasFilter();
+                } catch (err) {
+                    console.error('Error fetching master data:', err);
+                }
+            }
+
+            // ── Populate dropdowns ──
+            function populateJamDropdown() {
+                fields.jam.innerHTML = '<option value="">-- Pilih Jam --</option>';
+                jamPelajaranData.forEach(jam => {
+                    const o = document.createElement('option');
+                    o.value = jam.id_jam;
+                    o.textContent = `${jam.jam_mulai.substring(0,5)} - ${jam.jam_selesai.substring(0,5)}${jam.keterangan ? ' (' + jam.keterangan + ')' : ''}`;
+                    fields.jam.appendChild(o);
+                });
+            }
+
+            function populateKelasDropdown() {
+                fields.kelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+                kelasData.forEach(k => {
+                    const o = document.createElement('option');
+                    o.value = k.id_kelas;
+                    o.textContent = k.nama_kelas;
+                    fields.kelas.appendChild(o);
+                });
+            }
+
+            function populateKelasFilter() {
+                filterKelas.innerHTML = '';
+                kelasData.forEach(k => {
+                    const o = document.createElement('option');
+                    o.value = k.id_kelas;
+                    o.textContent = k.nama_kelas;
+                    filterKelas.appendChild(o);
+                });
+                if (kelasData.length > 0) {
+                    selectedKelasId = kelasData[0].id_kelas.toString();
+                    filterKelas.value = selectedKelasId;
+                }
+            }
+
+            function populateMapelDropdown() {
+                fields.mapel.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
+                mataPelajaranData.forEach(m => {
+                    const o = document.createElement('option');
+                    o.value = m.id_mapel;
+                    o.textContent = m.nama_mapel;
+                    fields.mapel.appendChild(o);
+                });
+            }
+
+            function populateGuruDropdown() {
+                fields.guru.innerHTML = '<option value="">-- Tidak Ada / Pilih Guru --</option>';
+                guruData.forEach(g => {
+                    const o = document.createElement('option');
+                    o.value = g.id_guru;
+                    o.textContent = g.nama + (g.nip ? ' · ' + g.nip : '');
+                    fields.guru.appendChild(o);
+                });
+            }
+
+            function populateKegiatanDropdown() {
+                fields.kegiatan.innerHTML = '<option value="">-- Tidak Ada Kegiatan --</option>';
+                kegiatanData.forEach(kg => {
+                    const o   = document.createElement('option');
+                    o.value   = kg.id_kegiatan;
+                    const tgl = new Date(kg.tanggal).toLocaleDateString('id-ID', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    });
+                    o.textContent = `${kg.judul} (${tgl})`;
+                    fields.kegiatan.appendChild(o);
+                });
+            }
+
+            // ── Fetch jadwal ──
+            async function fetchJadwal() {
+                tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-slate-500">Memuat jadwal...</td></tr>`;
+                try {
+                    const res    = await fetch('/api/jadwal-pelajaran/by-hari', { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } });
+                    const result = await res.json();
+                    if (result.success) {
+                        jadwalData = result.data;
+                        applyFilter();
+                    } else {
+                        tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-red-500">Gagal memuat jadwal</td></tr>`;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-red-500">Gagal memuat data. Silakan refresh halaman.</td></tr>`;
+                }
+            }
+
+            function applyFilter() {
+                jadwalDataFiltered = {};
+                if (selectedKelasId) {
+                    for (const hari in jadwalData) {
+                        jadwalDataFiltered[hari] = jadwalData[hari].filter(j => j.kelas_id === parseInt(selectedKelasId));
+                    }
+                }
+                renderSchedule();
+            }
+
+            filterKelas.addEventListener('change', function () {
+                selectedKelasId = this.value;
+                applyFilter();
+            });
+
+            // ── Render tabel jadwal ──
             function renderSchedule() {
-                const rows = times.map(time => {
+                if (!jamPelajaranData.length) {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-yellow-600">Belum ada jam pelajaran.</td></tr>`;
+                    return;
+                }
+
+                let totalSchedule = 0;
+
+                const rows = jamPelajaranData.map(jam => {
+                    const isIstirahat = jam.keterangan && jam.keterangan.toLowerCase().includes('istirahat');
+
+                    if (isIstirahat) {
+                        return `<tr class="bg-orange-50">
+                            <td class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">
+                                ${jam.jam_mulai.substring(0,5)} - ${jam.jam_selesai.substring(0,5)}
+                            </td>
+                            <td colspan="5" class="border border-gray-200 px-4 py-3 text-center">
+                                <span class="inline-block rounded-lg bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">
+                                    ${jam.keterangan} : ${jam.jam_mulai.substring(0,5)} - ${jam.jam_selesai.substring(0,5)}
+                                </span>
+                            </td>
+                        </tr>`;
+                    }
+
                     const cells = days.map(day => {
-                        const item = scheduleData.find(entry => entry.hari === day && entry.jam === time.jam);
+                        const item = (jadwalDataFiltered[day] || []).find(j => j.jam_id === jam.id_jam);
+
                         if (!item) {
-                            return `<td class="border border-gray-200 px-4 py-4 align-top text-sm text-gray-500">` +
-                                `<div class="min-h-[90px] flex items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-slate-50 text-xs text-gray-400">Kosong</div>` +
-                                `</td>`;
+                            return `<td class="border border-gray-200 px-4 py-4 align-top">
+                                <div class="min-h-[90px] flex items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-slate-50 text-xs text-gray-400">Kosong</div>
+                            </td>`;
                         }
 
+                        totalSchedule++;
+                        const mapelName    = item.mata_pelajaran ? item.mata_pelajaran.nama_mapel : '-';
+                        const kelasName    = item.kelas ? item.kelas.nama_kelas : '-';
+                        const kegiatanName = item.kegiatan ? item.kegiatan.judul : null;
+                        const guruName     = item.guru     ? item.guru.nama    : null;
+                        const displayName  = kegiatanName || mapelName;
+                        const isKegiatan   = !!kegiatanName;
+
                         return `<td class="border border-gray-200 px-4 py-4 align-top">
-                            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm shadow-sm">
-                                <div class="font-semibold text-slate-900">${item.mapel}</div>
-                                <div class="text-slate-600 text-xs mt-1">${item.kelas}</div>
-                                <div class="text-slate-500 text-xs mt-1">${item.guru}</div>
+                            <div class="rounded-2xl border ${isKegiatan ? 'border-violet-200 bg-violet-50' : 'border-slate-200 bg-slate-50'} p-4 text-sm shadow-sm">
+                                <div class="font-semibold ${isKegiatan ? 'text-violet-900' : 'text-slate-900'}">${displayName}</div>
+                                <div class="text-xs mt-1 ${isKegiatan ? 'text-violet-500' : 'text-slate-600'}">${isKegiatan ? 'Kegiatan' : kelasName}</div>
+                                ${guruName && !isKegiatan ? `<div class="text-[11px] text-slate-400 mt-0.5">${guruName}</div>` : ''}
                                 <div class="mt-3 flex flex-wrap gap-2">
-                                    <button data-id="${item.id}" data-action="edit" class="rounded-lg bg-amber-100 px-3 py-2 text-[11px] font-semibold text-amber-700 hover:bg-amber-200">Edit</button>
-                                    <button data-id="${item.id}" data-action="delete" class="rounded-lg bg-red-100 px-3 py-2 text-[11px] font-semibold text-red-700 hover:bg-red-200">Hapus</button>
+                                    <button data-id="${item.id_jadwal}" data-action="edit"   class="rounded-lg bg-amber-100 px-3 py-2 text-[11px] font-semibold text-amber-700 hover:bg-amber-200">Edit</button>
+                                    <button data-id="${item.id_jadwal}" data-action="delete" class="rounded-lg bg-red-100   px-3 py-2 text-[11px] font-semibold text-red-700   hover:bg-red-200">Hapus</button>
                                 </div>
                             </div>
                         </td>`;
                     }).join('');
 
                     return `<tr class="hover:bg-slate-50 transition-colors">
-                        <td class="border border-gray-200 px-4 py-4 align-top text-sm font-semibold text-gray-700">Jam ${time.jam}<br><span class="text-xs font-normal text-gray-500">${time.label}</span></td>
+                        <td class="border border-gray-200 px-4 py-4 align-top text-sm font-semibold text-gray-700">
+                            ${jam.jam_mulai.substring(0,5)} - ${jam.jam_selesai.substring(0,5)}
+                            ${jam.keterangan ? '<br><span class="text-xs font-normal text-gray-500">' + jam.keterangan + '</span>' : ''}
+                        </td>
                         ${cells}
                     </tr>`;
                 }).join('');
 
                 tableBody.innerHTML = rows;
-                countEl.textContent = String(scheduleData.length);
-                summaryEl.textContent = `Menampilkan ${scheduleData.length} jadwal aktif`;
+                countEl.textContent = String(totalSchedule);
+
+                if (selectedKelasId) {
+                    const kelas = kelasData.find(k => k.id_kelas === parseInt(selectedKelasId));
+                    summaryEl.textContent = `Menampilkan ${totalSchedule} jadwal untuk kelas ${kelas ? kelas.nama_kelas : ''}`;
+                } else {
+                    summaryEl.textContent = 'Pilih kelas untuk melihat jadwal';
+                }
             }
 
+            // ── Modal ──
             function openModal(mode, item = null) {
-                currentEditId = item ? item.id : null;
-                modalTitle.textContent = mode === 'edit' ? 'Edit Jadwal' : 'Tambah Jadwal';
-                modalSubtitle.textContent = mode === 'edit' ? 'Perbarui data jadwal yang dipilih.' : 'Isi data jadwal baru untuk ditambahkan ke tabel.';
+                currentEditId = item ? item.id_jadwal : null;
+                modalTitle.textContent    = mode === 'edit' ? 'Edit Jadwal' : 'Tambah Jadwal';
+                modalSubtitle.textContent = mode === 'edit' ? 'Perbarui data jadwal yang dipilih.' : 'Buat jadwal pelajaran baru untuk kelas dan jam yang dipilih.';
                 alertBox.classList.add('hidden');
 
                 if (item) {
-                    fields.hari.value = item.hari;
-                    fields.jam.value = item.jam;
-                    fields.kelas.value = item.kelas;
-                    fields.mapel.value = item.mapel;
-                    fields.guru.value = item.guru;
+                    fields.hari.value     = item.hari;
+                    fields.jam.value      = item.jam_id;
+                    fields.kelas.value    = item.kelas_id || '';
+                    fields.mapel.value    = item.id_mapel;
+                    fields.kegiatan.value = item.kegiatan_id || '';   // ← set kegiatan saat edit
+                    fields.guru.value      = item.id_guru || '';
                 } else {
-                    fields.hari.value = 'Senin';
-                    fields.jam.value = '1';
-                    fields.kelas.value = 'VII-A';
-                    fields.mapel.value = 'Matematika';
-                    fields.guru.value = 'Budi Santoso';
+                    fields.hari.value     = '';
+                    fields.jam.value      = '';
+                    fields.kelas.value    = selectedKelasId || '';
+                    fields.mapel.value    = '';
+                    fields.kegiatan.value = '';                        // ← reset saat tambah baru
+                    fields.guru.value      = '';
                 }
 
                 modal.classList.remove('hidden');
@@ -245,77 +418,108 @@
                 modal.classList.remove('flex');
             }
 
-            function showModalError(message) {
-                alertBox.textContent = message;
+            function showModalError(msg) {
+                alertBox.textContent = msg;
                 alertBox.classList.remove('hidden');
             }
 
-            function saveSchedule() {
-                const newEntry = {
-                    hari: fields.hari.value,
-                    jam: fields.jam.value,
-                    kelas: fields.kelas.value,
-                    mapel: fields.mapel.value,
-                    guru: fields.guru.value,
-                    waktu: times.find(t => t.jam === fields.jam.value).label
-                };
+            // ── Simpan jadwal ──
+            async function saveSchedule() {
+                const hari     = fields.hari.value;
+                const jam_id   = fields.jam.value;
+                const kelas_id = fields.kelas.value;
+                const id_mapel = fields.mapel.value;
 
-                const conflict = scheduleData.find(entry => entry.hari === newEntry.hari && entry.jam === newEntry.jam && entry.id !== currentEditId);
-                if (conflict) {
-                    showModalError('Jadwal sudah terisi pada hari dan jam yang sama. Pilih waktu lain.');
+                if (!hari)   { showModalError('Pilih hari terlebih dahulu.');          return; }
+                if (!jam_id) { showModalError('Pilih jam pelajaran terlebih dahulu.'); return; }
+                // Mata pelajaran opsional jika kegiatan dipilih
+                if (!id_mapel && !fields.kegiatan.value) {
+                    showModalError('Pilih mata pelajaran atau kegiatan.');
                     return;
                 }
 
-                if (currentEditId) {
-                    const index = scheduleData.findIndex(entry => entry.id === currentEditId);
-                    if (index !== -1) {
-                        scheduleData[index] = { ...scheduleData[index], ...newEntry };
+                const payload = {
+                    hari,
+                    jam_id:      parseInt(jam_id),
+                    kelas_id:    kelas_id ? parseInt(kelas_id) : null,
+                    id_mapel:    parseInt(id_mapel),
+                    kegiatan_id: fields.kegiatan.value ? parseInt(fields.kegiatan.value) : null,
+                    id_guru:     fields.guru.value     ? parseInt(fields.guru.value)     : null,
+                };
+
+                try {
+                    btnSave.disabled    = true;
+                    btnSave.textContent = 'Menyimpan...';
+
+                    const url    = currentEditId ? `/api/jadwal-pelajaran/${currentEditId}` : '/api/jadwal-pelajaran';
+                    const method = currentEditId ? 'PUT' : 'POST';
+
+                    const res    = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        await fetchJadwal();
+                        closeModal();
+                    } else {
+                        showModalError(result.errors
+                            ? Object.values(result.errors).flat().join(', ')
+                            : result.message || 'Gagal menyimpan jadwal');
                     }
-                } else {
-                    const nextId = scheduleData.length ? Math.max(...scheduleData.map(item => item.id)) + 1 : 1;
-                    scheduleData.push({ id: nextId, ...newEntry });
-                }
-
-                renderSchedule();
-                closeModal();
-            }
-
-            function deleteSchedule(id) {
-                const index = scheduleData.findIndex(entry => entry.id === Number(id));
-                if (index !== -1) {
-                    scheduleData.splice(index, 1);
-                    renderSchedule();
+                } catch (err) {
+                    console.error(err);
+                    showModalError('Terjadi kesalahan saat menyimpan data');
+                } finally {
+                    btnSave.disabled    = false;
+                    btnSave.textContent = 'Simpan Jadwal';
                 }
             }
 
-            tableBody.addEventListener('click', function (event) {
-                const button = event.target.closest('button');
-                if (!button) return;
+            // ── Hapus jadwal ──
+            async function deleteSchedule(id) {
+                if (!confirm('Hapus jadwal ini?')) return;
+                try {
+                    const res    = await fetch(`/api/jadwal-pelajaran/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+                    });
+                    const result = await res.json();
+                    if (result.success) await fetchJadwal();
+                    else alert(result.message || 'Gagal menghapus jadwal');
+                } catch (err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan saat menghapus data');
+                }
+            }
 
-                const action = button.dataset.action;
-                const id = button.dataset.id;
+            function findJadwalById(id) {
+                for (const hari in jadwalData) {
+                    const item = jadwalData[hari].find(j => j.id_jadwal === id);
+                    if (item) return item;
+                }
+                return null;
+            }
+
+            // ── Event listeners ──
+            tableBody.addEventListener('click', function (e) {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id     = parseInt(btn.dataset.id);
                 if (!action || !id) return;
-
-                const item = scheduleData.find(entry => entry.id === Number(id));
-                if (action === 'edit' && item) {
-                    openModal('edit', item);
-                }
-                if (action === 'delete') {
-                    deleteSchedule(id);
-                }
+                const item = findJadwalById(id);
+                if (action === 'edit' && item) openModal('edit', item);
+                if (action === 'delete') deleteSchedule(id);
             });
 
-            btnAdd.addEventListener('click', function () {
-                openModal('create');
-            });
-            btnClose.addEventListener('click', closeModal);
+            btnAdd.addEventListener('click',    () => openModal('create'));
             btnCancel.addEventListener('click', closeModal);
-            btnSave.addEventListener('click', function (event) {
-                event.preventDefault();
-                saveSchedule();
-            });
+            btnSave.addEventListener('click',   e => { e.preventDefault(); saveSchedule(); });
 
-            renderSchedule();
+            fetchMasterData().then(() => fetchJadwal());
         });
     </script>
 @endsection

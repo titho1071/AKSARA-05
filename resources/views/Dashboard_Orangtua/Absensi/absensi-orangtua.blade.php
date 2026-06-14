@@ -5,7 +5,7 @@
 @section('title', 'Absensi Anak')
 
 @section('content')
-
+@include('components.navbar', ['role' => $role])
 @php
     $children = [
         ['initials' => 'YA', 'name' => 'Yusuf Ahmad', 'kelas' => 'Kelas III A', 'active' => true],

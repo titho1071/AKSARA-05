@@ -33,4 +33,37 @@ class Pengumuman extends Model
     {
         return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas');
     }
+
+    public function getDisplayFileNameAttribute(): ?string
+    {
+        if ($this->nama_file) {
+            return $this->nama_file;
+        }
+
+        if (!$this->file) {
+            return null;
+        }
+
+        $ext = strtolower(pathinfo($this->file, PATHINFO_EXTENSION));
+
+        return $ext ? "Lampiran.{$ext}" : 'Lampiran';
+    }
+
+    public function getFileUrlAttribute(): ?string
+    {
+        if (!$this->file) {
+            return null;
+        }
+
+        return route('pengumuman.file', $this->id_pengumuman);
+    }
+
+    public function getFilePreviewUrlAttribute(): ?string
+    {
+        if (!$this->file) {
+            return null;
+        }
+
+        return asset('storage/' . $this->file);
+    }
 }

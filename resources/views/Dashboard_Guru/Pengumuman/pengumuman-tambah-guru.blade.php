@@ -203,7 +203,10 @@
             e.preventDefault();
 
             const formData = new FormData(form);
-            
+            if (fileInput.files.length) {
+                formData.set('nama_file', fileInput.files[0].name);
+            }
+
             try {
                 const response = await fetch('/api/pengumuman', {
                     method: 'POST',

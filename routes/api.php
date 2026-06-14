@@ -3,11 +3,15 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\TahunPelajaranController;
+use App\Http\Controllers\KelasController;
 use App\Http\Controllers\Api\BiodataAdminController;
 use App\Http\Controllers\Api\BiodataGuruController;
 use App\Http\Controllers\Api\BiodataOrangTuaController;
 use App\Http\Controllers\Api\BiodataSiswaController;
 use App\Http\Controllers\Api\DokumentasiController;
+use App\Http\Controllers\Admin\MataPelajaranController;
+use App\Http\Controllers\Admin\JadwalPelajaranController as AdminJadwalPelajaranController;
+use App\Http\Controllers\Admin\JamPelajaranController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -78,4 +82,44 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     });
 
     Route::apiResource('dokumentasi', DokumentasiController::class);
+
+    // Kelas Routes
+    Route::prefix('kelas')->group(function () {
+        Route::get('/', [KelasController::class, 'index']);
+        Route::post('/', [KelasController::class, 'store']);
+        Route::get('/{id}', [KelasController::class, 'show']);
+        Route::put('/{id}', [KelasController::class, 'update']);
+        Route::delete('/{id}', [KelasController::class, 'destroy']);
+    });
+
+    // Mata Pelajaran Routes
+    Route::prefix('mata-pelajaran')->group(function () {
+        Route::get('/', [MataPelajaranController::class, 'index']);
+        Route::post('/', [MataPelajaranController::class, 'store']);
+        Route::get('/{id}', [MataPelajaranController::class, 'show']);
+        Route::put('/{id}', [MataPelajaranController::class, 'update']);
+        Route::delete('/{id}', [MataPelajaranController::class, 'destroy']);
+    });
+
+    // Jam Pelajaran Routes
+    Route::prefix('jam-pelajaran')->group(function () {
+        Route::get('/', [JamPelajaranController::class, 'index']);
+        Route::post('/', [JamPelajaranController::class, 'store']);
+        Route::get('/{id}', [JamPelajaranController::class, 'show']);
+        Route::put('/{id}', [JamPelajaranController::class, 'update']);
+        Route::delete('/{id}', [JamPelajaranController::class, 'destroy']);
+    });
+
+    // Jadwal Pelajaran Routes
+    Route::prefix('jadwal-pelajaran')->group(function () {
+        Route::get('/', [AdminJadwalPelajaranController::class, 'index']);
+        Route::post('/', [AdminJadwalPelajaranController::class, 'store']);
+        Route::get('/by-hari', [AdminJadwalPelajaranController::class, 'getByHari']);
+        Route::get('/{id}', [AdminJadwalPelajaranController::class, 'show']);
+        Route::put('/{id}', [AdminJadwalPelajaranController::class, 'update']);
+        Route::delete('/{id}', [AdminJadwalPelajaranController::class, 'destroy']);
+    });
+    Route::get('/kegiatan-jadwal', [AdminJadwalPelajaranController::class, 'listKegiatan']);
+    Route::delete('/jadwal-pelajaran/reset', [AdminJadwalPelajaranController::class, 'resetAll']);
+    Route::get('/guru-jadwal', [AdminJadwalPelajaranController::class, 'listGuru']);
 });

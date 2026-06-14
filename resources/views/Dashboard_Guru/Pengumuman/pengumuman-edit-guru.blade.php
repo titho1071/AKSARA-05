@@ -233,6 +233,7 @@
                     const fileInfo = document.getElementById('current-file-info');
                     const fileLink = document.getElementById('current-file-link');
                     fileLink.href = data.file_url;
+                    fileLink.textContent = data.nama_file || 'Lihat Lampiran';
                     fileInfo.classList.remove('hidden');
                 }
             } else {
@@ -247,10 +248,14 @@
             e.preventDefault();
 
             const formData = new FormData(form);
-            
+            formData.append('_method', 'PUT');
+            if (fileInput.files.length) {
+                formData.set('nama_file', fileInput.files[0].name);
+            }
+
             try {
                 const response = await fetch(`/api/pengumuman/${pengumumanId}`, {
-                    method: 'POST', // using POST with _method=PUT
+                    method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                     },

@@ -20,19 +20,18 @@
 <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead class="bg-slate-900 text-white">
+            <thead class="bg-[#1E2567] text-white">
                 <tr>
                     <th class="px-6 py-4 font-semibold">No</th>
                     <th class="px-6 py-4 font-semibold">Jam Mulai</th>
                     <th class="px-6 py-4 font-semibold">Jam Selesai</th>
-                    <th class="px-6 py-4 font-semibold">Tipe</th>
                     <th class="px-6 py-4 font-semibold">Keterangan</th>
                     <th class="px-6 py-4 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody id="jam-table-body" class="divide-y divide-slate-200 bg-white text-slate-700">
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">Memuat data jam pelajaran...</td>
+                    <td colspan="5" class="px-6 py-8 text-center text-slate-500">Memuat data jam pelajaran...</td>
                 </tr>
             </tbody>
         </table>
@@ -53,30 +52,22 @@
         <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-6"></div>
 
         <div class="space-y-6">
-            <div>
-                <label for="tipe_slot" class="block text-sm font-medium text-slate-700 mb-3">TIPE SLOT</label>
-                <select id="tipe_slot" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">-- Pilih Tipe --</option>
-                    <option value="Jam Pelajaran">Jam Pelajaran</option>
-                    <option value="Istirahat">Istirahat</option>
-                    <option value="Upacara">Upacara</option>
-                </select>
-            </div>
-
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <label for="jam_mulai" class="block text-sm font-medium text-slate-700 mb-3">JAM MULAI</label>
-                    <input id="jam_mulai" type="time" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <input id="jam_mulai" type="text" maxlength="5" placeholder="07.30" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <p class="mt-1 text-xs text-slate-400">Format: HH.MM (contoh: 07.30, 13.00)</p>
                 </div>
                 <div>
                     <label for="jam_selesai" class="block text-sm font-medium text-slate-700 mb-3">JAM SELESAI</label>
-                    <input id="jam_selesai" type="time" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <input id="jam_selesai" type="text" maxlength="5" placeholder="08.30" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <p class="mt-1 text-xs text-slate-400">Format: HH.MM (contoh: 07.30, 13.00)</p>
                 </div>
             </div>
 
             <div>
                 <label for="keterangan" class="block text-sm font-medium text-slate-700 mb-3">KETERANGAN (Opsional)</label>
-                <input id="keterangan" type="text" placeholder="Contoh: Jam tambahan, Ekskul" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <input id="keterangan" type="text" placeholder="Contoh: Istirahat, Jam tambahan" class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500">
             </div>
         </div>
 
@@ -89,9 +80,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const jamData = [
-            { id: 1, jam_mulai: '07:00', jam_selesai: '07:45', tipe: 'Jam Pelajaran', keterangan: '-' }
-        ];
+        let jamData = [];
 
         const tableBody = document.getElementById('jam-table-body');
         const modal = document.getElementById('jam-modal');
@@ -104,7 +93,6 @@
         const alertBox = document.getElementById('modal-alert');
 
         const fields = {
-            tipe_slot: document.getElementById('tipe_slot'),
             jam_mulai: document.getElementById('jam_mulai'),
             jam_selesai: document.getElementById('jam_selesai'),
             keterangan: document.getElementById('keterangan')
@@ -112,29 +100,85 @@
 
         let editingId = null;
 
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        // Fetch Jam Pelajaran
+        async function fetchJamPelajaran() {
+            try {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Memuat data jam pelajaran...</td></tr>';
+                
+                const response = await fetch('/api/jam-pelajaran', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    jamData = result.data;
+                    renderTable();
+                } else {
+                    showError('Gagal mengambil data jam pelajaran');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Gagal memuat data. Silakan refresh halaman.</td></tr>';
+            }
+        }
+
+        // Ubah HH:MM:SS (dari server) → HH.MM (tampilan Indonesia)
+        function formatTimeIndo(timeString) {
+            if (!timeString) return '-';
+            const parts = timeString.split(':');
+            if (parts.length >= 2) {
+                return `${parts[0]}.${parts[1]}`;
+            }
+            return timeString;
+        }
+
+        // Validasi dan normalise input HH.MM → HH:MM (untuk server)
+        function parseTimeInput(input) {
+            const trimmed = input.trim().replace(',', '.');
+            const match = trimmed.match(/^([01]?\d|2[0-3])\.([0-5]\d)$/);
+            if (!match) return null;
+            return `${match[1].padStart(2, '0')}:${match[2]}`;
+        }
+
+        // Auto-insert titik saat mengetik angka ke-3
+        function autoFormatTimeInput(input) {
+            input.addEventListener('input', function () {
+                let val = this.value.replace(/[^0-9.]/g, '');
+                if (val.length === 2 && !val.includes('.')) {
+                    val = val + '.';
+                }
+                this.value = val;
+            });
+        }
+
         function renderTable() {
             if (!jamData.length) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500">Belum ada jam pelajaran.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Belum ada jam pelajaran.</td></tr>';
                 return;
             }
 
             tableBody.innerHTML = jamData.map((item, index) => `
                 <tr class="hover:bg-slate-50 transition-colors">
                     <td class="px-6 py-4 font-medium text-slate-700">${index + 1}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.jam_mulai}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.jam_selesai}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.tipe}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.keterangan}</td>
+                    <td class="px-6 py-4 text-slate-700">${formatTimeIndo(item.jam_mulai)}</td>
+                    <td class="px-6 py-4 text-slate-700">${formatTimeIndo(item.jam_selesai)}</td>
+                    <td class="px-6 py-4 text-slate-700">${item.keterangan || '-'}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
-                            <button data-id="${item.id}" data-action="edit" title="Edit" class="rounded-lg p-2 text-blue-600 hover:bg-blue-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                    <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                            <button data-id="${item.id_jam}" data-action="edit" title="Edit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 transition hover:bg-amber-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
                                 </svg>
                             </button>
-                            <button data-id="${item.id}" data-action="delete" title="Hapus" class="rounded-lg p-2 text-red-600 hover:bg-red-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                    <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
+                            <button data-id="${item.id_jam}" data-action="delete" title="Hapus" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-600 transition hover:bg-red-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                 </svg>
                             </button>
                         </div>
@@ -144,18 +188,16 @@
         }
 
         function openModal(mode, item = null) {
-            editingId = item ? item.id : null;
+            editingId = item ? item.id_jam : null;
             modalTitle.textContent = mode === 'edit' ? 'Edit Jam Pelajaran' : 'Tambah Jam Pelajaran';
             modalDesc.textContent = mode === 'edit' ? 'Perbarui data jam pelajaran yang dipilih.' : 'Isi data jam pelajaran baru.';
             alertBox.classList.add('hidden');
 
             if (item) {
-                fields.tipe_slot.value = item.tipe;
-                fields.jam_mulai.value = item.jam_mulai;
-                fields.jam_selesai.value = item.jam_selesai;
-                fields.keterangan.value = item.keterangan === '-' ? '' : item.keterangan;
+                fields.jam_mulai.value = formatTimeIndo(item.jam_mulai);
+                fields.jam_selesai.value = formatTimeIndo(item.jam_selesai);
+                fields.keterangan.value = item.keterangan || '';
             } else {
-                fields.tipe_slot.value = '';
                 fields.jam_mulai.value = '';
                 fields.jam_selesai.value = '';
                 fields.keterangan.value = '';
@@ -175,19 +217,26 @@
             alertBox.classList.remove('hidden');
         }
 
-        function saveJam() {
-            const tipe = fields.tipe_slot.value;
-            const jam_mulai = fields.jam_mulai.value;
-            const jam_selesai = fields.jam_selesai.value;
-            const keterangan = fields.keterangan.value.trim() || '-';
+        async function saveJam() {
+            const rawMulai = fields.jam_mulai.value;
+            const rawSelesai = fields.jam_selesai.value;
+            const keterangan = fields.keterangan.value.trim();
 
-            if (!tipe) {
-                showError('Pilih tipe slot.');
+            if (!rawMulai || !rawSelesai) {
+                showError('Masukkan jam mulai dan jam selesai.');
                 return;
             }
 
-            if (!jam_mulai || !jam_selesai) {
-                showError('Masukkan jam mulai dan jam selesai.');
+            const jam_mulai = parseTimeInput(rawMulai);
+            const jam_selesai = parseTimeInput(rawSelesai);
+
+            if (!jam_mulai) {
+                showError('Format jam mulai tidak valid. Gunakan format HH.MM, contoh: 07.30');
+                return;
+            }
+
+            if (!jam_selesai) {
+                showError('Format jam selesai tidak valid. Gunakan format HH.MM, contoh: 08.30');
                 return;
             }
 
@@ -196,34 +245,71 @@
                 return;
             }
 
-            const conflict = jamData.find(j => {
-                if (j.id === editingId) return false;
-                const jStart = j.jam_mulai;
-                const jEnd = j.jam_selesai;
-                return (jam_mulai < jEnd && jam_selesai > jStart);
-            });
+            const payload = {
+                jam_mulai,
+                jam_selesai,
+                keterangan: keterangan || null
+            };
 
-            if (conflict) {
-                showError('Jam ini sudah terisi dengan jam pelajaran lain.');
+            try {
+                btnSave.disabled = true;
+                btnSave.textContent = 'Menyimpan...';
+
+                const url = editingId ? `/api/jam-pelajaran/${editingId}` : '/api/jam-pelajaran';
+                const method = editingId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    await fetchJamPelajaran();
+                    closeModal();
+                } else {
+                    showError(result.message || 'Gagal menyimpan data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Terjadi kesalahan saat menyimpan data');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = 'Simpan Slot Jam';
+            }
+        }
+
+        async function deleteJam(id) {
+            if (!confirm('Hapus jam pelajaran ini?')) {
                 return;
             }
 
-            if (editingId) {
-                const index = jamData.findIndex(item => item.id === editingId);
-                if (index !== -1) {
-                    jamData[index].tipe = tipe;
-                    jamData[index].jam_mulai = jam_mulai;
-                    jamData[index].jam_selesai = jam_selesai;
-                    jamData[index].keterangan = keterangan;
-                }
-            } else {
-                const nextId = jamData.length ? Math.max(...jamData.map(item => item.id)) + 1 : 1;
-                jamData.push({ id: nextId, tipe, jam_mulai, jam_selesai, keterangan });
-            }
+            try {
+                const response = await fetch(`/api/jam-pelajaran/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
 
-            jamData.sort((a, b) => a.jam_mulai.localeCompare(b.jam_mulai));
-            renderTable();
-            closeModal();
+                const result = await response.json();
+
+                if (result.success) {
+                    await fetchJamPelajaran();
+                } else {
+                    alert(result.message || 'Gagal menghapus data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus data');
+            }
         }
 
         tableBody.addEventListener('click', function (event) {
@@ -232,19 +318,13 @@
 
             const action = button.dataset.action;
             const id = Number(button.dataset.id);
-            const item = jamData.find(j => j.id === id);
+            const item = jamData.find(j => j.id_jam === id);
 
             if (action === 'edit' && item) {
                 openModal('edit', item);
             }
-            if (action === 'delete' && item) {
-                if (confirm(`Hapus jam ${item.jam_mulai} - ${item.jam_selesai}?`)) {
-                    const index = jamData.findIndex(j => j.id === id);
-                    if (index !== -1) {
-                        jamData.splice(index, 1);
-                        renderTable();
-                    }
-                }
+            if (action === 'delete') {
+                deleteJam(id);
             }
         });
 
@@ -258,7 +338,12 @@
             saveJam();
         });
 
-        renderTable();
+        // Auto-format input waktu
+        autoFormatTimeInput(fields.jam_mulai);
+        autoFormatTimeInput(fields.jam_selesai);
+
+        // Initial load
+        fetchJamPelajaran();
     });
 </script>
 @endsection

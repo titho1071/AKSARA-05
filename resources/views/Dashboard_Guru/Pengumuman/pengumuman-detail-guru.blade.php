@@ -78,8 +78,9 @@
     {{-- Lampiran File --}}
     @if ($pengumuman->file)
         @php
-            $fileUrl  = asset('storage/' . $pengumuman->file);
-            $fileName = $pengumuman->nama_file ?: basename($pengumuman->file);
+            $fileUrl  = $pengumuman->file_url;
+            $previewUrl = $pengumuman->file_preview_url;
+            $fileName = $pengumuman->display_file_name;
             $ext      = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
             $isImage  = in_array($ext, ['jpg', 'jpeg', 'png', 'svg']);
             $isPdf    = $ext === 'pdf';
@@ -90,7 +91,7 @@
 
             @if ($isImage)
                 <div class="mb-3">
-                    <img src="{{ $fileUrl }}" alt="{{ $fileName }}"
+                    <img src="{{ $previewUrl }}" alt="{{ $fileName }}"
                          class="max-h-64 rounded-lg border border-gray-100 object-contain">
                 </div>
             @endif

@@ -46,7 +46,7 @@
         <table class="min-w-full divide-y divide-slate-200 text-sm">
             <thead class="bg-[#1E2567] text-white">
                 <tr>
-                    <th class="px-4 py-4 text-left font-semibold">#</th>
+                    <th class="px-4 py-4 text-left font-semibold">No</th>
                     <th class="px-4 py-4 text-left font-semibold">Nama</th>
                     <th class="px-4 py-4 text-left font-semibold">Kelas</th>
                     <th class="px-4 py-4 text-left font-semibold">NIS</th>
