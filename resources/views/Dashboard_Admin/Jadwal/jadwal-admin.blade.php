@@ -5,14 +5,14 @@
 @section('content')
 @include('components.navbar')
     <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2 pt-2">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Jadwal Pelajaran</h1>
-                <p class="text-gray-600 mt-1">Kelola Jadwal Pelajaran untuk seluruh kelas</p>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Jadwal Pelajaran</h1>
+                <p class="text-gray-600 mt-1 text-sm sm:text-base">Kelola Jadwal Pelajaran untuk seluruh kelas</p>
             </div>
             <div class="flex gap-3">
-                <button id="btn-add-schedule" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                <button id="btn-add-schedule" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 min-h-[44px]">
                     + Tambah Jadwal Pelajaran
                 </button>
             </div>
@@ -35,42 +35,44 @@
     </div>
 
     <!-- Schedule Grid -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between mb-6 gap-4">
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
             <div>
-                <h2 class="text-xl font-bold text-gray-900">Jadwal Mingguan</h2>
-                <p class="text-gray-500 text-sm">Lihat dan edit jadwal pelajaran per jam dan per kelas.</p>
+                <h2 class="text-lg sm:text-xl font-bold text-gray-900">Jadwal Mingguan</h2>
+                <p class="text-gray-500 text-xs sm:text-sm">Lihat dan edit jadwal pelajaran per jam dan per kelas.</p>
             </div>
-            <div class="flex items-center gap-3">
-                <label for="filter-kelas" class="text-sm font-medium text-gray-700">Kelas:</label>
-                <select id="filter-kelas" class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"></select>
+            <div class="flex items-center gap-2">
+                <label for="filter-kelas" class="text-sm font-medium text-gray-700 whitespace-nowrap">Kelas:</label>
+                <select id="filter-kelas" class="flex-1 sm:flex-none rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 min-h-[40px]"></select>
             </div>
         </div>
 
-        <div class="mb-4">
-            <span id="schedule-summary" class="text-sm text-gray-600">Pilih kelas untuk melihat jadwal</span>
+        <div class="mb-3">
+            <span id="schedule-summary" class="text-xs sm:text-sm text-gray-600">Pilih kelas untuk melihat jadwal</span>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full border-collapse text-left">
-                <thead>
-                    <tr class="bg-slate-50">
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Jam / Hari</th>
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Senin</th>
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Selasa</th>
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Rabu</th>
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Kamis</th>
-                        <th class="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700">Jumat</th>
-                    </tr>
-                </thead>
-                <tbody id="schedule-table-body"></tbody>
-            </table>
+        <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="inline-block min-w-full px-4 sm:px-0">
+                <table class="min-w-full border-collapse text-left">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700 whitespace-nowrap">Jam / Hari</th>
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700">Senin</th>
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700">Selasa</th>
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700">Rabu</th>
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700">Kamis</th>
+                            <th class="border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold text-gray-700">Jumat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-table-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- Modal Tambah/Edit Jadwal -->
-    <div id="schedule-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 py-6">
-        <div class="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
+    <div id="schedule-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-3 py-4 sm:px-6 sm:py-8">
+        <div class="w-full max-w-full sm:max-w-2xl rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex items-start justify-between gap-4 mb-6">
                 <div>
                     <h2 id="modal-title" class="text-2xl font-bold text-slate-900">Tambah Jadwal</h2>

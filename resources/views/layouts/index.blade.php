@@ -32,8 +32,9 @@
         <div class="flex-1 lg:ml-56 min-w-0">
 
             <!-- Content -->
-            <main class="p-4">
-                <div class="max-w-7xl mx-auto">
+            <main class="pt-4 pb-8 px-4 sm:px-6 lg:px-8">
+                <!-- Extra top padding on mobile to clear the hamburger button -->
+                <div class="max-w-7xl mx-auto mt-10 lg:mt-0">
                     @yield('content')
                 </div>
             </main>

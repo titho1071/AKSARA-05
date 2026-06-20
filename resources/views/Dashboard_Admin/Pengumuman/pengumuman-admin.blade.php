@@ -6,13 +6,13 @@
 
 @include('components.navbar')
 <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 py-2 pt-4">
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2 pt-2">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
-                <p class="text-gray-600 mt-1">Kelola Pengumuman</p>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Pengumuman</h1>
+                <p class="text-gray-600 mt-1 text-sm sm:text-base">Kelola Pengumuman</p>
             </div>
-            <a id="btn-add-pengumuman" href="{{ route('admin.pengumuman.create') }}" class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+            <a id="btn-add-pengumuman" href="{{ route('admin.pengumuman.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 min-h-[44px]">
                 + Tambah Pengumuman
             </a>
         </div>
@@ -36,8 +36,8 @@
     </div>
 
     <!-- Filter & Search Section -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-6">Filter & Pencarian</h2>
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Filter & Pencarian</h2>
         
         <div>
             <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
@@ -46,14 +46,14 @@
                     id="search-input"
                     type="text" 
                     placeholder="Cari judul atau deskripsi..." 
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-h-[44px] text-sm"
                 >
-                <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <button id="btn-search" class="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 min-h-[44px] whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    Cari
+                    <span class="hidden sm:inline">Cari</span>
                 </button>
             </div>
         </div>
@@ -118,38 +118,40 @@
     </div>
 
     <!-- Pengumuman Table -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div id="pengumuman-detail" class="hidden mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
-            <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h3 id="detail-judul" class="text-lg font-semibold text-slate-900">Detail Pengumuman</h3>
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+        <div id="pengumuman-detail" class="hidden mb-4 sm:mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                    <h3 id="detail-judul" class="text-base sm:text-lg font-semibold text-slate-900">Detail Pengumuman</h3>
                     <p id="detail-deskripsi" class="mt-2 text-sm text-slate-700"></p>
-                    <p id="detail-meta" class="mt-3 text-sm text-slate-600"></p>
+                    <p id="detail-meta" class="mt-3 text-xs sm:text-sm text-slate-600"></p>
                 </div>
-                <button id="btn-detail-close" type="button" class="text-slate-500 hover:text-slate-900">Tutup</button>
+                <button id="btn-detail-close" type="button" class="text-slate-500 hover:text-slate-900 min-h-[44px] px-2 text-sm font-medium">Tutup</button>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[720px]">
-                <thead>
-                    <tr class="border-b border-gray-200">
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Judul</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Kelas</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Mulai</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Tanggal Selesai</th>
-                        <th class="text-left px-4 py-4 font-semibold text-gray-700 text-sm">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="pengumuman-list">
-                    <tr class="border-b border-gray-100">
-                        <td class="px-4 py-6 text-gray-500" colspan="5">Memuat data pengumuman...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="inline-block min-w-full px-4 sm:px-0">
+                <table class="w-full min-w-[600px]">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left px-3 sm:px-4 py-3 sm:py-4 font-semibold text-gray-700 text-xs sm:text-sm">Judul</th>
+                            <th class="text-left px-3 sm:px-4 py-3 sm:py-4 font-semibold text-gray-700 text-xs sm:text-sm">Kelas</th>
+                            <th class="text-left px-3 sm:px-4 py-3 sm:py-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Tgl Mulai</th>
+                            <th class="text-left px-3 sm:px-4 py-3 sm:py-4 font-semibold text-gray-700 text-xs sm:text-sm whitespace-nowrap">Tgl Selesai</th>
+                            <th class="text-left px-3 sm:px-4 py-3 sm:py-4 font-semibold text-gray-700 text-xs sm:text-sm">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pengumuman-list">
+                        <tr class="border-b border-gray-100">
+                            <td class="px-3 py-6 text-gray-500 text-sm" colspan="5">Memuat data pengumuman...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         
         <!-- Total Info -->
-        <div class="mt-6 text-sm text-gray-600">
+        <div class="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-600">
             <p id="pengumuman-total">Total 0 Pengumuman</p>
         </div>
     </div>
