@@ -109,30 +109,30 @@ class SiswaGuruController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $siswa = Siswa::findOrFail($id);
+    $siswa = Siswa::findOrFail($id);
 
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'nis' => 'required|string|max:50',
-            'nisn' => 'required|string|max:50',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tanggal_lahir' => 'nullable|date',
-            'alamat' => 'nullable|string',
-            'orang_tua_id' => 'nullable|exists:orang_tua,id_orang_tua',
-        ]);
+    $request->validate([
+        'nama'          => 'required|string|max:255',
+        'nis'           => 'required|string|max:50',
+        'nisn'          => 'required|string|max:50',
+        'jenis_kelamin' => 'required|in:L,P',
+        'tanggal_lahir' => 'nullable|date',
+        'alamat'        => 'nullable|string',
+        'orang_tua_id'  => 'nullable|exists:orang_tua,id_orang_tua',
+    ]);
 
-        $siswa->update([
-            'nama' => $request->nama,
-            'nis' => $request->nis,
-            'nisn' => $request->nisn,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat' => $request->alamat,
-            'orang_tua_id' => $request->orang_tua_id,
-        ]);
+    $siswa->update([
+        'nama'          => $request->nama,
+        'nis'           => $request->nis,
+        'nisn'          => $request->nisn,
+        'jenis_kelamin' => $request->jenis_kelamin,
+        'tanggal_lahir' => $request->tanggal_lahir,
+        'alamat'        => $request->alamat,
+        'orang_tua_id'  => $request->orang_tua_id,
+    ]);
 
-        return redirect()
-            ->route('guru.siswa.index')
-            ->with('success', 'Data siswa berhasil diperbarui.');
+    return redirect()
+    ->route('guru.siswa.index')
+    ->with('success', 'Data siswa berhasil diperbarui.');
     }
 }

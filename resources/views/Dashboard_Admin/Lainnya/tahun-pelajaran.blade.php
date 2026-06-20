@@ -32,28 +32,23 @@
             </thead>
             <tbody id="tapel-table-body" class="divide-y divide-slate-200 bg-slate-50">
                 <tr class="bg-white">
-                    <td colspan="5" class="px-4 py-6 text-center text-slate-500">Memuat data tahun pelajaran...</td>
+                    <td colspan="6" class="px-4 py-6 text-center text-slate-500">Memuat data tahun pelajaran...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal Tambah Tahun Pelajaran -->
 <div id="tapel-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4 py-6">
     <div class="w-full max-w-xl rounded-[2rem] bg-white p-6 shadow-2xl">
         <div class="flex items-start justify-between gap-4 mb-6">
-            <div class="mb-6">
-                <h2 id="modal-title" class="text-2xl font-bold text-slate-900">
-                    Tambah Data Tapel
-                </h2>
-                <p id="modal-desc" class="text-sm text-slate-500 mt-1">
-                    Isi tahun pelajaran dan semester baru.
-                </p>
+            <div>
+                <h2 id="modal-title" class="text-2xl font-bold text-slate-900">Tambah Data Tapel</h2>
+                <p id="modal-desc" class="text-sm text-slate-500 mt-1">Isi tahun pelajaran dan semester baru.</p>
             </div>
         </div>
 
-        <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+        <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4"></div>
 
         <div class="grid gap-6 md:grid-cols-2">
             <div>
@@ -74,17 +69,8 @@
             </div>
             <div class="md:col-span-2">
                 <label class="inline-flex items-center gap-3 text-sm text-slate-600">
-                    <input
-                        id="is_active"
-                        type="checkbox"
-                        class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                    <input id="is_active" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                     <span>Jadikan sebagai Tahun Pelajaran Aktif</span>
-                </label>
-            </div>
-            <div class="md:col-span-2">
-                <label class="inline-flex items-center gap-3 text-sm text-slate-600">
-                    <input id="tapel-confirm" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                    <span>Saya yakin sudah mengisi dengan benar</span>
                 </label>
             </div>
         </div>
@@ -101,7 +87,6 @@
         let tapelData = [];
 
         const tableBody = document.getElementById('tapel-table-body');
-        const countEl = null;
         const modal = document.getElementById('tapel-modal');
         const btnAdd = document.getElementById('btn-add-tapel');
         const btnCancel = document.getElementById('modal-cancel');
@@ -115,7 +100,6 @@
             tahun_akhir: document.getElementById('tahun_akhir'),
             semester: document.getElementById('semester'),
             is_active: document.getElementById('is_active'),
-            confirm: document.getElementById('tapel-confirm')
         };
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -126,8 +110,6 @@
                 if (response.ok) {
                     tapelData = await response.json();
                     renderTable();
-                } else {
-                    console.error('Failed to load data');
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -136,52 +118,31 @@
 
         function renderTable() {
             if (!tapelData.length) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Belum ada tahun pelajaran.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500">Belum ada tahun pelajaran.</td></tr>';
                 return;
             }
 
             tableBody.innerHTML = tapelData.map((item, index) => `
                 <tr class="odd:bg-slate-50 even:bg-white">
                     <td class="px-4 py-4 text-slate-600">${index + 1}</td>
-                    <td class="px-4 py-4 font-semibold text-slate-900">
-                        ${item.tahun_pelajaran}
-                    </td>
-
-                    <td class="px-4 py-4 text-slate-700">
-                        ${item.semester}
-                    </td>
-
+                    <td class="px-4 py-4 font-semibold text-slate-900">${item.tahun_pelajaran}</td>
+                    <td class="px-4 py-4 text-slate-700">${item.semester}</td>
                     <td class="px-4 py-4">
-                        ${
-                            item.is_active
-                            ? `<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                    Aktif
-                            </span>`
-                            : `<span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                                    Tidak Aktif
-                            </span>`
+                        ${item.is_active
+                            ? '<span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Aktif</span>'
+                            : '<span class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Tidak Aktif</span>'
                         }
                     </td>
-
-                    <td class="px-4 py-4 text-slate-700">
-                        ${item.jumlah_kelas || 0}
-                    </td>
+                    <td class="px-4 py-4 text-slate-700">${item.jumlah_kelas || 0}</td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             ${!item.is_active ? `
-                            <button
-                                data-id="${item.id_tapel}"
-                                data-action="activate"
+                            <button data-id="${item.id_tapel}" data-action="activate"
                                 class="inline-flex items-center rounded-xl bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200">
                                 Jadikan Aktif
-                            </button>
-                            ` : ''}
-
-                             <button
-                                data-id="${item.id_tapel}"
-                                data-action="delete"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-600 transition hover:bg-red-200"
-                                title="Hapus">
+                            </button>` : ''}
+                            <button data-id="${item.id_tapel}" data-action="delete"
+                                class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100 text-red-600 transition hover:bg-red-200" title="Hapus">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                 </svg>
@@ -193,16 +154,11 @@
         }
 
         function openModal() {
-            modalTitle.textContent = 'Tambah Data Tapel';
-            modalDesc.textContent = 'Isi detail tahun pelajaran baru.';
             alertBox.classList.add('hidden');
-
             fields.tahun_awal.value = '';
             fields.tahun_akhir.value = '';
             fields.semester.value = '';
             fields.is_active.checked = false;
-            fields.confirm.checked = false;
-
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
@@ -222,7 +178,6 @@
             const tahun_akhir = fields.tahun_akhir.value.trim();
             const semester = fields.semester.value;
             const is_active = fields.is_active.checked ? 1 : 0;
-            const confirmed = fields.confirm.checked;
 
             if (!tahun_awal.match(/^20\d{2}$/) || !tahun_akhir.match(/^20\d{2}$/)) {
                 showError('Masukkan tahun pelajaran yang valid, contoh 2024 / 2025.');
@@ -234,36 +189,28 @@
                 return;
             }
 
-            if (!confirmed) {
-                showError('Centang konfirmasi sebelum menyimpan.');
-                return;
-            }
-
             const tahun_pelajaran = `${tahun_awal}/${tahun_akhir}-${semester}`;
 
-            const data = {
-                tahun_pelajaran,
-                semester,
-                is_active,
-                _token: csrfToken
-            };
-
             try {
-                const url = '/admin/tahun-pelajaran';
-                const method = 'POST';
-                const bodyData = data;
-                const response = await fetch(url, {
-                    method,
+                const response = await fetch('/admin/tahun-pelajaran', {
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(bodyData)
+                    body: new URLSearchParams({ tahun_pelajaran, semester, is_active, _token: csrfToken })
                 });
 
                 if (response.ok) {
-                    loadTapelData();
                     closeModal();
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Tahun pelajaran berhasil ditambahkan!',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
+                    loadTapelData();
                 } else {
-                    const error = await response.text();
-                    showError(error || 'Gagal menyimpan data');
+                    const error = await response.json();
+                    showError(error.message || 'Gagal menyimpan data.');
                 }
             } catch (error) {
                 showError('Terjadi kesalahan: ' + error.message);
@@ -278,70 +225,96 @@
             const id = button.dataset.id;
             const item = tapelData.find(t => t.id_tapel == id);
 
-            // Set aktif
             if (action === 'activate') {
+                const result = await Swal.fire({
+                    title: 'Jadikan Aktif?',
+                    text: 'Tahun pelajaran ini akan dijadikan periode aktif.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'Ya, jadikan aktif!',
+                    cancelButtonText: 'Batal'
+                });
 
-                if (!confirm('Jadikan tahun pelajaran ini sebagai yang aktif?')) {
-                    return;
-                }
+                if (!result.isConfirmed) return;
 
                 try {
                     const response = await fetch(`/admin/tahun-pelajaran/${id}/aktif`, {
                         method: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
                     });
 
                     if (response.ok) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Tahun pelajaran berhasil diaktifkan!',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
+                        });
                         loadTapelData();
                     } else {
                         const errorData = await response.json();
-                        alert(errorData.message || 'Gagal mengubah status aktif');
-                    }
-
-                } catch (error) {
-                    alert('Terjadi kesalahan: ' + error.message);
-                }
-
-                return;
-            }
-
-            // Hapus
-            if (action === 'delete' && item) {
-                if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-                    try {
-                        const response = await fetch(`/admin/tahun-pelajaran/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: errorData.message || 'Gagal mengubah status aktif.',
+                            confirmButtonColor: '#6366f1'
                         });
-
-                        if (response.ok) {
-                            loadTapelData();
-                        } else {
-                            const errorData = await response.json();
-                            alert(errorData.message || 'Gagal menghapus data');
-                        }
-
-                    } catch (error) {
-                        alert('Terjadi kesalahan: ' + error.message);
                     }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: error.message, confirmButtonColor: '#6366f1' });
+                }
+            }
+
+            if (action === 'delete' && item) {
+                const result = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: 'Data tahun pelajaran yang dihapus tidak dapat dikembalikan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (!result.isConfirmed) return;
+
+                try {
+                    const response = await fetch(`/admin/tahun-pelajaran/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Tahun pelajaran berhasil dihapus.',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
+                        });
+                        loadTapelData();
+                    } else {
+                        const errorData = await response.json();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: errorData.message || 'Gagal menghapus data.',
+                            confirmButtonColor: '#6366f1'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: error.message, confirmButtonColor: '#6366f1' });
                 }
             }
         });
 
-        btnAdd.addEventListener('click', function () {
-            openModal('create');
-        });
+        btnAdd.addEventListener('click', openModal);
         btnCancel.addEventListener('click', closeModal);
-        btnSave.addEventListener('click', function (event) {
-            event.preventDefault();
-            saveTapel();
-        });
+        btnSave.addEventListener('click', (e) => { e.preventDefault(); saveTapel(); });
 
         loadTapelData();
     })();

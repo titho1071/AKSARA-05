@@ -29,7 +29,7 @@
         @endif
 
         <!-- Main Content -->
-        <div class="flex-1 lg:ml-56">
+        <div class="flex-1 lg:ml-56 min-w-0">
 
             <!-- Content -->
             <main class="p-4">

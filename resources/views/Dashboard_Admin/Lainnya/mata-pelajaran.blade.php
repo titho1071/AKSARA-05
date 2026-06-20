@@ -89,52 +89,42 @@
 
         let editingId = null;
 
-        // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        // Fetch Tahun Pelajaran
+        // ── Fetch Tahun Pelajaran ───────────────────────────────────
         async function fetchTahunPelajaran() {
             try {
                 const response = await fetch('/api/tahun-pelajaran', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
                 const result = await response.json();
                 if (Array.isArray(result)) {
                     tahunPelajaranData = result;
-                    populateTapelDropdown();
                 } else if (result.success) {
                     tahunPelajaranData = result.data;
-                    populateTapelDropdown();
                 }
+                populateTapelDropdown();
             } catch (error) {
                 console.error('Error fetching tahun pelajaran:', error);
             }
         }
 
         function populateTapelDropdown() {
-            tapelSelect.innerHTML = '<option value="">-- Pilih Tahun Pelajaran --</option>' + 
+            tapelSelect.innerHTML = '<option value="">-- Pilih Tahun Pelajaran --</option>' +
                 tahunPelajaranData.map(tp => {
                     const activeText = tp.is_active === 1 ? ' (Aktif)' : '';
                     return `<option value="${tp.id_tapel}">${tp.tahun_pelajaran} - Semester ${tp.semester}${activeText}</option>`;
                 }).join('');
         }
 
-        // Fetch Mata Pelajaran
+        // ── Fetch & Render Mata Pelajaran ───────────────────────────
         async function fetchMataPelajaran() {
             try {
                 tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Memuat data mata pelajaran...</td></tr>';
-                
                 const response = await fetch('/api/mata-pelajaran', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
                 const result = await response.json();
-                
                 if (result.success) {
                     mapelData = result.data;
                     renderTable();
@@ -152,7 +142,6 @@
                 tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500">Belum ada mata pelajaran.</td></tr>';
                 return;
             }
-
             tableBody.innerHTML = mapelData.map((item, index) => {
                 const tapel = item.tahun_pelajaran || item.tahunPelajaran;
                 const tapelText = tapel ? `${tapel.tahun_pelajaran} - Semester ${tapel.semester}` : '-';
@@ -180,6 +169,7 @@
             }).join('');
         }
 
+        // ── Modal Form ──────────────────────────────────────────────
         function openModal(mode, item = null) {
             editingId = item ? item.id_mapel : null;
             modalTitle.textContent = mode === 'edit' ? 'Edit Mata Pelajaran' : 'Tambah Mata Pelajaran';
@@ -210,29 +200,16 @@
             alertBox.classList.remove('hidden');
         }
 
+        // ── Simpan ──────────────────────────────────────────────────
         async function saveMapel() {
             const nama = namaInput.value.trim();
             const tapelId = tapelSelect.value;
 
-            if (!nama) {
-                showError('Masukkan nama mata pelajaran.');
-                return;
-            }
+            if (!nama) { showError('Masukkan nama mata pelajaran.'); return; }
+            if (nama.length < 3) { showError('Nama mata pelajaran minimal 3 karakter.'); return; }
+            if (!tapelId) { showError('Pilih tahun pelajaran.'); return; }
 
-            if (nama.length < 3) {
-                showError('Nama mata pelajaran minimal 3 karakter.');
-                return;
-            }
-
-            if (!tapelId) {
-                showError('Pilih tahun pelajaran.');
-                return;
-            }
-
-            const payload = {
-                nama_mapel: nama,
-                id_tapel: tapelId
-            };
+            const payload = { nama_mapel: nama, id_tapel: tapelId };
 
             try {
                 btnSave.disabled = true;
@@ -242,7 +219,7 @@
                 const method = editingId ? 'PUT' : 'POST';
 
                 const response = await fetch(url, {
-                    method: method,
+                    method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -254,8 +231,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    await fetchMataPelajaran();
                     closeModal();
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: editingId ? 'Mata pelajaran berhasil diperbarui!' : 'Mata pelajaran berhasil ditambahkan!',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
+                    await fetchMataPelajaran();
                 } else {
                     showError(result.message || 'Gagal menyimpan data');
                 }
@@ -268,33 +252,57 @@
             }
         }
 
+        // ── Hapus ───────────────────────────────────────────────────
         async function deleteMapel(id) {
-            if (!confirm('Hapus mata pelajaran ini? Semua jadwal terkait akan ikut terhapus.')) {
-                return;
-            }
+            const result = await Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: 'Mata pelajaran yang dihapus tidak dapat dikembalikan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch(`/api/mata-pelajaran/${id}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
-                if (result.success) {
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus!',
+                        text: 'Mata pelajaran berhasil dihapus.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
                     await fetchMataPelajaran();
                 } else {
-                    alert(result.message || 'Gagal menghapus data');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal menghapus data.',
+                        confirmButtonColor: '#6366f1'
+                    });
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus data');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#6366f1'
+                });
             }
         }
 
+        // ── Event Listeners ─────────────────────────────────────────
         tableBody.addEventListener('click', function (event) {
             const button = event.target.closest('button');
             if (!button) return;
@@ -303,28 +311,15 @@
             const id = Number(button.dataset.id);
             const item = mapelData.find(m => m.id_mapel === id);
 
-            if (action === 'edit' && item) {
-                openModal('edit', item);
-            }
-            if (action === 'delete') {
-                deleteMapel(id);
-            }
+            if (action === 'edit' && item) openModal('edit', item);
+            if (action === 'delete') deleteMapel(id);
         });
 
-        btnAdd.addEventListener('click', function () {
-            openModal('create');
-        });
+        btnAdd.addEventListener('click', () => openModal('create'));
         btnClose.addEventListener('click', closeModal);
         btnCancel.addEventListener('click', closeModal);
-        btnSave.addEventListener('click', function (event) {
-            event.preventDefault();
-            saveMapel();
-        });
-        namaInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                saveMapel();
-            }
-        });
+        btnSave.addEventListener('click', (e) => { e.preventDefault(); saveMapel(); });
+        namaInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveMapel(); });
 
         // Initial load
         fetchTahunPelajaran().then(() => fetchMataPelajaran());

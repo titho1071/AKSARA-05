@@ -6,6 +6,7 @@ use App\Models\Pengumuman;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class PengumumanController extends Controller
 {
@@ -82,6 +83,8 @@ class PengumumanController extends Controller
 
         $pengumuman = Pengumuman::create($validated);
 
+        $this->kirimNotifikasiWA($pengumuman);
+
         return response()->json([
             'success' => true,
             'message' => 'Pengumuman berhasil dibuat',
@@ -126,6 +129,55 @@ class PengumumanController extends Controller
         ]);
     }
 
+    protected function kirimNotifikasiWA(Pengumuman $pengumuman): void
+    {
+        $token = config('services.fonnte.token');
+        if (!$token) return;
+
+        $mulai = optional($pengumuman->tanggal_mulai)->format('d/m/Y') ?? '-';
+        $selesai = optional($pengumuman->tanggal_selesai)->format('d/m/Y') ?? '-';
+        $kelas = $pengumuman->kelas?->nama_kelas ?? 'Semua Kelas';
+
+        $user = auth()->user();
+        $role = $user->role->nama_role ?? 'Admin';
+        $dibuatOleh = "{$user->username} ({$role})";
+
+        $pesan = "📢 *Pengumuman Baru!*\n\n"
+        . "*{$pengumuman->judul}*\n\n"
+        . "{$pengumuman->deskripsi}\n\n"
+        . "🏫 Kelas: {$kelas}\n"
+        . "📅 {$mulai} s/d {$selesai}\n\n"
+        . "👤 Dibuat oleh: {$dibuatOleh}\n"
+        . "🔗 Lihat selengkapnya: -";
+        
+        if (is_null($pengumuman->kelas_id)) {
+            // Kirim ke semua grup
+            $semuaKelas = Kelas::whereNotNull('wa_group_id')->get();
+            $grupTerkirim = [];
+
+            foreach ($semuaKelas as $k) {
+                if (!in_array($k->wa_group_id, $grupTerkirim)) {
+                    Http::withHeaders(['Authorization' => $token])
+                        ->post('https://api.fonnte.com/send', [
+                            'target'  => $k->wa_group_id,
+                            'message' => $pesan,
+                        ]);
+                    $grupTerkirim[] = $k->wa_group_id;
+                }
+            }
+        } else {
+            // Kirim ke grup kelas yang dipilih saja
+            $kelas = Kelas::find($pengumuman->kelas_id);
+            if ($kelas && $kelas->wa_group_id) {
+                Http::withHeaders(['Authorization' => $token])
+                    ->post('https://api.fonnte.com/send', [
+                        'target'  => $kelas->wa_group_id,
+                        'message' => $pesan,
+                    ]);
+            }
+        }
+    }
+
     protected function validateRequest(Request $request, ?int $id = null): array
     {
         if ($request->input('kelas_id') === '') {
@@ -133,13 +185,13 @@ class PengumumanController extends Controller
         }
 
         return $request->validate([
-            'judul' => ['required', 'string', 'max:255'],
-            'deskripsi' => ['required', 'string'],
-            'kelas_id' => ['nullable', 'integer'],
-            'tanggal_mulai' => ['nullable', 'date'],
+            'judul'           => ['required', 'string', 'max:255'],
+            'deskripsi'       => ['required', 'string'],
+            'kelas_id'        => ['nullable', 'integer'],
+            'tanggal_mulai'   => ['nullable', 'date'],
             'tanggal_selesai' => ['nullable', 'date', 'after_or_equal:tanggal_mulai'],
-            'file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:2048'],
-            'nama_file' => ['nullable', 'string', 'max:255'],
+            'file'            => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg,pdf', 'max:2048'],
+            'nama_file'       => ['nullable', 'string', 'max:255'],
         ]);
     }
 
@@ -147,25 +199,23 @@ class PengumumanController extends Controller
     {
         if (!$request->hasFile('file')) {
             unset($validated['file']);
-
             return;
         }
 
         $file = $request->file('file');
-        $validated['file'] = $file->store('pengumuman', 'public');
+        $validated['file']      = $file->store('pengumuman', 'public');
         $validated['nama_file'] = $request->input('nama_file') ?: $file->getClientOriginalName();
     }
+
     public function create()
     {
         $kelas = Kelas::all();
-
         return view('Dashboard_Admin.Pengumuman.pengumuman-tambah', compact('kelas'));
     }
 
     public function edit(Pengumuman $pengumuman)
     {
         $kelas = Kelas::all();
-
         return view('Dashboard_Admin.Pengumuman.pengumuman-edit', compact('pengumuman', 'kelas'));
     }
 

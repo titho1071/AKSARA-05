@@ -111,7 +111,6 @@
                     </select>
                 </div>
 
-                {{-- ── GURU (optional) ── --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="guru">
                         Guru Pengajar
@@ -122,7 +121,6 @@
                     </select>
                 </div>
 
-                {{-- ── KEGIATAN (optional) ── --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2" for="kegiatan">
                         Kegiatan
@@ -152,56 +150,56 @@
             let jamPelajaranData   = [];
             let kelasData          = [];
             let mataPelajaranData  = [];
-            let kegiatanData       = [];   // ← tambahan
-            let guruData          = [];
+            let kegiatanData       = [];
+            let guruData           = [];
             let currentEditId      = null;
             let selectedKelasId    = null;
 
-            const tableBody   = document.getElementById('schedule-table-body');
-            const countEl     = document.getElementById('schedule-count');
-            const summaryEl   = document.getElementById('schedule-summary');
-            const modal       = document.getElementById('schedule-modal');
-            const modalTitle  = document.getElementById('modal-title');
+            const tableBody     = document.getElementById('schedule-table-body');
+            const countEl       = document.getElementById('schedule-count');
+            const summaryEl     = document.getElementById('schedule-summary');
+            const modal         = document.getElementById('schedule-modal');
+            const modalTitle    = document.getElementById('modal-title');
             const modalSubtitle = document.getElementById('modal-subtitle');
-            const alertBox    = document.getElementById('modal-alert');
-            const btnAdd      = document.getElementById('btn-add-schedule');
-            const btnCancel   = document.getElementById('modal-cancel');
-            const btnSave     = document.getElementById('modal-save');
-            const filterKelas = document.getElementById('filter-kelas');
+            const alertBox      = document.getElementById('modal-alert');
+            const btnAdd        = document.getElementById('btn-add-schedule');
+            const btnCancel     = document.getElementById('modal-cancel');
+            const btnSave       = document.getElementById('modal-save');
+            const filterKelas   = document.getElementById('filter-kelas');
 
             const fields = {
                 hari:     document.getElementById('hari'),
                 jam:      document.getElementById('jam'),
                 kelas:    document.getElementById('kelas'),
                 mapel:    document.getElementById('mapel'),
-                kegiatan: document.getElementById('kegiatan'),  // ← tambahan
+                kegiatan: document.getElementById('kegiatan'),
                 guru:     document.getElementById('guru'),
             };
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
-            // ── Fetch semua master data ──
+            // ── Fetch semua master data ─────────────────────────────
             async function fetchMasterData() {
                 try {
                     const [jamRes, kelasRes, mapelRes, kegiatanRes, guruRes] = await Promise.all([
-                        fetch('/api/jam-pelajaran',      { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
-                        fetch('/api/kelas',              { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
-                        fetch('/api/mata-pelajaran',     { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
-                        fetch('/api/kegiatan-jadwal',    { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
-                        fetch('/api/guru-jadwal',        { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/jam-pelajaran',   { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/kelas',           { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/mata-pelajaran',  { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/kegiatan-jadwal', { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
+                        fetch('/api/guru-jadwal',     { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
                     ]);
 
-                    const jamResult     = await jamRes.json();
-                    const mapelResult   = await mapelRes.json();
+                    const jamResult      = await jamRes.json();
+                    const mapelResult    = await mapelRes.json();
                     const kegiatanResult = await kegiatanRes.json();
-                    kelasData           = await kelasRes.json();
+                    const guruResult     = await guruRes.json();
+                    kelasData            = await kelasRes.json();
 
                     if (jamResult.success)      { jamPelajaranData  = jamResult.data;      populateJamDropdown(); }
                     if (mapelResult.success)    { mataPelajaranData = mapelResult.data;    populateMapelDropdown(); }
                     if (kegiatanResult.success) { kegiatanData      = kegiatanResult.data; populateKegiatanDropdown(); }
-                    const guruResult = await guruRes.json();
-                    if (guruResult.success)     { guruData         = guruResult.data;     populateGuruDropdown(); }
+                    if (guruResult.success)     { guruData          = guruResult.data;     populateGuruDropdown(); }
 
                     populateKelasDropdown();
                     populateKelasFilter();
@@ -210,7 +208,7 @@
                 }
             }
 
-            // ── Populate dropdowns ──
+            // ── Populate dropdowns ──────────────────────────────────
             function populateJamDropdown() {
                 fields.jam.innerHTML = '<option value="">-- Pilih Jam --</option>';
                 jamPelajaranData.forEach(jam => {
@@ -268,8 +266,8 @@
             function populateKegiatanDropdown() {
                 fields.kegiatan.innerHTML = '<option value="">-- Tidak Ada Kegiatan --</option>';
                 kegiatanData.forEach(kg => {
-                    const o   = document.createElement('option');
-                    o.value   = kg.id_kegiatan;
+                    const o = document.createElement('option');
+                    o.value = kg.id_kegiatan;
                     const tgl = new Date(kg.tanggal).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'short', year: 'numeric'
                     });
@@ -278,7 +276,7 @@
                 });
             }
 
-            // ── Fetch jadwal ──
+            // ── Fetch jadwal ────────────────────────────────────────
             async function fetchJadwal() {
                 tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-slate-500">Memuat jadwal...</td></tr>`;
                 try {
@@ -311,7 +309,7 @@
                 applyFilter();
             });
 
-            // ── Render tabel jadwal ──
+            // ── Render tabel jadwal ─────────────────────────────────
             function renderSchedule() {
                 if (!jamPelajaranData.length) {
                     tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-yellow-600">Belum ada jam pelajaran.</td></tr>`;
@@ -349,7 +347,7 @@
                         const mapelName    = item.mata_pelajaran ? item.mata_pelajaran.nama_mapel : '-';
                         const kelasName    = item.kelas ? item.kelas.nama_kelas : '-';
                         const kegiatanName = item.kegiatan ? item.kegiatan.judul : null;
-                        const guruName     = item.guru     ? item.guru.nama    : null;
+                        const guruName     = item.guru ? item.guru.nama : null;
                         const displayName  = kegiatanName || mapelName;
                         const isKegiatan   = !!kegiatanName;
 
@@ -386,7 +384,7 @@
                 }
             }
 
-            // ── Modal ──
+            // ── Modal ───────────────────────────────────────────────
             function openModal(mode, item = null) {
                 currentEditId = item ? item.id_jadwal : null;
                 modalTitle.textContent    = mode === 'edit' ? 'Edit Jadwal' : 'Tambah Jadwal';
@@ -398,15 +396,15 @@
                     fields.jam.value      = item.jam_id;
                     fields.kelas.value    = item.kelas_id || '';
                     fields.mapel.value    = item.id_mapel;
-                    fields.kegiatan.value = item.kegiatan_id || '';   // ← set kegiatan saat edit
-                    fields.guru.value      = item.id_guru || '';
+                    fields.kegiatan.value = item.kegiatan_id || '';
+                    fields.guru.value     = item.id_guru || '';
                 } else {
                     fields.hari.value     = '';
                     fields.jam.value      = '';
                     fields.kelas.value    = selectedKelasId || '';
                     fields.mapel.value    = '';
-                    fields.kegiatan.value = '';                        // ← reset saat tambah baru
-                    fields.guru.value      = '';
+                    fields.kegiatan.value = '';
+                    fields.guru.value     = '';
                 }
 
                 modal.classList.remove('hidden');
@@ -423,7 +421,7 @@
                 alertBox.classList.remove('hidden');
             }
 
-            // ── Simpan jadwal ──
+            // ── Simpan jadwal ───────────────────────────────────────
             async function saveSchedule() {
                 const hari     = fields.hari.value;
                 const jam_id   = fields.jam.value;
@@ -432,7 +430,6 @@
 
                 if (!hari)   { showModalError('Pilih hari terlebih dahulu.');          return; }
                 if (!jam_id) { showModalError('Pilih jam pelajaran terlebih dahulu.'); return; }
-                // Mata pelajaran opsional jika kegiatan dipilih
                 if (!id_mapel && !fields.kegiatan.value) {
                     showModalError('Pilih mata pelajaran atau kegiatan.');
                     return;
@@ -462,8 +459,15 @@
                     const result = await res.json();
 
                     if (result.success) {
-                        await fetchJadwal();
                         closeModal();
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: currentEditId ? 'Jadwal berhasil diperbarui!' : 'Jadwal berhasil ditambahkan!',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
+                        });
+                        await fetchJadwal();
                     } else {
                         showModalError(result.errors
                             ? Object.values(result.errors).flat().join(', ')
@@ -478,20 +482,53 @@
                 }
             }
 
-            // ── Hapus jadwal ──
+            // ── Hapus jadwal ────────────────────────────────────────
             async function deleteSchedule(id) {
-                if (!confirm('Hapus jadwal ini?')) return;
+                const result = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: 'Jadwal yang dihapus tidak dapat dikembalikan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (!result.isConfirmed) return;
+
                 try {
                     const res    = await fetch(`/api/jadwal-pelajaran/${id}`, {
                         method: 'DELETE',
                         headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                     });
-                    const result = await res.json();
-                    if (result.success) await fetchJadwal();
-                    else alert(result.message || 'Gagal menghapus jadwal');
+                    const data = await res.json();
+
+                    if (data.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Jadwal berhasil dihapus.',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
+                        });
+                        await fetchJadwal();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Gagal menghapus jadwal.',
+                            confirmButtonColor: '#6366f1'
+                        });
+                    }
                 } catch (err) {
                     console.error(err);
-                    alert('Terjadi kesalahan saat menghapus data');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: err.message,
+                        confirmButtonColor: '#6366f1'
+                    });
                 }
             }
 
@@ -503,7 +540,7 @@
                 return null;
             }
 
-            // ── Event listeners ──
+            // ── Event listeners ─────────────────────────────────────
             tableBody.addEventListener('click', function (e) {
                 const btn = e.target.closest('button');
                 if (!btn) return;

@@ -19,27 +19,19 @@ class Kelas extends Model
         'tingkat',
         'tapel_id',
         'guru_id',
+        'wa_group_id',
     ];
 
-    /**
-     * Get all siswa in this kelas.
-     */
     public function siswa()
     {
         return $this->hasMany(Siswa::class, 'kelas_id', 'id_kelas');
     }
 
-    /**
-     * Get the guru (wali kelas) for this kelas.
-     */
     public function guru()
     {
         return $this->belongsTo(\App\Models\Guru::class, 'guru_id', 'id_guru');
     }
 
-    /**
-     * Get the tahun pelajaran for this kelas.
-     */
     public function tahunPelajaran()
     {
         return $this->belongsTo(

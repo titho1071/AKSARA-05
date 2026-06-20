@@ -100,22 +100,18 @@
 
         let editingId = null;
 
-        // Get CSRF token
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        // Fetch Jam Pelajaran
+        // ── Fetch Jam Pelajaran ─────────────────────────────────────
         async function fetchJamPelajaran() {
             try {
                 tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Memuat data jam pelajaran...</td></tr>';
-                
+
                 const response = await fetch('/api/jam-pelajaran', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
                 const result = await response.json();
-                
+
                 if (result.success) {
                     jamData = result.data;
                     renderTable();
@@ -128,17 +124,14 @@
             }
         }
 
-        // Ubah HH:MM:SS (dari server) → HH.MM (tampilan Indonesia)
+        // ── Format Waktu ────────────────────────────────────────────
         function formatTimeIndo(timeString) {
             if (!timeString) return '-';
             const parts = timeString.split(':');
-            if (parts.length >= 2) {
-                return `${parts[0]}.${parts[1]}`;
-            }
+            if (parts.length >= 2) return `${parts[0]}.${parts[1]}`;
             return timeString;
         }
 
-        // Validasi dan normalise input HH.MM → HH:MM (untuk server)
         function parseTimeInput(input) {
             const trimmed = input.trim().replace(',', '.');
             const match = trimmed.match(/^([01]?\d|2[0-3])\.([0-5]\d)$/);
@@ -146,7 +139,6 @@
             return `${match[1].padStart(2, '0')}:${match[2]}`;
         }
 
-        // Auto-insert titik saat mengetik angka ke-3
         function autoFormatTimeInput(input) {
             input.addEventListener('input', function () {
                 let val = this.value.replace(/[^0-9.]/g, '');
@@ -157,6 +149,7 @@
             });
         }
 
+        // ── Render Tabel ────────────────────────────────────────────
         function renderTable() {
             if (!jamData.length) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Belum ada jam pelajaran.</td></tr>';
@@ -187,6 +180,7 @@
             `).join('');
         }
 
+        // ── Modal Form ──────────────────────────────────────────────
         function openModal(mode, item = null) {
             editingId = item ? item.id_jam : null;
             modalTitle.textContent = mode === 'edit' ? 'Edit Jam Pelajaran' : 'Tambah Jam Pelajaran';
@@ -217,6 +211,7 @@
             alertBox.classList.remove('hidden');
         }
 
+        // ── Simpan ──────────────────────────────────────────────────
         async function saveJam() {
             const rawMulai = fields.jam_mulai.value;
             const rawSelesai = fields.jam_selesai.value;
@@ -259,7 +254,7 @@
                 const method = editingId ? 'PUT' : 'POST';
 
                 const response = await fetch(url, {
-                    method: method,
+                    method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -271,8 +266,15 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    await fetchJamPelajaran();
                     closeModal();
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: editingId ? 'Jam pelajaran berhasil diperbarui!' : 'Jam pelajaran berhasil ditambahkan!',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
+                    await fetchJamPelajaran();
                 } else {
                     showError(result.message || 'Gagal menyimpan data');
                 }
@@ -285,33 +287,57 @@
             }
         }
 
+        // ── Hapus ───────────────────────────────────────────────────
         async function deleteJam(id) {
-            if (!confirm('Hapus jam pelajaran ini?')) {
-                return;
-            }
+            const result = await Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: 'Jam pelajaran yang dihapus tidak dapat dikembalikan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            });
+
+            if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch(`/api/jam-pelajaran/${id}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
+                    headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
-                if (result.success) {
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Terhapus!',
+                        text: 'Jam pelajaran berhasil dihapus.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
                     await fetchJamPelajaran();
                 } else {
-                    alert(result.message || 'Gagal menghapus data');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal menghapus data.',
+                        confirmButtonColor: '#6366f1'
+                    });
                 }
             } catch (error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus data');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message,
+                    confirmButtonColor: '#6366f1'
+                });
             }
         }
 
+        // ── Event Listeners ─────────────────────────────────────────
         tableBody.addEventListener('click', function (event) {
             const button = event.target.closest('button');
             if (!button) return;
@@ -320,29 +346,18 @@
             const id = Number(button.dataset.id);
             const item = jamData.find(j => j.id_jam === id);
 
-            if (action === 'edit' && item) {
-                openModal('edit', item);
-            }
-            if (action === 'delete') {
-                deleteJam(id);
-            }
+            if (action === 'edit' && item) openModal('edit', item);
+            if (action === 'delete') deleteJam(id);
         });
 
-        btnAdd.addEventListener('click', function () {
-            openModal('create');
-        });
+        btnAdd.addEventListener('click', () => openModal('create'));
         btnClose.addEventListener('click', closeModal);
         btnCancel.addEventListener('click', closeModal);
-        btnSave.addEventListener('click', function (event) {
-            event.preventDefault();
-            saveJam();
-        });
+        btnSave.addEventListener('click', (e) => { e.preventDefault(); saveJam(); });
 
-        // Auto-format input waktu
         autoFormatTimeInput(fields.jam_mulai);
         autoFormatTimeInput(fields.jam_selesai);
 
-        // Initial load
         fetchJamPelajaran();
     });
 </script>

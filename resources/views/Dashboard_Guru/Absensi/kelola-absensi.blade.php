@@ -5,6 +5,7 @@
 @endphp
 
 @section('content')
+@include('components.navbar', ['role' => $role])
     <div class="max-w-[1400px] mx-auto space-y-6">
 
         <!-- Header -->
@@ -31,17 +32,14 @@
                             <span class="font-bold">Kelas</span> :
                             {{ $kelas->nama_kelas }}
                         </p>
-
                         <p class="text-sm text-slate-800">
                             <span class="font-bold">Wali Kelas</span> :
                             {{ $kelas->guru->nama ?? '-' }}
                         </p>
-
                         <p class="text-sm text-slate-800">
                             <span class="font-bold">Tahun Pelajaran</span> :
                             {{ $kelas->tahunPelajaran->tahun_pelajaran ?? '-' }}
                         </p>
-
                         <p class="text-sm text-slate-800">
                             <span class="font-bold">Tanggal</span> :
                             {{ $tanggalAbsensi->translatedFormat('l, d F Y') }}
@@ -63,17 +61,24 @@
             @csrf
 
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded-lg">
-                    {{ session('success') }}
-                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: '{{ session('success') }}',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
+                        });
+                    });
+                </script>
             @endif
 
             <div class="bg-white rounded-[20px] shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     @php
                         $statusOptions = ['H', 'S', 'I', 'A'];
-
-                        $statusLabels = [
+                        $statusLabels  = [
                             'H' => 'Hadir',
                             'S' => 'Sakit',
                             'I' => 'Izin',
@@ -88,49 +93,30 @@
                                 <th class="px-4 py-4 font-semibold text-center w-32">NIS</th>
                                 <th class="px-4 py-4 font-semibold text-center">Nama Siswa</th>
                                 <th class="px-4 py-4 font-semibold text-center w-16">L/P</th>
-
                                 @foreach ($statusOptions as $opt)
                                     <th class="px-3 py-4 font-semibold text-center w-16">
                                         <div class="flex flex-col items-center gap-0.5">
-                                            <span class="text-[10px] font-normal text-slate-300 uppercase">
-                                                {{ $statusLabels[$opt] }}
-                                            </span>
+                                            <span class="text-[10px] font-normal text-slate-300 uppercase">{{ $statusLabels[$opt] }}</span>
                                             <span>{{ $opt }}</span>
                                         </div>
                                     </th>
                                 @endforeach
-
-                                <th class="px-4 py-4 font-semibold text-center w-56">
-                                    Keterangan
-                                </th>
+                                <th class="px-4 py-4 font-semibold text-center w-56">Keterangan</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             @forelse ($kelas->siswa as $index => $siswa)
-
                                 @php
                                     $dataAbsensi = $absensi[$siswa->id_siswa] ?? null;
-
-                                    $status = $dataAbsensi->status_kehadiran ?? 'H';
+                                    $status      = $dataAbsensi->status_kehadiran ?? 'H';
                                 @endphp
 
                                 <tr class="{{ $index % 2 == 0 ? 'bg-white' : 'bg-slate-50/60' }} border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                                    <td class="px-4 py-4 text-center text-slate-500">
-                                        {{ $index + 1 }}
-                                    </td>
-
-                                    <td class="px-4 py-4 text-center text-slate-700">
-                                        {{ $siswa->nis }}
-                                    </td>
-
-                                    <td class="px-4 py-4 font-semibold text-slate-900">
-                                        {{ $siswa->nama }}
-                                    </td>
-
-                                    <td class="px-4 py-4 text-center text-slate-600">
-                                        {{ $siswa->jenis_kelamin }}
-                                    </td>
+                                    <td class="px-4 py-4 text-center text-slate-500">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-4 text-center text-slate-700">{{ $siswa->nis }}</td>
+                                    <td class="px-4 py-4 font-semibold text-slate-900">{{ $siswa->nama }}</td>
+                                    <td class="px-4 py-4 text-center text-slate-600">{{ $siswa->jenis_kelamin }}</td>
 
                                     @foreach ($statusOptions as $opt)
                                         <td class="px-3 py-4 text-center">
@@ -142,7 +128,6 @@
                                                     class="sr-only peer"
                                                     {{ $status == $opt ? 'checked' : '' }}
                                                 >
-
                                                 <span class="w-6 h-6 rounded-full border-2 border-slate-300 peer-checked:border-[#1e2567] peer-checked:bg-[#1e2567] flex items-center justify-center transition-all duration-200">
                                                     <span class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></span>
                                                 </span>
@@ -160,12 +145,9 @@
                                         >
                                     </td>
                                 </tr>
-
                             @empty
                                 <tr>
-                                    <td colspan="9" class="py-8 text-center text-slate-500">
-                                        Tidak ada data siswa.
-                                    </td>
+                                    <td colspan="9" class="py-8 text-center text-slate-500">Tidak ada data siswa.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -173,16 +155,7 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="px-6 py-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-4">
-                    <label class="inline-flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            required
-                            class="w-5 h-5 rounded border-slate-300 text-[#1e2567] focus:ring-[#1e2567]"
-                        >
-                        Saya yakin data absensi yang diinput sudah benar
-                    </label>
-
+                <div class="px-6 py-5 border-t border-slate-100 flex items-center justify-end">
                     <button
                         type="submit"
                         class="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm"
@@ -196,7 +169,6 @@
     </div>
 
     <style>
-        /* Custom radio button styling */
         input[type="radio"].sr-only:checked + span {
             border-color: #1e2567;
             background-color: #1e2567;

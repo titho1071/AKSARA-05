@@ -9,36 +9,36 @@ use Illuminate\Support\Facades\DB;
 class KelasController extends Controller
 {
     public function index()
-{
-    try {
-        $kelas = DB::table('kelas')
-            ->leftJoin('guru', 'kelas.guru_id', '=', 'guru.id_guru')
-            ->leftJoin('tahun_pelajaran', 'kelas.tapel_id', '=', 'tahun_pelajaran.id_tapel')
-            ->select(
-                'kelas.*',
-                'guru.nama as guru_nama',
-                'tahun_pelajaran.tahun_pelajaran as tapel_nama'
-            )
-            ->get();
+    {
+        try {
+            $kelas = DB::table('kelas')
+                ->leftJoin('guru', 'kelas.guru_id', '=', 'guru.id_guru')
+                ->leftJoin('tahun_pelajaran', 'kelas.tapel_id', '=', 'tahun_pelajaran.id_tapel')
+                ->select(
+                    'kelas.*',
+                    'guru.nama as guru_nama',
+                    'tahun_pelajaran.tahun_pelajaran as tapel_nama'
+                )
+                ->get();
 
-        return response()->json($kelas);
+            return response()->json($kelas);
 
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'error' => true,
-            'message' => $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function store(Request $request)
     {
         $request->validate([
             'nama_kelas' => 'required|string|max:100',
-            'tingkat' => 'required|integer|min:1',
-            'tapel_id' => 'required|string|exists:tahun_pelajaran,id_tapel',
-            'guru_id' => 'nullable|integer|exists:guru,id_guru',
+            'tingkat'    => 'required|integer|min:1',
+            'tapel_id'   => 'required|string|exists:tahun_pelajaran,id_tapel',
+            'guru_id'    => 'nullable|integer|exists:guru,id_guru',
+            'wa_group_id' => 'nullable|string|max:100',
         ]);
 
         // Cek duplikat nama kelas
@@ -60,7 +60,7 @@ class KelasController extends Controller
             }
         }
 
-        $kelas = Kelas::create($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id']));
+        $kelas = Kelas::create($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id', 'wa_group_id']));
 
         return response()->json($kelas, 201);
     }
@@ -75,10 +75,11 @@ class KelasController extends Controller
         $kelas = Kelas::findOrFail($id);
 
         $request->validate([
-            'nama_kelas' => 'required|string|max:100',
-            'tingkat' => 'required|integer|min:1',
-            'tapel_id' => 'required|string|exists:tahun_pelajaran,id_tapel',
-            'guru_id' => 'nullable|integer|exists:guru,id_guru',
+            'nama_kelas'  => 'required|string|max:100',
+            'tingkat'     => 'required|integer|min:1',
+            'tapel_id'    => 'required|string|exists:tahun_pelajaran,id_tapel',
+            'guru_id'     => 'nullable|integer|exists:guru,id_guru',
+            'wa_group_id' => 'nullable|string|max:100',
         ]);
 
         // Cek duplikat nama kelas (kecuali record yang sedang diedit)
@@ -104,7 +105,7 @@ class KelasController extends Controller
             }
         }
 
-        $kelas->update($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id']));
+        $kelas->update($request->only(['nama_kelas', 'tingkat', 'tapel_id', 'guru_id', 'wa_group_id']));
 
         return response()->json($kelas);
     }

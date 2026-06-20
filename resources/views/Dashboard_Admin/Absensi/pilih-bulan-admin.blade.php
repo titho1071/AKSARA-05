@@ -13,6 +13,7 @@
 @endphp
 
 @section('content')
+@include('components.navbar', ['role' => $role])
     <div class="max-w-[1400px] mx-auto space-y-6">
 
         <!-- Header -->

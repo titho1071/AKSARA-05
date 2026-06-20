@@ -27,12 +27,13 @@
                     <th class="px-6 py-4 font-semibold">Tingkat</th>
                     <th class="px-6 py-4 font-semibold">Tahun Pelajaran</th>
                     <th class="px-6 py-4 font-semibold">Guru</th>
+                    <th class="px-6 py-4 font-semibold">Grup WA</th>
                     <th class="px-6 py-4 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody id="kelas-table-body" class="divide-y divide-slate-200 bg-white text-slate-700">
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">Memuat data kelas...</td>
+                    <td colspan="7" class="px-6 py-8 text-center text-slate-500">Memuat data kelas...</td>
                 </tr>
             </tbody>
         </table>
@@ -49,7 +50,7 @@
             <button id="modal-close" class="rounded-full bg-slate-100 p-3 text-slate-700 hover:bg-slate-200">×</button>
         </div>
 
-        <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+        <div id="modal-alert" class="hidden rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4"></div>
 
         <div class="grid gap-6 md:grid-cols-2">
             <div>
@@ -70,7 +71,7 @@
                     <option value="">-- Pilih Tahun Pelajaran --</option>
                 </select>
             </div>
-            <div class="md:col-span-2">
+            <div>
                 <label for="guru_id" class="block text-sm font-medium text-slate-700 mb-2">Guru</label>
                 <select id="guru_id" class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     <option value="">-- Pilih Guru --</option>
@@ -81,10 +82,9 @@
                 </p>
             </div>
             <div class="md:col-span-2">
-                <label class="inline-flex items-center gap-3 text-sm text-slate-600">
-                    <input id="kelas-confirm" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                    <span>Saya yakin sudah mengisi dengan benar</span>
-                </label>
+                <label for="wa_group_id" class="block text-sm font-medium text-slate-700 mb-2">ID Grup WhatsApp</label>
+                <input id="wa_group_id" type="text" placeholder="Contoh: 120363428009198328@g.us" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <p class="mt-1.5 text-xs text-slate-500">ID grup WA untuk pengiriman notifikasi pengumuman. Kosongkan jika tidak ada.</p>
             </div>
         </div>
 
@@ -115,7 +115,7 @@
             tingkat: document.getElementById('tingkat'),
             tapel_id: document.getElementById('tapel_id'),
             guru_id: document.getElementById('guru_id'),
-            confirm: document.getElementById('kelas-confirm')
+            wa_group_id: document.getElementById('wa_group_id'),
         };
 
         const namaKelasHint = document.getElementById('nama-kelas-hint');
@@ -128,44 +128,19 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
         async function loadKelas() {
-    try {
-
-        const response = await fetch('/admin/kelas/data');
-
-        const data = await response.json();
-
-        console.log(data);
-
-        if (response.ok) {
-
-            kelasData = data;
-            renderTable();
-
-        } else {
-
-            console.error(data);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-red-500">
-                        ${data.message || 'Gagal memuat data'}
-                    </td>
-                </tr>
-            `;
+            try {
+                const response = await fetch('/admin/kelas/data');
+                const data = await response.json();
+                if (response.ok) {
+                    kelasData = data;
+                    renderTable();
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">${data.message || 'Gagal memuat data'}</td></tr>`;
+                }
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">${error.message}</td></tr>`;
+            }
         }
-
-    } catch (error) {
-
-        console.error(error);
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-red-500">
-                    ${error.message}
-                </td>
-            </tr>
-        `;
-    }
-}
 
         async function loadGuruOptions() {
             try {
@@ -177,8 +152,6 @@
                         options.push(`<option value="${guru.id_guru}">${guru.nama}</option>`);
                     });
                     fields.guru_id.innerHTML = options.join('');
-                } else {
-                    console.error('Failed to load guru list');
                 }
             } catch (error) {
                 console.error('Error loading guru list:', error);
@@ -195,8 +168,6 @@
                         options.push(`<option value="${tapel.id_tapel}">${tapel.tahun_pelajaran}</option>`);
                     });
                     fields.tapel_id.innerHTML = options.join('');
-                } else {
-                    console.error('Failed to load tapel list');
                 }
             } catch (error) {
                 console.error('Error loading tapel list:', error);
@@ -205,7 +176,7 @@
 
         function renderTable() {
             if (!kelasData.length) {
-                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500">Belum ada data kelas.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-slate-500">Belum ada data kelas.</td></tr>';
                 return;
             }
 
@@ -215,7 +186,14 @@
                     <td class="px-6 py-4 text-slate-700">${item.nama_kelas}</td>
                     <td class="px-6 py-4 text-slate-700">${item.tingkat}</td>
                     <td class="px-6 py-4 text-slate-700">${item.tapel_nama || '-'}</td>
-                    <td class="px-6 py-4 text-slate-700">${item.guru_nama || '-'}</td>                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 text-slate-700">${item.guru_nama || '-'}</td>
+                    <td class="px-6 py-4 text-slate-700">
+                        ${item.wa_group_id
+                            ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">✓ Terhubung</span>'
+                            : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">Belum diset</span>'
+                        }
+                    </td>
+                    <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <button data-id="${item.id_kelas}" data-action="edit" title="Edit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 transition hover:bg-amber-200">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="h-4 w-4">
@@ -233,36 +211,21 @@
             `).join('');
         }
 
-function openModal(item = null) {
-    editingId = item ? item.id_kelas : null;
+        function openModal(item = null) {
+            editingId = item ? item.id_kelas : null;
+            modalTitle.textContent = item ? 'Edit Data Kelas' : 'Tambah Data Kelas';
+            modalDesc.textContent = item ? 'Perbarui data kelas yang dipilih.' : 'Isi detail kelas baru.';
+            alertBox.classList.add('hidden');
 
-    modalTitle.textContent = item
-        ? 'Edit Data Kelas'
-        : 'Tambah Data Kelas';
+            fields.nama_kelas.value = item?.nama_kelas || '';
+            fields.tingkat.value = item?.tingkat || '';
+            fields.tapel_id.value = item?.tapel_id || '';
+            fields.guru_id.value = item?.guru_id || '';
+            fields.wa_group_id.value = item?.wa_group_id || '';
 
-    modalDesc.textContent = item
-        ? 'Perbarui data kelas yang dipilih.'
-        : 'Isi detail kelas baru.';
-
-    alertBox.classList.add('hidden');
-
-    if (item) {
-        fields.nama_kelas.value = item.nama_kelas || '';
-        fields.tingkat.value = item.tingkat || '';
-        fields.tapel_id.value = item.tapel_id || '';
-        fields.guru_id.value = item.guru_id || '';
-        fields.confirm.checked = false;
-    } else {
-        fields.nama_kelas.value = '';
-        fields.tingkat.value = '';
-        fields.tapel_id.value = '';
-        fields.guru_id.value = '';
-        fields.confirm.checked = false;
-    }
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
 
         function closeModal() {
             modal.classList.remove('flex');
@@ -278,12 +241,10 @@ function openModal(item = null) {
             const val = fields.nama_kelas.value.trim().toLowerCase();
             if (!val) {
                 namaKelasHint.classList.add('hidden');
-                fields.nama_kelas.classList.remove('border-red-400', 'focus:border-red-400', 'focus:ring-red-400');
+                fields.nama_kelas.classList.remove('border-red-400');
                 return false;
             }
-            const duplicate = kelasData.find(k =>
-                k.nama_kelas.toLowerCase() === val && k.id_kelas !== editingId
-            );
+            const duplicate = kelasData.find(k => k.nama_kelas.toLowerCase() === val && k.id_kelas !== editingId);
             if (duplicate) {
                 namaKelasHintText.textContent = `Kelas "${duplicate.nama_kelas}" sudah ada!`;
                 namaKelasHint.classList.remove('hidden');
@@ -304,9 +265,7 @@ function openModal(item = null) {
                 return false;
             }
             const guruIdNum = Number(guruId);
-            const conflict = kelasData.find(k =>
-                k.guru_id && Number(k.guru_id) === guruIdNum && k.id_kelas !== editingId
-            );
+            const conflict = kelasData.find(k => k.guru_id && Number(k.guru_id) === guruIdNum && k.id_kelas !== editingId);
             if (conflict) {
                 const namaGuru = fields.guru_id.options[fields.guru_id.selectedIndex]?.text || 'Guru ini';
                 guruHintText.textContent = `${namaGuru} sudah menjadi wali kelas "${conflict.nama_kelas}"!`;
@@ -321,87 +280,66 @@ function openModal(item = null) {
         }
 
         async function saveKelas() {
-    const nama_kelas = fields.nama_kelas.value.trim();
-    const tingkat = fields.tingkat.value.trim();
-    const tapel_id = fields.tapel_id.value.trim();
-    const guru_id = fields.guru_id.value.trim();
-    const confirmed = fields.confirm.checked;
+            const nama_kelas = fields.nama_kelas.value.trim();
+            const tingkat = fields.tingkat.value.trim();
+            const tapel_id = fields.tapel_id.value.trim();
+            const guru_id = fields.guru_id.value.trim();
+            const wa_group_id = fields.wa_group_id.value.trim();
 
-    if (!nama_kelas) {
-        showError('Masukkan nama kelas.');
-        return;
-    }
-
-    // Cek duplikat secara lokal sebelum kirim ke server
-    if (checkDuplicateNama()) {
-        showError(`Kelas "${nama_kelas}" sudah ada. Gunakan nama yang berbeda.`);
-        return;
-    }
-
-    if (!tingkat || isNaN(tingkat) || Number(tingkat) <= 0) {
-        showError('Masukkan tingkat kelas yang valid.');
-        return;
-    }
-
-    if (!tapel_id) {
-        showError('Pilih tahun pelajaran.');
-        return;
-    }
-
-    // Cek duplikat guru wali kelas secara lokal
-    if (checkDuplicateGuru()) {
-        const namaGuru = fields.guru_id.options[fields.guru_id.selectedIndex]?.text || 'Guru ini';
-        const conflict = kelasData.find(k =>
-            k.guru_id && Number(k.guru_id) === Number(guru_id) && k.id_kelas !== editingId
-        );
-        showError(`${namaGuru} sudah menjadi wali kelas "${conflict?.nama_kelas}". Satu guru hanya boleh di satu kelas.`);
-        return;
-    }
-
-    if (!confirmed) {
-        showError('Centang konfirmasi sebelum menyimpan.');
-        return;
-    }
-
-    const payload = {
-        nama_kelas,
-        tingkat: Number(tingkat),
-        tapel_id: tapel_id,
-        guru_id: guru_id || '',
-        _token: csrfToken,
-    };
-
-    if (editingId) {
-        payload._method = 'PUT';
-    }
-
-    try {
-        const response = await fetch(
-            editingId ? `/admin/kelas/${editingId}` : '/admin/kelas',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
-                },
-                body: new URLSearchParams(payload)
+            if (!nama_kelas) { showError('Masukkan nama kelas.'); return; }
+            if (checkDuplicateNama()) { showError(`Kelas "${nama_kelas}" sudah ada.`); return; }
+            if (!tingkat || isNaN(tingkat) || Number(tingkat) <= 0) { showError('Masukkan tingkat kelas yang valid.'); return; }
+            if (!tapel_id) { showError('Pilih tahun pelajaran.'); return; }
+            if (checkDuplicateGuru()) {
+                const conflict = kelasData.find(k => k.guru_id && Number(k.guru_id) === Number(guru_id) && k.id_kelas !== editingId);
+                const namaGuru = fields.guru_id.options[fields.guru_id.selectedIndex]?.text || 'Guru ini';
+                showError(`${namaGuru} sudah menjadi wali kelas "${conflict?.nama_kelas}".`);
+                return;
             }
-        );
 
-        const data = await response.json();
+            const payload = {
+                nama_kelas,
+                tingkat: Number(tingkat),
+                tapel_id,
+                guru_id: guru_id || '',
+                wa_group_id: wa_group_id || '',
+                _token: csrfToken,
+            };
 
-        if (response.ok) {
-            loadKelas();
-            closeModal();
-        } else {
-            console.log(data);
-            showError(data.message || 'Gagal menyimpan data.');
+            if (editingId) payload._method = 'PUT';
+
+            try {
+                const response = await fetch(
+                    editingId ? `/admin/kelas/${editingId}` : '/admin/kelas',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept': 'application/json'
+                        },
+                        body: new URLSearchParams(payload)
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    closeModal();
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: editingId ? 'Data kelas berhasil diperbarui!' : 'Data kelas berhasil ditambahkan!',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#6366f1'
+                    });
+                    loadKelas();
+                } else {
+                    showError(data.message || 'Gagal menyimpan data.');
+                }
+            } catch (error) {
+                showError('Terjadi kesalahan: ' + error.message);
+            }
         }
-    } catch (error) {
-        console.log(error);
-        showError('Terjadi kesalahan: ' + error.message);
-    }
-}
 
         tableBody.addEventListener('click', async function (event) {
             const button = event.target.closest('button');
@@ -411,50 +349,64 @@ function openModal(item = null) {
             const id = button.dataset.id;
             const item = kelasData.find(k => k.id_kelas === Number(id));
 
-            if (action === 'edit' && item) {
-                openModal(item);
-            }
+            if (action === 'edit' && item) openModal(item);
 
             if (action === 'delete' && item) {
-                if (confirm('Apakah Anda yakin ingin menghapus kelas ini?')) {
-                    try {
-                        const response = await fetch(`/admin/kelas/${id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: new URLSearchParams({ _method: 'DELETE', _token: csrfToken })
+                const result = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: 'Kelas yang dihapus tidak dapat dikembalikan!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#9ca3af',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (!result.isConfirmed) return;
+
+                try {
+                    const response = await fetch(`/admin/kelas/${id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ _method: 'DELETE', _token: csrfToken })
+                    });
+
+                    if (response.ok) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Terhapus!',
+                            text: 'Data kelas berhasil dihapus.',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6366f1'
                         });
-                        if (response.ok) {
-                            loadKelas();
-                        } else {
-                            const errorData = await response.json();
-                            alert(errorData.message || 'Gagal menghapus kelas.');
-                        }
-                    } catch (error) {
-                        alert('Terjadi kesalahan: ' + error.message);
+                        loadKelas();
+                    } else {
+                        const errorData = await response.json();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: errorData.message || 'Gagal menghapus kelas.',
+                            confirmButtonColor: '#6366f1'
+                        });
                     }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Terjadi kesalahan: ' + error.message,
+                        confirmButtonColor: '#6366f1'
+                    });
                 }
             }
         });
 
-        btnAdd.addEventListener('click', function () {
-            openModal();
-        });
+        btnAdd.addEventListener('click', () => openModal());
         btnClose.addEventListener('click', closeModal);
         btnCancel.addEventListener('click', closeModal);
-        btnSave.addEventListener('click', function (event) {
-            event.preventDefault();
-            saveKelas();
-        });
-
-        // Real-time cek duplikat saat mengetik nama kelas
-        fields.nama_kelas.addEventListener('input', function () {
-            checkDuplicateNama();
-        });
-
-        // Real-time cek guru sudah jadi wali kelas lain
-        fields.guru_id.addEventListener('change', function () {
-            checkDuplicateGuru();
-        });
+        btnSave.addEventListener('click', (e) => { e.preventDefault(); saveKelas(); });
+        fields.nama_kelas.addEventListener('input', checkDuplicateNama);
+        fields.guru_id.addEventListener('change', checkDuplicateGuru);
 
         loadGuruOptions();
         loadTapelOptions();

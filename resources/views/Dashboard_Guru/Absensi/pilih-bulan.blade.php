@@ -11,8 +11,9 @@
         ['name' => 'Juni 2025', 'icon_bg' => 'bg-blue-600', 'icon_border' => 'border-blue-200', 'card_hover' => 'hover:border-blue-300 hover:shadow-blue-100'],
     ];
 @endphp
-
 @section('content')
+@include('components.navbar', ['role' => $role])
+
     <div class="max-w-[1400px] mx-auto space-y-6">
 
         <!-- Header -->

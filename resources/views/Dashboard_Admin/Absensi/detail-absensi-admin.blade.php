@@ -5,7 +5,7 @@
 @endphp
 
 @section('content')
-
+@include('components.navbar', ['role' => $role])
 @php
 $namaBulan = [
     1 => 'Januari',
@@ -23,14 +23,13 @@ $namaBulan = [
 ];
 @endphp
 
-    <div class="max-w-[1600px] mx-auto px-4 space-y-8">
-        <div class="space-y-2">
-            <p class="text-sm font-semibold text-slate-600">Detail Absensi</p>
-            <h1 class="text-3xl font-semibold text-slate-950">Detail Absensi Siswa</h1>
-            <p class="text-sm text-slate-500">Lihat ringkasan hadir, sakit, izin, dan alpha per siswa.</p>
+    <div class="w-full max-w-full overflow-x-hidden space-y-8">
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Detail Absensi Siswa</h1>
+            <p class="text-gray-600 mt-1">Lihat ringkasan hadir, sakit, izin, dan alpha per siswa.</p>
         </div>
 
-        <div class="rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
+        <div class="w-full max-w-full rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] overflow-hidden">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="space-y-2">
@@ -58,7 +57,7 @@ $namaBulan = [
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('admin.absensi.pilih-bulan', $kelas->id_kelas) }}" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
+                <a href="{{ route('admin.absensi.pilih-bulan', $kelas->id_kelas) }}" class="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8.66667 12L4 7.33333L8.66667 2.66667" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -67,7 +66,7 @@ $namaBulan = [
             </div>
         </div>
 
-        <div class="rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] overflow-hidden">
+        <div class="w-full max-w-full rounded-[32px] bg-white p-6 shadow-[0_24px_60px_rgba(15,23,42,0.08)] overflow-hidden">
             @php
                 $days = range(1, $jumlahHari);
 
@@ -79,7 +78,7 @@ $namaBulan = [
                     '?' => 'bg-slate-800 text-white',
                 ];
             @endphp
-            <div class="overflow-x-auto">
+            <div class="w-full max-w-full overflow-x-auto">
                 <table class="min-w-[1700px] w-full table-fixed border-collapse text-[11px] text-slate-900">
                     <thead class="bg-[#1E2567] text-white text-[10px] uppercase tracking-[0.08em]">
                         <tr>
