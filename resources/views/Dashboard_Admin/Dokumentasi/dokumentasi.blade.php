@@ -87,7 +87,9 @@
                                 @if($kegiatan->kelas_id === 'semua_kelas')
                                     <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
                                 @else
-                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Kelas {{ $kegiatan->kelas_id }}</span>
+                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                        {{ $kegiatan->kelas->nama_kelas ?? '-' }}
+                                    </span>
                                 @endif
                             @else
                                 <span class="text-xs text-gray-400">-</span>

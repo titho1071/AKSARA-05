@@ -42,40 +42,6 @@ class AbsensiGuruController extends Controller
         ));
     }
 
-    public function recap(Request $request)
-    {
-        $tahunPelajaran = TahunPelajaran::orderByDesc('created_at')->get();
-
-        $tapelAktif = TahunPelajaran::where('is_active', 1)->first();
-
-        $tapelId = $request->tapel
-            ?? $tapelAktif?->id_tapel
-            ?? $tahunPelajaran->first()?->id_tapel;
-
-        // Ambil data guru yang sedang login
-        $guru = Guru::where('user_id', Auth::id())->first();
-
-        $search = $request->search;
-
-        // Filter hanya kelas yang diwali oleh guru yang login
-        $kelas = Kelas::with('guru')
-            ->where('tapel_id', $tapelId)
-            ->where('guru_id', $guru?->id_guru)
-            ->when($search, fn($q) => $q->where('nama_kelas', 'like', "%{$search}%"))
-            ->orderBy('tingkat')
-            ->orderBy('nama_kelas')
-            ->paginate($request->per_page ?? 10)
-            ->withQueryString();
-
-        return view('Dashboard_Guru.Absensi.rekap-absensi', compact(
-            'kelas',
-            'tahunPelajaran',
-            'tapelId',
-            'tapelAktif',
-            'search'
-        ));
-    }
-
     public function kelola($id, $bulan, $tanggal)
     {
         $kelas = Kelas::with([

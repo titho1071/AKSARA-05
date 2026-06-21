@@ -10,6 +10,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\Guru\DokumentasiGuruController;
 use App\Http\Controllers\Guru\SiswaGuruController;
 use App\Http\Controllers\Guru\AbsensiGuruController;
+use App\Http\Controllers\Guru\RekapAbsensiGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use App\Http\Controllers\Admin\AbsensiAdminController;
 use Illuminate\Support\Facades\Route;
@@ -170,8 +171,31 @@ Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(f
         [AbsensiGuruController::class, 'detail']
     )->name('absensi.detail');
 
-    Route::get('/absensi/recap', [AbsensiGuruController::class, 'recap'])
-        ->name('absensi.recap');
+    // Rekap Absensi
+    Route::get(
+        '/absensi/rekap',
+        [RekapAbsensiGuruController::class, 'index']
+    )->name('absensi.rekap');
+
+    Route::get(
+        '/absensi/rekap/preview',
+        [RekapAbsensiGuruController::class, 'preview1Bulan']
+    )->name('absensi.rekap.preview');
+
+    Route::get(
+        '/absensi/rekap/preview-3bulan', 
+        [RekapAbsensiGuruController::class, 'previewTribulan']
+    )->name('absensi.rekap.preview-3bulan');
+
+    Route::get(
+        '/absensi/rekap/preview-tahun',
+        [RekapAbsensiGuruController::class, 'previewTahun']
+    )->name('absensi.rekap.preview-tahun');
+
+    Route::get(
+        '/absensi/rekap/preview-semester',
+        [RekapAbsensiGuruController::class, 'previewSemester']
+    )->name('absensi.rekap.preview-semester');
 
     // Dokumentasi
     Route::get('/dokumentasi', [DokumentasiGuruController::class, 'index'])->name('dokumentasi.index');

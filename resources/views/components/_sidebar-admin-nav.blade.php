@@ -2,15 +2,18 @@
 @php
     $route = request()->route()?->getName();
     $absensiActive = in_array($route, ['admin.absensi', 'admin.absensi.rekap', 'admin.absensi.detail', 'admin.absensi.pilih-bulan'], true);
-    $biodataRoutes = [
-        'admin.biodata.index', 'admin.biodata.create',
-        'admin.guru.index', 'admin.guru.create',
-        'admin.orangtua.index', 'admin.orangtua.create',
-        'admin.siswa.index',
-    ];
-    $biodataActive = in_array($route, $biodataRoutes);
-    $sekolahRoutes = ['admin.kelas', 'admin.tahun-pelajaran'];
-    $sekolahActive = in_array($route, $sekolahRoutes);
+    $dokumentasiActive = request()->routeIs('admin.dokumentasi*');
+    $pengumumanActive = request()->routeIs('admin.pengumuman*');
+    $biodataActive =
+        request()->routeIs('admin.biodata*') ||
+        request()->routeIs('admin.guru*') ||
+        request()->routeIs('admin.siswa*') ||
+        request()->routeIs('admin.orangtua*');
+    $sekolahActive =
+        request()->routeIs('admin.kelas*') ||
+        request()->routeIs('admin.tahun-pelajaran*') ||
+        request()->routeIs('admin.mata-pelajaran*') ||
+        request()->routeIs('admin.jam-pelajaran*');
 @endphp
 
 <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
@@ -48,13 +51,13 @@
 
     <a href="{{ route('admin.dokumentasi') }}"
         class="block px-3 py-2 rounded transition
-        {{ $route === 'admin.dokumentasi' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+        {{ $dokumentasiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
         Dokumentasi
     </a>
 
     <a href="{{ route('admin.pengumuman') }}"
         class="block px-3 py-2 rounded transition
-        {{ $route === 'admin.pengumuman' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+        {{ $pengumumanActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
         Pengumuman
     </a>
 
@@ -78,22 +81,22 @@
         <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
             <a href="{{ route('admin.biodata.index') }}"
                 class="block px-3 py-2 rounded transition
-                {{ $route === 'admin.biodata.index' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                {{ $biodataActive && request()->routeIs('admin.biodata*') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Admin
             </a>
             <a href="{{ route('admin.guru.index') }}"
                 class="block px-3 py-2 rounded transition
-                {{ in_array($route, ['admin.guru.index', 'admin.guru.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                {{ $biodataActive && request()->routeIs('admin.guru*') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Guru
             </a>
             <a href="{{ route('admin.siswa.index') }}"
                 class="block px-3 py-2 rounded transition
-                {{ in_array($route, ['admin.siswa.index', 'admin.siswa.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                {{ $biodataActive && request()->routeIs('admin.siswa*') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Siswa
             </a>
             <a href="{{ route('admin.orangtua.index') }}"
                 class="block px-3 py-2 rounded transition
-                {{ in_array($route, ['admin.orangtua.index', 'admin.orangtua.create']) ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                {{ $biodataActive && request()->routeIs('admin.orangtua*') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Orang Tua
             </a>
         </div>
@@ -109,19 +112,31 @@
         </button>
         <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
             <a href="{{ route('admin.kelas') }}"
-                class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+            class="block px-3 py-2 rounded transition
+            {{ request()->routeIs('admin.kelas*')
+                ? 'bg-[#F59E0B] text-slate-950'
+                : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Kelas
             </a>
             <a href="{{ route('admin.tahun-pelajaran') }}"
-                class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                class="block px-3 py-2 rounded transition
+                {{ request()->routeIs('admin.tahun-pelajaran*')
+                    ? 'bg-[#F59E0B] text-slate-950'
+                    : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Tahun Pelajaran
             </a>
             <a href="{{ route('admin.mata-pelajaran') }}"
-                class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                class="block px-3 py-2 rounded transition
+                {{ request()->routeIs('admin.mata-pelajaran*')
+                    ? 'bg-[#F59E0B] text-slate-950'
+                    : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Mata Pelajaran
             </a>
             <a href="{{ route('admin.jam-pelajaran') }}"
-                class="block px-3 py-2 rounded transition bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950">
+                class="block px-3 py-2 rounded transition
+                {{ request()->routeIs('admin.jam-pelajaran*')
+                    ? 'bg-[#F59E0B] text-slate-950'
+                    : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Jam Pelajaran
             </a>
         </div>

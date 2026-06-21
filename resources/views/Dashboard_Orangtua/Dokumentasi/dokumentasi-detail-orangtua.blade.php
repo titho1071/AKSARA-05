@@ -33,14 +33,14 @@
                 <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                     {{ $kegiatan->guru->nama ?? $kegiatan->guru->username }}
                 </span>
-                @if($kegiatan->kelas_id)
+                @if(!empty($kegiatan->kelas_id))
                     @if($kegiatan->kelas_id === 'semua_kelas')
                         <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
                             Semua Kelas
                         </span>
                     @else
                         <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Kelas {{ $kegiatan->kelas_id }}
+                            Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
                         </span>
                     @endif
                 @endif
@@ -109,14 +109,17 @@
                     <span class="text-sm text-gray-500">Total foto</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $kegiatan->dokumentasi->count() }} foto</span>
                 </div>
-                @if($kegiatan->kelas_id)
+                @if(!empty($kegiatan->kelas_id))
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Kelas</span>
-                        <span class="text-sm font-semibold text-gray-900">
+                        <span class="text-sm text-slate-500">
+                            Kelas
+                        </span>
+
+                        <span class="text-sm font-semibold text-slate-900">
                             @if($kegiatan->kelas_id === 'semua_kelas')
                                 Semua Kelas
                             @else
-                                Kelas {{ $kegiatan->kelas_id }}
+                                Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
                             @endif
                         </span>
                     </div>

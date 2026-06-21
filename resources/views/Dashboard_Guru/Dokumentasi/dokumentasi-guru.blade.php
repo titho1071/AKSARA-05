@@ -120,15 +120,17 @@
                     <tr class="border-b border-slate-100 hover:bg-slate-50">
                         <td class="px-4 py-4 text-sm text-slate-600">{{ $index + 1 }}</td>
                         <td class="px-4 py-4 text-sm font-semibold text-slate-900">{{ $kegiatan->judul }}</td>
-                        <td class="px-4 py-4 text-sm text-slate-600">
-                            @if($kegiatan->kelas_id === 'semua_kelas')
-                                <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
-                                    Semua Kelas
-                                </span>
+                        <td class="px-4 py-4 text-sm text-gray-600">
+                            @if($kegiatan->kelas_id)
+                                @if($kegiatan->kelas_id === 'semua_kelas')
+                                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
+                                @else
+                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                        {{ $kegiatan->kelas->nama_kelas ?? '-' }}
+                                    </span>
+                                @endif
                             @else
-                                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                                    {{ $kegiatan->kelas->nama_kelas ?? '-' }}
-                                </span>
+                                <span class="text-xs text-gray-400">-</span>
                             @endif
                         </td>
                         <td class="px-4 py-4 text-sm text-slate-600">

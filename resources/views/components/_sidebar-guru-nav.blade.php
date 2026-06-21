@@ -4,7 +4,7 @@
     $dashboardActive      = in_array($route, ['guru.dashboard'], true);
     $absensiActive        = in_array($route, ['guru.absensi','guru.absensi.recap','guru.absensi.kelola','guru.absensi.detail','guru.absensi.pilih-bulan'], true);
     $kelolaAbsensiActive  = in_array($route, ['guru.absensi','guru.absensi.kelola','guru.absensi.detail','guru.absensi.pilih-bulan'], true);
-    $recapAbsensiActive   = $route === 'guru.absensi.recap';
+    $recapAbsensiActive   = $route === 'guru.absensi.rekap';
     $dokumentasiActive    = in_array($route, ['guru.dokumentasi.index','guru.dokumentasi.create','guru.dokumentasi.edit','guru.dokumentasi.show'], true);
     $pengumumanActive     = in_array($route, ['guru.pengumuman','guru.pengumuman.create','guru.pengumuman.edit','guru.pengumuman.show'], true);
     $jadwalActive         = in_array($route, ['guru.jadwal'], true);
@@ -34,7 +34,7 @@
                 {{ $kelolaAbsensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Kelola Absensi
             </a>
-            <a href="{{ route('guru.absensi.recap') }}"
+            <a href="{{ route('guru.absensi.rekap') }}"
                 class="block px-3 py-2 rounded transition
                 {{ $recapAbsensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                 Recap Absensi

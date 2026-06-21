@@ -56,10 +56,8 @@
 
     {{-- Kolom kiri --}}
     <div class="space-y-6 lg:col-span-2">
-
         {{-- Informasi utama --}}
         <div class="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
-
             <h2 class="mb-1 text-2xl font-bold text-slate-900">
                 {{ $kegiatan->judul }}
             </h2>
@@ -100,7 +98,6 @@
                     {{ !empty($kegiatan->deskripsi) ? $kegiatan->deskripsi : '-' }}
                 </p>
             </div>
-
         </div>
 
         {{-- Foto dokumentasi --}}
@@ -172,15 +169,11 @@
 
     {{-- Ringkasan --}}
     <div class="space-y-6">
-
         <div class="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
-
             <h3 class="mb-5 text-sm font-bold uppercase tracking-widest text-slate-400">
                 Ringkasan
             </h3>
-
             <div class="space-y-4">
-
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-500">Total foto</span>
                     <span class="text-sm font-semibold text-slate-900">
@@ -190,7 +183,6 @@
 
                 @if(!empty($kegiatan->kelas_id))
                     <div class="flex items-center justify-between">
-
                         <span class="text-sm text-slate-500">
                             Kelas
                         </span>
@@ -202,7 +194,6 @@
                                 Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
                             @endif
                         </span>
-
                     </div>
                 @endif
 
@@ -217,7 +208,6 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-
                     <span class="text-sm text-slate-500">
                         Status
                     </span>
@@ -228,9 +218,7 @@
                             : 'bg-slate-100 text-slate-500' }}">
                         {{ ucfirst($kegiatan->status ?? '-') }}
                     </span>
-
                 </div>
-
             </div>
         </div>
     </div>

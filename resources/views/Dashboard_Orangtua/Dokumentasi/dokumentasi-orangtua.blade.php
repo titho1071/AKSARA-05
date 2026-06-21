@@ -59,7 +59,8 @@
         </div>
         <div>
             <p class="text-gray-500 text-sm">Total Kegiatan</p>
-            <p class="text-3xl font-bold text-gray-900">{{ $kegiatans->count() }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ $kegiatans->total() }}</p>
+            <p class="text-xs text-gray-500">{{ $activeSiswa?->nama }}</p>
         </div>
     </div>
 </div>
@@ -68,20 +69,13 @@
 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
     <h2 class="text-xl font-bold text-gray-900 mb-6">Filter & Pencarian</h2>
     <form method="GET" action="{{ route('orangtua.dokumentasi') }}">
+        @if($activeSiswa)
+            <input type="hidden" name="siswa_id" value="{{ $activeSiswa->id_siswa }}">
+        @endif
         <div class="flex gap-2 flex-col md:flex-row">
             <input type="text" name="search" value="{{ $search ?? '' }}"
                 placeholder="Cari judul atau deskripsi..."
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
-            <select name="kelas" 
-                class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white">
-                <option value="">Semua Kelas</option>
-                <option value="semua_kelas" {{ ($kelas ?? '') === 'semua_kelas' ? 'selected' : '' }}>Semua Kelas (Tag)</option>
-                @foreach(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'] as $kelasRom)
-                    <option value="{{ $kelasRom }}" {{ ($kelas ?? '') === $kelasRom ? 'selected' : '' }}>
-                        Kelas {{ $kelasRom }}
-                    </option>
-                @endforeach
-            </select>
             <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -92,76 +86,87 @@
     </form>
 </div>
 
-{{-- Tabel --}}
-<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-gray-200">
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">No</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Judul</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Guru</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Kelas</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Tanggal</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Foto</th>
-                    <th class="text-left px-4 py-4 text-sm font-semibold text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($kegiatans as $index => $kegiatan)
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="px-4 py-4 text-sm">{{ $index + 1 }}</td>
-                        <td class="px-4 py-4 font-medium text-gray-900">{{ $kegiatan->judul }}</td>
-                        <td class="px-4 py-4 text-gray-600 text-sm">
-                            {{ $kegiatan->guru->nama ?? $kegiatan->guru->username }}
-                        </td>
-                        <td class="px-4 py-4 text-sm text-gray-600">
-                            @if($kegiatan->kelas_id)
-                                @if($kegiatan->kelas_id === 'semua_kelas')
-                                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
-                                @else
-                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Kelas {{ $kegiatan->kelas_id }}</span>
-                                @endif
-                            @else
-                                <span class="text-xs text-gray-400">-</span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-4 text-gray-600 text-sm">
-                            {{ \Carbon\Carbon::parse($kegiatan->tanggal)->format('d/m/Y') }}
-                        </td>
-                        <td class="px-4 py-4">
-                            @php $foto = $kegiatan->dokumentasi->first(); @endphp
-                            @if ($foto)
-                                <img src="{{ asset('storage/' . $foto->foto) }}"
-                                    class="w-20 h-12 object-cover rounded-lg" alt="foto">
-                            @else
-                                <span class="text-xs text-gray-400">Belum ada foto</span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-4">
-                            <a href="{{ route('orangtua.dokumentasi.detail', $kegiatan->id_kegiatan) }}"
-                                class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-600 transition hover:bg-blue-200" title="Detail">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
-                                    <path d="M11.625 16.5a1.875 1.875 0 1 0 0-3.75 1.875 1.875 0 0 0 0 3.75Z" />
-                                    <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 0 1 3.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 0 1 3.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 0 1-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875Zm6 16.5c.66 0 1.277-.19 1.797-.518l1.048 1.048a.75.75 0 0 0 1.06-1.06l-1.047-1.048A3.375 3.375 0 1 0 11.625 18Z" clip-rule="evenodd" />
-                                    <path d="M14.25 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 16.5 7.5h-1.875a.375.375 0 0 1-.375-.375V5.25Z" />
-                                </svg>
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="px-4 py-12 text-center text-sm text-gray-400">
-                            Belum ada dokumentasi kegiatan.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-    <div class="mt-6 text-sm text-gray-600">
-        Total {{ $kegiatans->count() }} Dokumentasi
-    </div>
+{{-- Dokumentasi --}}
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+    @forelse($kegiatans as $kegiatan)
+
+        @php
+            $foto = $kegiatan->dokumentasi->first();
+        @endphp
+
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition">
+
+            {{-- Foto --}}
+            <div class="h-52 bg-gray-100 overflow-hidden">
+                @if($foto)
+                    <img
+                        src="{{ asset('storage/' . $foto->foto) }}"
+                        alt="{{ $kegiatan->judul }}"
+                        class="w-full h-full object-cover">
+                @else
+                    <div class="h-full flex items-center justify-center text-gray-400">
+                        Belum ada foto
+                    </div>
+                @endif
+            </div>
+
+            {{-- Konten --}}
+            <div class="p-5">
+
+                <h3 class="font-bold text-lg text-gray-900 line-clamp-2">
+                    {{ $kegiatan->judul }}
+                </h3>
+
+                <p class="text-sm text-gray-500 mt-2">
+                    {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
+                </p>
+
+                <p class="text-sm text-gray-600 mt-2">
+                    Oleh {{ $kegiatan->guru->nama ?? $kegiatan->guru->username }}
+                </p>
+
+                <div class="mt-3 flex flex-wrap gap-2">
+                    @if($kegiatan->kelas_id === 'semua_kelas')
+                        <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
+                            Semua Kelas
+                        </span>
+                    @elseif($kegiatan->kelas)
+                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                            {{ $kegiatan->kelas->nama_kelas }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="mt-5">
+                    <a href="{{ route('orangtua.dokumentasi.detail', $kegiatan->id_kegiatan) }}"
+                        class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-[#1E2567] text-white hover:bg-[#2d377d] transition">
+                        Lihat Detail
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    @empty
+
+        <div class="col-span-full bg-white rounded-2xl p-12 text-center text-gray-400 shadow-sm border border-gray-100">
+            Belum ada dokumentasi kegiatan.
+        </div>
+
+    @endforelse
+
 </div>
+
+{{-- Footer --}}
+<div class="mt-6 text-sm text-gray-600">
+    Total {{ $kegiatans->total() }} Dokumentasi
+</div>
+
+@if($kegiatans->hasPages())
+    <div class="mt-8 flex justify-center">
+        {{ $kegiatans->links() }}
+    </div>
+@endif
 
 @endsection

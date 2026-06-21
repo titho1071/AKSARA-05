@@ -381,8 +381,9 @@ class OrangTuaController extends Controller
                     $query->where('kelas_id', $kelasId)
                         ->orWhere('kelas_id', 'semua_kelas');
                 })
-                ->orderByDesc('tanggal')
-                ->get();
+                ->latest('tanggal')
+                ->paginate(9)
+                ->withQueryString();
         }
 
         return view(
