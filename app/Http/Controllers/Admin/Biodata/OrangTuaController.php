@@ -371,6 +371,8 @@ class OrangTuaController extends Controller
             ->where('id_siswa', $activeSiswaId)
             ->first();
 
+        $search = $request->query('search');
+
         $kegiatans = collect();
 
         if ($activeSiswa) {
@@ -380,6 +382,12 @@ class OrangTuaController extends Controller
                 ->where(function ($query) use ($kelasId) {
                     $query->where('kelas_id', $kelasId)
                         ->orWhere('kelas_id', 'semua_kelas');
+                })
+                ->when($search, function ($query) use ($search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('judul', 'like', "%{$search}%")
+                        ->orWhere('deskripsi', 'like', "%{$search}%");
+                    });
                 })
                 ->latest('tanggal')
                 ->paginate(9)
@@ -391,7 +399,8 @@ class OrangTuaController extends Controller
             compact(
                 'siswa',
                 'activeSiswa',
-                'kegiatans'
+                'kegiatans',
+                'search'
             )
         );
     }

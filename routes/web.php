@@ -13,6 +13,7 @@ use App\Http\Controllers\Guru\AbsensiGuruController;
 use App\Http\Controllers\Guru\RekapAbsensiGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use App\Http\Controllers\Admin\AbsensiAdminController;
+use App\Http\Controllers\Admin\RekapAbsensiAdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\Orangtua\OrangtuaJadwalController;
@@ -74,6 +75,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         '/absensi/{id}/detail/{bulan}',
         [AbsensiAdminController::class, 'detail']
     )->name('absensi.detail');
+
+    // Rekap Absensi Admin
+    Route::get('/absensi/rekap', [RekapAbsensiAdminController::class, 'index'])
+        ->name('absensi.rekap');
+
+    Route::get('/absensi/rekap/preview', [RekapAbsensiAdminController::class, 'preview1Bulan']);
+
+    Route::get('/absensi/rekap/preview-3bulan', [RekapAbsensiAdminController::class, 'previewTribulan']);
+
+    Route::get('/absensi/rekap/preview-semester', [RekapAbsensiAdminController::class, 'previewSemester']);
+
+    Route::get('/absensi/rekap/preview-tahun', [RekapAbsensiAdminController::class, 'previewTahun']);
+
+    // Master Data - Tahun Pelajaran
     Route::get('/tahun-pelajaran', fn() => view('Dashboard_Admin.Lainnya.tahun-pelajaran'))->name('tahun-pelajaran');
     Route::get('/tahun-pelajaran/data', [TahunPelajaranController::class, 'index'])->name('tahun-pelajaran.data');
     Route::post('/tahun-pelajaran', [TahunPelajaranController::class, 'store'])->name('tahun-pelajaran.store');
