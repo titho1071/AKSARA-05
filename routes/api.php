@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\BiodataGuruController;
 use App\Http\Controllers\Api\BiodataOrangTuaController;
 use App\Http\Controllers\Api\BiodataSiswaController;
 use App\Http\Controllers\Api\DokumentasiController;
+use App\Http\Controllers\Api\AbsensiController;
+use App\Http\Controllers\Api\RekapAbsensiController;
 use App\Http\Controllers\Admin\MataPelajaranController;
 use App\Http\Controllers\Admin\JadwalPelajaranController as AdminJadwalPelajaranController;
 use App\Http\Controllers\Admin\JamPelajaranController;
@@ -122,4 +124,44 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     Route::get('/kegiatan-jadwal', [AdminJadwalPelajaranController::class, 'listKegiatan']);
     Route::delete('/jadwal-pelajaran/reset', [AdminJadwalPelajaranController::class, 'resetAll']);
     Route::get('/guru-jadwal', [AdminJadwalPelajaranController::class, 'listGuru']);
+
+    // =====================================================
+    // ABSENSI ROUTES
+    // =====================================================
+
+    // Absensi - Admin
+    Route::prefix('absensi/admin')->group(function () {
+        Route::get('/', [AbsensiController::class, 'indexAdmin']);
+        Route::get('/kelas/{id}/{bulan}', [AbsensiController::class, 'detailAdmin']);
+    });
+
+    // Absensi - Guru
+    Route::prefix('absensi/guru')->group(function () {
+        Route::get('/', [AbsensiController::class, 'indexGuru']);
+        Route::get('/kelas/{id}/{bulan}/{tanggal}', [AbsensiController::class, 'kelolaGuru']);
+        Route::post('/kelas/{id}/{bulan}/{tanggal}/simpan', [AbsensiController::class, 'simpanGuru']);
+        Route::get('/kelas/{id}/{bulan}/detail', [AbsensiController::class, 'detailGuru']);
+    });
+
+    // =====================================================
+    // REKAP ABSENSI ROUTES
+    // =====================================================
+
+    // Rekap Absensi - Admin
+    Route::prefix('rekap-absensi/admin')->group(function () {
+        Route::get('/', [RekapAbsensiController::class, 'indexAdmin']);
+        Route::get('/1-bulan', [RekapAbsensiController::class, 'preview1BulanAdmin']);
+        Route::get('/tribulan', [RekapAbsensiController::class, 'previewTribulanAdmin']);
+        Route::get('/semester', [RekapAbsensiController::class, 'previewSemesterAdmin']);
+        Route::get('/tahunan', [RekapAbsensiController::class, 'previewTahunanAdmin']);
+    });
+
+    // Rekap Absensi - Guru
+    Route::prefix('rekap-absensi/guru')->group(function () {
+        Route::get('/', [RekapAbsensiController::class, 'indexGuru']);
+        Route::get('/1-bulan', [RekapAbsensiController::class, 'preview1BulanGuru']);
+        Route::get('/tribulan', [RekapAbsensiController::class, 'previewTribulanGuru']);
+        Route::get('/semester', [RekapAbsensiController::class, 'previewSemesterGuru']);
+        Route::get('/tahunan', [RekapAbsensiController::class, 'previewTahunanGuru']);
+    });
 });

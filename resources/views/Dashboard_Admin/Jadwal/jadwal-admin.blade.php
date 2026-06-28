@@ -10,6 +10,18 @@
             <div>
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Jadwal Pelajaran</h1>
                 <p class="text-gray-600 mt-1 text-sm sm:text-base">Kelola Jadwal Pelajaran untuk seluruh kelas</p>
+                {{-- Badge tapel aktif --}}
+                <div class="mt-2">
+                    <span id="tapel-badge" class="hidden items-center gap-1.5 text-xs font-medium text-blue-700 bg-blue-100 px-3 py-1.5 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z" />
+                        </svg>
+                        <span id="tapel-badge-text">-</span>
+                    </span>
+                    <span id="tapel-badge-error" class="hidden items-center gap-1.5 text-xs font-medium text-red-700 bg-red-100 px-3 py-1.5 rounded-full">
+                        ⚠ Tidak ada tahun pelajaran aktif
+                    </span>
+                </div>
             </div>
             <div class="flex gap-3">
                 <button id="btn-add-schedule" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 min-h-[44px]">
@@ -77,70 +89,91 @@
                 <div>
                     <h2 id="modal-title" class="text-2xl font-bold text-slate-900">Tambah Jadwal</h2>
                     <p id="modal-subtitle" class="text-sm text-gray-500 mt-1">Buat jadwal pelajaran baru untuk kelas dan jam yang dipilih.</p>
+                    {{-- Info tapel di dalam modal --}}
+                    <p id="modal-tapel-info" class="text-xs text-blue-600 mt-1 font-medium"></p>
                 </div>
             </div>
 
-            <div id="modal-alert" class="hidden mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+            <div id="modal-alert" class="hidden mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
-            <div class="grid gap-6 md:grid-cols-2">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="hari">Hari</label>
-                    <select id="hari" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">-- Pilih Hari --</option>
-                        <option value="Senin">Senin</option>
-                        <option value="Selasa">Selasa</option>
-                        <option value="Rabu">Rabu</option>
-                        <option value="Kamis">Kamis</option>
-                        <option value="Jumat">Jumat</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="jam">Jam Pelajaran</label>
-                    <select id="jam" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">-- Pilih Jam --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas">Kelas</label>
-                    <select id="kelas" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">-- Pilih Kelas --</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="mapel">Mata Pelajaran</label>
-                    <select id="mapel" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">-- Pilih Mata Pelajaran --</option>
-                    </select>
+            <div class="space-y-5">
+
+                {{-- Baris 1: Hari + Jam --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="hari">Hari</label>
+                        <select id="hari" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition">
+                            <option value="">Pilih Hari</option>
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="jam">Jam Pelajaran</label>
+                        <select id="jam" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition">
+                            <option value="">Pilih Jam</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="guru">
+                {{-- Baris 2: Kelas + Mapel --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="kelas">Kelas</label>
+                        <select id="kelas" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition">
+                            <option value="">Pilih Kelas</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="mapel">Mata Pelajaran</label>
+                        <select id="mapel" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+                            <option value="">Pilih Mata Pelajaran</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Baris 3: Guru --}}
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="guru">
                         Guru Pengajar
-                        <span class="ml-1 text-xs font-normal text-gray-400">(Opsional)</span>
+                        <span id="guru-label-hint" class="ml-1 normal-case font-normal text-gray-400">(Opsional)</span>
                     </label>
-                    <select id="guru" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <select id="guru" class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
                         <option value="">-- Tidak Ada / Pilih Guru --</option>
                     </select>
                 </div>
 
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2" for="kegiatan">
-                        Kegiatan
-                        <span class="ml-1 text-xs font-normal text-gray-400">(Opsional — kosongkan jika tidak ada kegiatan)</span>
-                    </label>
-                    <select id="kegiatan" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500">
-                        <option value="">-- Tidak Ada Kegiatan --</option>
-                    </select>
-                    <p class="text-xs text-gray-400 mt-1.5">
-                        Pilih kegiatan jika slot ini digunakan untuk kegiatan sekolah (upacara, dll).
-                        Kegiatan dikelola oleh guru.
-                    </p>
+                {{-- Divider --}}
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-100"></div></div>
+                    <div class="relative flex justify-center">
+                        <span class="bg-white px-3 text-xs text-gray-400 font-medium">atau isi kegiatan</span>
+                    </div>
                 </div>
+
+                {{-- Baris 4: Kegiatan --}}
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide" for="kegiatan">
+                        Kegiatan
+                        <span class="ml-1 normal-case font-normal text-gray-400">(Opsional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="kegiatan"
+                        placeholder="Contoh: Upacara Bendera, Olahraga Bersama..."
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 focus:border-violet-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100 placeholder:text-gray-400 transition"
+                    />
+                    <p class="text-xs text-gray-400">Jika diisi, mata pelajaran & guru akan dikosongkan otomatis.</p>
+                </div>
+
             </div>
 
-            <div class="mt-8 flex flex-wrap gap-3 justify-end">
-                <button id="modal-cancel" class="bg-slate-200 hover:bg-slate-300 text-slate-900 px-6 py-3 rounded-xl font-medium transition-colors">Batal</button>
-                <button id="modal-save" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-colors">Simpan Jadwal</button>
+            <div class="mt-8 flex gap-3 justify-end">
+                <button id="modal-cancel" class="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Batal</button>
+                <button id="modal-save" class="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow-sm">Simpan Jadwal</button>
             </div>
         </div>
     </div>
@@ -152,22 +185,26 @@
             let jamPelajaranData   = [];
             let kelasData          = [];
             let mataPelajaranData  = [];
-            let kegiatanData       = [];
             let guruData           = [];
             let currentEditId      = null;
             let selectedKelasId    = null;
+            let tapelAktif         = null;
 
-            const tableBody     = document.getElementById('schedule-table-body');
-            const countEl       = document.getElementById('schedule-count');
-            const summaryEl     = document.getElementById('schedule-summary');
-            const modal         = document.getElementById('schedule-modal');
-            const modalTitle    = document.getElementById('modal-title');
-            const modalSubtitle = document.getElementById('modal-subtitle');
-            const alertBox      = document.getElementById('modal-alert');
-            const btnAdd        = document.getElementById('btn-add-schedule');
-            const btnCancel     = document.getElementById('modal-cancel');
-            const btnSave       = document.getElementById('modal-save');
-            const filterKelas   = document.getElementById('filter-kelas');
+            const tableBody       = document.getElementById('schedule-table-body');
+            const countEl         = document.getElementById('schedule-count');
+            const summaryEl       = document.getElementById('schedule-summary');
+            const modal           = document.getElementById('schedule-modal');
+            const modalTitle      = document.getElementById('modal-title');
+            const modalSubtitle   = document.getElementById('modal-subtitle');
+            const modalTapelInfo  = document.getElementById('modal-tapel-info');
+            const alertBox        = document.getElementById('modal-alert');
+            const btnAdd          = document.getElementById('btn-add-schedule');
+            const btnCancel       = document.getElementById('modal-cancel');
+            const btnSave         = document.getElementById('modal-save');
+            const filterKelas     = document.getElementById('filter-kelas');
+            const tapelBadge      = document.getElementById('tapel-badge');
+            const tapelBadgeText  = document.getElementById('tapel-badge-text');
+            const tapelBadgeError = document.getElementById('tapel-badge-error');
 
             const fields = {
                 hari:     document.getElementById('hari'),
@@ -181,27 +218,73 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
+            // ── Logika mapel → label guru wajib/opsional ───────────
+            const guruLabelHint = document.getElementById('guru-label-hint');
+
+            fields.mapel.addEventListener('change', function () {
+                if (this.value) {
+                    guruLabelHint.textContent = '(Wajib)';
+                    guruLabelHint.classList.remove('text-gray-400');
+                    guruLabelHint.classList.add('text-red-400');
+                } else {
+                    guruLabelHint.textContent = '(Opsional)';
+                    guruLabelHint.classList.remove('text-red-400');
+                    guruLabelHint.classList.add('text-gray-400');
+                }
+            });
+
+            // ── Logika kegiatan ↔ mapel ─────────────────────────────
+            fields.kegiatan.addEventListener('input', function () {
+                const hasKegiatan = this.value.trim() !== '';
+                if (hasKegiatan) {
+                    fields.mapel.value    = '';
+                    fields.mapel.disabled = true;
+                    fields.mapel.classList.add('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                    fields.guru.value     = '';
+                    fields.guru.disabled  = true;
+                    fields.guru.classList.add('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                } else {
+                    fields.mapel.disabled = false;
+                    fields.mapel.classList.remove('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                    fields.guru.disabled  = false;
+                    fields.guru.classList.remove('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                }
+            });
+
+            // ── Tampilkan badge tapel ───────────────────────────────
+            function renderTapelBadge(tapel) {
+                if (tapel) {
+                    tapelBadgeText.textContent = `${tapel.tahun_pelajaran} — Semester ${tapel.semester}`;
+                    tapelBadge.classList.remove('hidden');
+                    tapelBadge.classList.add('inline-flex');
+                    tapelBadgeError.classList.add('hidden');
+                } else {
+                    tapelBadge.classList.add('hidden');
+                    tapelBadgeError.classList.remove('hidden');
+                    tapelBadgeError.classList.add('inline-flex');
+                    btnAdd.disabled = true;
+                    btnAdd.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+
             // ── Fetch semua master data ─────────────────────────────
             async function fetchMasterData() {
                 try {
-                    const [jamRes, kelasRes, mapelRes, kegiatanRes, guruRes] = await Promise.all([
+                    const [jamRes, kelasRes, mapelRes, guruRes] = await Promise.all([
                         fetch('/api/jam-pelajaran',   { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
                         fetch('/api/kelas',           { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
                         fetch('/api/mata-pelajaran',  { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
-                        fetch('/api/kegiatan-jadwal', { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
                         fetch('/api/guru-jadwal',     { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }),
                     ]);
 
-                    const jamResult      = await jamRes.json();
-                    const mapelResult    = await mapelRes.json();
-                    const kegiatanResult = await kegiatanRes.json();
-                    const guruResult     = await guruRes.json();
-                    kelasData            = await kelasRes.json();
+                    const jamResult   = await jamRes.json();
+                    const mapelResult = await mapelRes.json();
+                    const guruResult  = await guruRes.json();
+                    kelasData         = await kelasRes.json();
 
-                    if (jamResult.success)      { jamPelajaranData  = jamResult.data;      populateJamDropdown(); }
-                    if (mapelResult.success)    { mataPelajaranData = mapelResult.data;    populateMapelDropdown(); }
-                    if (kegiatanResult.success) { kegiatanData      = kegiatanResult.data; populateKegiatanDropdown(); }
-                    if (guruResult.success)     { guruData          = guruResult.data;     populateGuruDropdown(); }
+                    if (jamResult.success)   { jamPelajaranData  = jamResult.data;   populateJamDropdown(); }
+                    if (mapelResult.success) { mataPelajaranData = mapelResult.data; populateMapelDropdown(); }
+                    if (guruResult.success)  { guruData          = guruResult.data;  populateGuruDropdown(); }
 
                     populateKelasDropdown();
                     populateKelasFilter();
@@ -214,6 +297,8 @@
             function populateJamDropdown() {
                 fields.jam.innerHTML = '<option value="">-- Pilih Jam --</option>';
                 jamPelajaranData.forEach(jam => {
+                    // Lewati jam istirahat agar tidak muncul di form
+                    if (jam.keterangan && jam.keterangan.toLowerCase().includes('istirahat')) return;
                     const o = document.createElement('option');
                     o.value = jam.id_jam;
                     o.textContent = `${jam.jam_mulai.substring(0,5)} - ${jam.jam_selesai.substring(0,5)}${jam.keterangan ? ' (' + jam.keterangan + ')' : ''}`;
@@ -265,30 +350,21 @@
                 });
             }
 
-            function populateKegiatanDropdown() {
-                fields.kegiatan.innerHTML = '<option value="">-- Tidak Ada Kegiatan --</option>';
-                kegiatanData.forEach(kg => {
-                    const o = document.createElement('option');
-                    o.value = kg.id_kegiatan;
-                    const tgl = new Date(kg.tanggal).toLocaleDateString('id-ID', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                    });
-                    o.textContent = `${kg.judul} (${tgl})`;
-                    fields.kegiatan.appendChild(o);
-                });
-            }
-
             // ── Fetch jadwal ────────────────────────────────────────
             async function fetchJadwal() {
                 tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-slate-500">Memuat jadwal...</td></tr>`;
                 try {
                     const res    = await fetch('/api/jadwal-pelajaran/by-hari', { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } });
                     const result = await res.json();
+
                     if (result.success) {
                         jadwalData = result.data;
+                        tapelAktif = result.tapel || null;
+                        renderTapelBadge(tapelAktif);
                         applyFilter();
                     } else {
                         tableBody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-8 text-center text-red-500">Gagal memuat jadwal</td></tr>`;
+                        renderTapelBadge(null);
                     }
                 } catch (err) {
                     console.error(err);
@@ -348,7 +424,7 @@
                         totalSchedule++;
                         const mapelName    = item.mata_pelajaran ? item.mata_pelajaran.nama_mapel : '-';
                         const kelasName    = item.kelas ? item.kelas.nama_kelas : '-';
-                        const kegiatanName = item.kegiatan ? item.kegiatan.judul : null;
+                        const kegiatanName = item.nama_kegiatan || null; // ← field teks bebas
                         const guruName     = item.guru ? item.guru.nama : null;
                         const displayName  = kegiatanName || mapelName;
                         const isKegiatan   = !!kegiatanName;
@@ -386,20 +462,42 @@
                 }
             }
 
+            // ── Reset state mapel/kegiatan ──────────────────────────
+            function resetMapelKegiatanState() {
+                fields.mapel.disabled = false;
+                fields.mapel.classList.remove('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                fields.guru.disabled  = false;
+                fields.guru.classList.remove('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+                // Reset label guru ke opsional
+                if (guruLabelHint) {
+                    guruLabelHint.textContent = '(Opsional)';
+                    guruLabelHint.classList.remove('text-red-400');
+                    guruLabelHint.classList.add('text-gray-400');
+                }
+            }
+
             // ── Modal ───────────────────────────────────────────────
             function openModal(mode, item = null) {
                 currentEditId = item ? item.id_jadwal : null;
                 modalTitle.textContent    = mode === 'edit' ? 'Edit Jadwal' : 'Tambah Jadwal';
                 modalSubtitle.textContent = mode === 'edit' ? 'Perbarui data jadwal yang dipilih.' : 'Buat jadwal pelajaran baru untuk kelas dan jam yang dipilih.';
+                modalTapelInfo.textContent = tapelAktif
+                    ? `Tahun Pelajaran: ${tapelAktif.tahun_pelajaran} — Semester ${tapelAktif.semester}`
+                    : '';
                 alertBox.classList.add('hidden');
+
+                resetMapelKegiatanState();
 
                 if (item) {
                     fields.hari.value     = item.hari;
                     fields.jam.value      = item.jam_id;
                     fields.kelas.value    = item.kelas_id || '';
-                    fields.mapel.value    = item.id_mapel;
-                    fields.kegiatan.value = item.kegiatan_id || '';
+                    fields.mapel.value    = item.id_mapel || '';
+                    fields.kegiatan.value = item.nama_kegiatan || '';
                     fields.guru.value     = item.id_guru || '';
+
+                    // Trigger event input agar logika disable mapel berjalan otomatis
+                    fields.kegiatan.dispatchEvent(new Event('input'));
                 } else {
                     fields.hari.value     = '';
                     fields.jam.value      = '';
@@ -416,6 +514,7 @@
             function closeModal() {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                resetMapelKegiatanState();
             }
 
             function showModalError(msg) {
@@ -425,25 +524,32 @@
 
             // ── Simpan jadwal ───────────────────────────────────────
             async function saveSchedule() {
-                const hari     = fields.hari.value;
-                const jam_id   = fields.jam.value;
-                const kelas_id = fields.kelas.value;
-                const id_mapel = fields.mapel.value;
+                const hari          = fields.hari.value;
+                const jam_id        = fields.jam.value;
+                const kelas_id      = fields.kelas.value;
+                const nama_kegiatan = fields.kegiatan.value.trim();
+                // Ambil id_mapel hanya jika tidak ada kegiatan (mapel bisa disabled)
+                const id_mapel      = nama_kegiatan ? '' : fields.mapel.value;
 
                 if (!hari)   { showModalError('Pilih hari terlebih dahulu.');          return; }
                 if (!jam_id) { showModalError('Pilih jam pelajaran terlebih dahulu.'); return; }
-                if (!id_mapel && !fields.kegiatan.value) {
-                    showModalError('Pilih mata pelajaran atau kegiatan.');
+                if (!id_mapel && !nama_kegiatan) {
+                    showModalError('Pilih mata pelajaran atau isi kegiatan.');
+                    return;
+                }
+                // Jika pilih mapel (bukan kegiatan), guru wajib dipilih
+                if (id_mapel && !nama_kegiatan && !fields.guru.value) {
+                    showModalError('Guru pengajar wajib dipilih jika mengisi mata pelajaran.');
                     return;
                 }
 
                 const payload = {
                     hari,
-                    jam_id:      parseInt(jam_id),
-                    kelas_id:    kelas_id ? parseInt(kelas_id) : null,
-                    id_mapel:    parseInt(id_mapel),
-                    kegiatan_id: fields.kegiatan.value ? parseInt(fields.kegiatan.value) : null,
-                    id_guru:     fields.guru.value     ? parseInt(fields.guru.value)     : null,
+                    jam_id:        parseInt(jam_id),
+                    kelas_id:      kelas_id  ? parseInt(kelas_id) : null,
+                    id_mapel:      id_mapel  ? parseInt(id_mapel) : null,
+                    nama_kegiatan: nama_kegiatan || null,
+                    id_guru:       fields.guru.value ? parseInt(fields.guru.value) : null,
                 };
 
                 try {
@@ -500,7 +606,7 @@
                 if (!result.isConfirmed) return;
 
                 try {
-                    const res    = await fetch(`/api/jadwal-pelajaran/${id}`, {
+                    const res  = await fetch(`/api/jadwal-pelajaran/${id}`, {
                         method: 'DELETE',
                         headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
                     });
@@ -516,21 +622,11 @@
                         });
                         await fetchJadwal();
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: data.message || 'Gagal menghapus jadwal.',
-                            confirmButtonColor: '#6366f1'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || 'Gagal menghapus jadwal.', confirmButtonColor: '#6366f1' });
                     }
                 } catch (err) {
                     console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: err.message,
-                        confirmButtonColor: '#6366f1'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: err.message, confirmButtonColor: '#6366f1' });
                 }
             }
 

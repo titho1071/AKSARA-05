@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MataPelajaran;
-use App\Models\TahunPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,16 +12,9 @@ class MataPelajaranController extends Controller
     /**
      * Display a listing of mata pelajaran.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $query = MataPelajaran::with('tahunPelajaran');
-
-        // Filter by tahun pelajaran if provided
-        if ($request->has('id_tapel')) {
-            $query->where('id_tapel', $request->id_tapel);
-        }
-
-        $mataPelajaran = $query->get();
+        $mataPelajaran = MataPelajaran::all();
 
         return response()->json([
             'success' => true,
@@ -38,7 +30,6 @@ class MataPelajaranController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_mapel' => 'required|string|max:255',
-            'id_tapel' => 'required|exists:tahun_pelajaran,id_tapel',
         ]);
 
         if ($validator->fails()) {
@@ -49,12 +40,12 @@ class MataPelajaranController extends Controller
             ], 422);
         }
 
-        $mataPelajaran = MataPelajaran::create($request->all());
+        $mataPelajaran = MataPelajaran::create($request->only('nama_mapel'));
 
         return response()->json([
             'success' => true,
             'message' => 'Mata pelajaran berhasil ditambahkan',
-            'data' => $mataPelajaran->load('tahunPelajaran')
+            'data' => $mataPelajaran
         ], 201);
     }
 
@@ -63,7 +54,7 @@ class MataPelajaranController extends Controller
      */
     public function show($id)
     {
-        $mataPelajaran = MataPelajaran::with('tahunPelajaran')->find($id);
+        $mataPelajaran = MataPelajaran::find($id);
 
         if (!$mataPelajaran) {
             return response()->json([
@@ -94,8 +85,7 @@ class MataPelajaranController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'nama_mapel' => 'sometimes|required|string|max:255',
-            'id_tapel' => 'sometimes|required|exists:tahun_pelajaran,id_tapel',
+            'nama_mapel' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -106,12 +96,12 @@ class MataPelajaranController extends Controller
             ], 422);
         }
 
-        $mataPelajaran->update($request->all());
+        $mataPelajaran->update($request->only('nama_mapel'));
 
         return response()->json([
             'success' => true,
             'message' => 'Mata pelajaran berhasil diupdate',
-            'data' => $mataPelajaran->load('tahunPelajaran')
+            'data' => $mataPelajaran
         ], 200);
     }
 

@@ -16,12 +16,18 @@ class JadwalPelajaran extends Model
 
     protected $fillable = [
         'hari',
+        'id_tapel',
         'jam_id',
         'kelas_id',
         'id_mapel',
-        'kegiatan_id',
+        'nama_kegiatan',
         'id_guru',
     ];
+
+    public function tahunPelajaran()
+    {
+        return $this->belongsTo(TahunPelajaran::class, 'id_tapel', 'id_tapel');
+    }
 
     public function mataPelajaran()
     {
@@ -36,11 +42,6 @@ class JadwalPelajaran extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas');
-    }
-
-    public function kegiatan()
-    {
-        return $this->belongsTo(Kegiatan::class, 'kegiatan_id', 'id_kegiatan');
     }
 
     public function guru()

@@ -20,7 +20,7 @@
 <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 max-w-4xl mx-auto">
     <form id="pengumuman-form" enctype="multipart/form-data">
         @csrf
-        
+
         <div id="form-alert" class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
         <div class="grid gap-6 md:grid-cols-2">
@@ -28,12 +28,12 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="judul">
                     Judul Pengumuman <span class="text-red-500">*</span>
                 </label>
-                <input 
-                    id="judul" 
-                    type="text" 
+                <input
+                    id="judul"
+                    type="text"
                     name="judul"
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder="Masukkan judul pengumuman..."
                 >
                 <small class="text-gray-500 mt-1 block">Maksimal 255 karakter</small>
@@ -43,44 +43,40 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="deskripsi">
                     Deskripsi Pengumuman <span class="text-red-500">*</span>
                 </label>
-                <textarea 
-                    id="deskripsi" 
+                <textarea
+                    id="deskripsi"
                     name="deskripsi"
                     required
-                    rows="6" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" 
+                    rows="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     placeholder="Jelaskan detail pengumuman yang ingin disampaikan..."
                 ></textarea>
                 <small class="text-gray-500 mt-1 block">Uraian lengkap tentang pengumuman</small>
             </div>
 
             <div>
-    <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas_id">
-        Pilih Kelas <span class="text-gray-400 text-xs">(Opsional)</span>
-    </label>
-
-    <select 
-        id="kelas_id"
-        name="kelas_id"
-        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-    >
-        <option value="">Semua Kelas</option>
-
-        @foreach ($kelas as $item)
-            <option value="{{ $item->id_kelas }}">
-                {{ $item->nama_kelas }}
-            </option>
-        @endforeach
-    </select>
-</div>
+                <label class="block text-sm font-medium text-gray-700 mb-2" for="kelas_id">
+                    Pilih Kelas <span class="text-gray-400 text-xs">(Opsional)</span>
+                </label>
+                <select
+                    id="kelas_id"
+                    name="kelas_id"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                >
+                    <option value="">Semua Kelas</option>
+                    @foreach ($kelas as $item)
+                        <option value="{{ $item->id_kelas }}">{{ $item->nama_kelas }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="tanggal_mulai">
                     Tanggal Mulai <span class="text-gray-400 text-xs">(Opsional)</span>
                 </label>
-                <input 
-                    id="tanggal_mulai" 
-                    type="date" 
+                <input
+                    id="tanggal_mulai"
+                    type="date"
                     name="tanggal_mulai"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
@@ -90,9 +86,9 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="tanggal_selesai">
                     Tanggal Selesai <span class="text-gray-400 text-xs">(Opsional)</span>
                 </label>
-                <input 
-                    id="tanggal_selesai" 
-                    type="date" 
+                <input
+                    id="tanggal_selesai"
+                    type="date"
                     name="tanggal_selesai"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
@@ -103,17 +99,14 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2" for="file">
                     Upload File <span class="text-gray-400 text-xs">(Opsional)</span>
                 </label>
-                <input 
-                    id="file" 
-                    type="file" 
+                <input
+                    id="file"
+                    type="file"
                     name="file"
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200" 
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
                     accept=".jpg,.jpeg,.png,.svg,.pdf"
                 >
-                <small class="text-gray-500 mt-2 block">
-                    Format: JPG, JPEG, PNG, SVG, PDF — Maksimal 2 MB
-                </small>
-                <!-- File Preview -->
+                <small class="text-gray-500 mt-2 block">Format: JPG, JPEG, PNG, SVG, PDF — Maksimal 2 MB</small>
                 <div id="file-preview" class="hidden mt-3 flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
                     <div id="preview-image-wrap" class="hidden">
                         <img id="preview-img" src="" alt="Preview" class="h-16 w-16 object-cover rounded-lg border">
@@ -137,14 +130,24 @@
         </div>
 
         <div class="mt-8 flex flex-wrap gap-3">
-            <button 
-                type="submit" 
-                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+            <button
+                type="submit"
+                id="btn-submit"
+                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-medium transition-colors"
             >
-                Simpan Pengumuman
+                {{-- Ikon default --}}
+                <svg id="btn-icon-default" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {{-- Spinner loading --}}
+                <svg id="btn-icon-loading" class="hidden h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span id="btn-label">Simpan Pengumuman</span>
             </button>
-            <a 
-                href="{{ route('admin.pengumuman') }}" 
+            <a
+                href="{{ route('admin.pengumuman') }}"
                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-medium transition-colors"
             >
                 Batal
@@ -154,110 +157,158 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('pengumuman-form');
-        const alertBox = document.getElementById('form-alert');
+document.addEventListener('DOMContentLoaded', function () {
+    const form          = document.getElementById('pengumuman-form');
+    const alertBox      = document.getElementById('form-alert');
+    const btnSubmit     = document.getElementById('btn-submit');
+    const btnLabel      = document.getElementById('btn-label');
+    const btnIconDef    = document.getElementById('btn-icon-default');
+    const btnIconLoad   = document.getElementById('btn-icon-loading');
 
-        // File preview
-        const fileInput = document.getElementById('file');
-        const filePreview = document.getElementById('file-preview');
-        const previewImg = document.getElementById('preview-img');
-        const previewImgWrap = document.getElementById('preview-image-wrap');
-        const previewPdfWrap = document.getElementById('preview-pdf-wrap');
-        const previewName = document.getElementById('preview-name');
-        const previewSize = document.getElementById('preview-size');
-        const btnRemoveFile = document.getElementById('btn-remove-file');
+    const fileInput        = document.getElementById('file');
+    const filePreview      = document.getElementById('file-preview');
+    const previewImg       = document.getElementById('preview-img');
+    const previewImgWrap   = document.getElementById('preview-image-wrap');
+    const previewPdfWrap   = document.getElementById('preview-pdf-wrap');
+    const previewName      = document.getElementById('preview-name');
+    const previewSize      = document.getElementById('preview-size');
+    const btnRemoveFile    = document.getElementById('btn-remove-file');
 
-        fileInput.addEventListener('change', function () {
-            const file = fileInput.files[0];
-            if (!file) { filePreview.classList.add('hidden'); return; }
-            if (file.size > 2 * 1024 * 1024) {
-                showAlert('Ukuran file melebihi 2 MB. Silakan pilih file yang lebih kecil.', 'error');
-                fileInput.value = '';
-                filePreview.classList.add('hidden');
-                return;
-            }
-            const isPdf = file.type === 'application/pdf';
-            previewName.textContent = file.name;
-            previewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
-            if (isPdf) {
-                previewImgWrap.classList.add('hidden');
-                previewPdfWrap.classList.remove('hidden');
-            } else {
-                previewPdfWrap.classList.add('hidden');
-                previewImgWrap.classList.remove('hidden');
-                const reader = new FileReader();
-                reader.onload = e => { previewImg.src = e.target.result; };
-                reader.readAsDataURL(file);
-            }
-            filePreview.classList.remove('hidden');
-        });
+    // ── Fungsi loading state ──────────────────────────────────────
+    function setLoading(loading) {
+        btnSubmit.disabled = loading;
+        if (loading) {
+            btnIconDef.classList.add('hidden');
+            btnIconLoad.classList.remove('hidden');
+            btnLabel.textContent = 'Menyimpan...';
+        } else {
+            btnIconLoad.classList.add('hidden');
+            btnIconDef.classList.remove('hidden');
+            btnLabel.textContent = 'Simpan Pengumuman';
+        }
+    }
 
-        btnRemoveFile.addEventListener('click', function () {
+    // ── Alert ─────────────────────────────────────────────────────
+    function showAlert(message, type = 'error') {
+        alertBox.textContent = message;
+        alertBox.classList.remove(
+            'hidden',
+            'border-red-200', 'bg-red-50', 'text-red-700',
+            'border-green-200', 'bg-green-50', 'text-green-700'
+        );
+        if (type === 'success') {
+            alertBox.classList.add('border-green-200', 'bg-green-50', 'text-green-700');
+        } else {
+            alertBox.classList.add('border-red-200', 'bg-red-50', 'text-red-700');
+        }
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function hideAlert() {
+        alertBox.classList.add('hidden');
+    }
+
+    // ── Preview file ──────────────────────────────────────────────
+    fileInput.addEventListener('change', function () {
+        const file = fileInput.files[0];
+        if (!file) { filePreview.classList.add('hidden'); return; }
+
+        if (file.size > 2 * 1024 * 1024) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Terlalu Besar',
+                html: `<p>Ukuran file <strong>${file.name}</strong> adalah <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong>.</p>
+                       <p style="margin-top:8px;font-size:13px;color:#6b7280;">Maksimal <strong>2 MB</strong>. Silakan pilih file yang lebih kecil.</p>`,
+                confirmButtonText: 'Oke, Ganti File',
+                confirmButtonColor: '#6366f1'
+            });
             fileInput.value = '';
             filePreview.classList.add('hidden');
-            previewImg.src = '';
-        });
-
-        function showAlert(message, type = 'error') {
-            alertBox.textContent = message;
-            alertBox.classList.remove('hidden', 'border-red-200', 'bg-red-50', 'text-red-700', 'border-green-200', 'bg-green-50', 'text-green-700');
-            if (type === 'success') {
-                alertBox.classList.add('border-green-200', 'bg-green-50', 'text-green-700');
-            } else {
-                alertBox.classList.add('border-red-200', 'bg-red-50', 'text-red-700');
-            }
+            return;
         }
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        previewName.textContent = file.name;
+        previewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
 
-            const formData = new FormData(form);
-            if (fileInput.files.length) {
-                formData.set('nama_file', fileInput.files[0].name);
-            }
-
-            try {
-                const response = await fetch('/api/pengumuman', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const result = await response.json();
-
-                if (!response.ok || !result.success) {
-                    const message = result.message || 'Gagal menyimpan pengumuman';
-                    showAlert(message, 'error');
-                    return;
-                }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Pengumuman berhasil disimpan!',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#6366f1'
-                }).then(() => {
-                    window.location.href = '{{ route('admin.pengumuman') }}';
-                });
-            } catch (error) {
-                showAlert(error.message || 'Terjadi kesalahan saat menyimpan data');
-            }
-        });
-
-        // Validasi tanggal
-        const tanggalMulai = document.getElementById('tanggal_mulai');
-        const tanggalSelesai = document.getElementById('tanggal_selesai');
-
-        tanggalSelesai.addEventListener('change', function () {
-            if (tanggalMulai.value && tanggalSelesai.value) {
-                if (new Date(tanggalSelesai.value) < new Date(tanggalMulai.value)) {
-                    showAlert('Tanggal selesai harus lebih besar atau sama dengan tanggal mulai', 'error');
-                    tanggalSelesai.value = '';
-                }
-            }
-        });
+        if (file.type === 'application/pdf') {
+            previewImgWrap.classList.add('hidden');
+            previewPdfWrap.classList.remove('hidden');
+        } else {
+            previewPdfWrap.classList.add('hidden');
+            previewImgWrap.classList.remove('hidden');
+            const reader = new FileReader();
+            reader.onload = e => { previewImg.src = e.target.result; };
+            reader.readAsDataURL(file);
+        }
+        filePreview.classList.remove('hidden');
     });
+
+    btnRemoveFile.addEventListener('click', function () {
+        fileInput.value = '';
+        filePreview.classList.add('hidden');
+        previewImg.src = '';
+    });
+
+    // ── Validasi tanggal ──────────────────────────────────────────
+    const tanggalMulai   = document.getElementById('tanggal_mulai');
+    const tanggalSelesai = document.getElementById('tanggal_selesai');
+
+    tanggalSelesai.addEventListener('change', function () {
+        if (tanggalMulai.value && tanggalSelesai.value) {
+            if (new Date(tanggalSelesai.value) < new Date(tanggalMulai.value)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tanggal Tidak Valid',
+                    text: 'Tanggal selesai harus lebih besar atau sama dengan tanggal mulai.',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#6366f1'
+                });
+                tanggalSelesai.value = '';
+            }
+        }
+    });
+
+    // ── Submit ────────────────────────────────────────────────────
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideAlert();
+        setLoading(true);
+
+        const formData = new FormData(form);
+        if (fileInput.files.length) {
+            formData.set('nama_file', fileInput.files[0].name);
+        }
+
+        try {
+            const response = await fetch('/api/pengumuman', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showAlert(result.message || 'Gagal menyimpan pengumuman');
+                setLoading(false);
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Pengumuman berhasil disimpan!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6366f1'
+            }).then(() => {
+                window.location.href = '{{ route('admin.pengumuman') }}';
+            });
+
+        } catch (error) {
+            showAlert(error.message || 'Terjadi kesalahan saat menyimpan data');
+            setLoading(false);
+        }
+    });
+});
 </script>
 
 @endsection

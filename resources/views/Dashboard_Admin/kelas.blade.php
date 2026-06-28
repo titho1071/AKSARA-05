@@ -27,13 +27,12 @@
                     <th class="px-6 py-4 font-semibold">Tingkat</th>
                     <th class="px-6 py-4 font-semibold">Tahun Pelajaran</th>
                     <th class="px-6 py-4 font-semibold">Guru</th>
-                    <th class="px-6 py-4 font-semibold">Grup WA</th>
                     <th class="px-6 py-4 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody id="kelas-table-body" class="divide-y divide-slate-200 bg-white text-slate-700">
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-slate-500">Memuat data kelas...</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-500">Memuat data kelas...</td>
                 </tr>
             </tbody>
         </table>
@@ -81,11 +80,6 @@
                     <span id="guru-hint-text"></span>
                 </p>
             </div>
-            <div class="md:col-span-2">
-                <label for="wa_group_id" class="block text-sm font-medium text-slate-700 mb-2">ID Grup WhatsApp</label>
-                <input id="wa_group_id" type="text" placeholder="Contoh: 120363428009198328@g.us" class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                <p class="mt-1.5 text-xs text-slate-500">ID grup WA untuk pengiriman notifikasi pengumuman. Kosongkan jika tidak ada.</p>
-            </div>
         </div>
 
         <div class="mt-8 flex justify-end gap-3">
@@ -115,7 +109,6 @@
             tingkat: document.getElementById('tingkat'),
             tapel_id: document.getElementById('tapel_id'),
             guru_id: document.getElementById('guru_id'),
-            wa_group_id: document.getElementById('wa_group_id'),
         };
 
         const namaKelasHint = document.getElementById('nama-kelas-hint');
@@ -135,10 +128,10 @@
                     kelasData = data;
                     renderTable();
                 } else {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">${data.message || 'Gagal memuat data'}</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">${data.message || 'Gagal memuat data'}</td></tr>`;
                 }
             } catch (error) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">${error.message}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">${error.message}</td></tr>`;
             }
         }
 
@@ -176,7 +169,7 @@
 
         function renderTable() {
             if (!kelasData.length) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-slate-500">Belum ada data kelas.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500">Belum ada data kelas.</td></tr>';
                 return;
             }
 
@@ -187,12 +180,6 @@
                     <td class="px-6 py-4 text-slate-700">${item.tingkat}</td>
                     <td class="px-6 py-4 text-slate-700">${item.tapel_nama || '-'}</td>
                     <td class="px-6 py-4 text-slate-700">${item.guru_nama || '-'}</td>
-                    <td class="px-6 py-4 text-slate-700">
-                        ${item.wa_group_id
-                            ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">✓ Terhubung</span>'
-                            : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500">Belum diset</span>'
-                        }
-                    </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <button data-id="${item.id_kelas}" data-action="edit" title="Edit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 transition hover:bg-amber-200">
@@ -221,7 +208,6 @@
             fields.tingkat.value = item?.tingkat || '';
             fields.tapel_id.value = item?.tapel_id || '';
             fields.guru_id.value = item?.guru_id || '';
-            fields.wa_group_id.value = item?.wa_group_id || '';
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -284,7 +270,6 @@
             const tingkat = fields.tingkat.value.trim();
             const tapel_id = fields.tapel_id.value.trim();
             const guru_id = fields.guru_id.value.trim();
-            const wa_group_id = fields.wa_group_id.value.trim();
 
             if (!nama_kelas) { showError('Masukkan nama kelas.'); return; }
             if (checkDuplicateNama()) { showError(`Kelas "${nama_kelas}" sudah ada.`); return; }
@@ -302,7 +287,6 @@
                 tingkat: Number(tingkat),
                 tapel_id,
                 guru_id: guru_id || '',
-                wa_group_id: wa_group_id || '',
                 _token: csrfToken,
             };
 

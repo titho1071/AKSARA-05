@@ -4,16 +4,31 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JadwalPelajaran;
-use App\Models\Kegiatan;
+use App\Models\TahunPelajaran;
 use App\Models\Guru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class JadwalPelajaranController extends Controller
 {
+    // ── Helper: ambil tapel aktif ───────────────────────────
+    private function getTapelAktif()
+    {
+        $tapel = TahunPelajaran::where('is_active', 1)->first();
+
+        if (!$tapel) {
+            abort(422, 'Tidak ada tahun pelajaran aktif. Aktifkan terlebih dahulu.');
+        }
+
+        return $tapel;
+    }
+
     public function index(Request $request)
     {
-        $query = JadwalPelajaran::with(['mataPelajaran.tahunPelajaran', 'jamPelajaran', 'kelas', 'kegiatan', 'guru']);
+        $tapel = $this->getTapelAktif();
+
+        $query = JadwalPelajaran::with(['mataPelajaran', 'jamPelajaran', 'kelas', 'guru'])
+            ->where('id_tapel', $tapel->id_tapel);
 
         if ($request->has('hari'))     $query->where('hari', $request->hari);
         if ($request->has('id_mapel')) $query->where('id_mapel', $request->id_mapel);
@@ -22,19 +37,22 @@ class JadwalPelajaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data jadwal pelajaran berhasil diambil',
-            'data'    => $query->get()
+            'data'    => $query->get(),
+            'tapel'   => $tapel,
         ]);
     }
 
     public function store(Request $request)
     {
+        $tapel = $this->getTapelAktif();
+
         $validator = Validator::make($request->all(), [
-            'hari'        => 'required|string|in:Senin,Selasa,Rabu,Kamis,Jumat',
-            'jam_id'      => 'required|exists:jam_pelajaran,id_jam',
-            'kelas_id'    => 'nullable|exists:kelas,id_kelas',
-            'id_mapel'    => 'nullable|exists:mata_pelajaran,id_mapel',
-            'kegiatan_id' => 'nullable|exists:kegiatan,id_kegiatan',
-            'id_guru'     => 'nullable|exists:guru,id_guru',
+            'hari'           => 'required|string|in:Senin,Selasa,Rabu,Kamis,Jumat',
+            'jam_id'         => 'required|exists:jam_pelajaran,id_jam',
+            'kelas_id'       => 'nullable|exists:kelas,id_kelas',
+            'id_mapel'       => 'nullable|exists:mata_pelajaran,id_mapel',
+            'nama_kegiatan'  => 'nullable|string|max:255',
+            'id_guru'        => 'nullable|exists:guru,id_guru',
         ]);
 
         if ($validator->fails()) {
@@ -45,34 +63,50 @@ class JadwalPelajaranController extends Controller
             ], 422);
         }
 
-        // Minimal salah satu harus diisi
-        if (!$request->id_mapel && !$request->kegiatan_id) {
+        if (!$request->id_mapel && !$request->nama_kegiatan) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => ['id_mapel' => ['Pilih mata pelajaran atau kegiatan.']]
+                'errors'  => ['id_mapel' => ['Pilih mata pelajaran atau isi kegiatan.']]
+            ], 422);
+        }
+
+        // Cegah duplikat slot yang sama dalam tapel yang sama
+        $exists = JadwalPelajaran::where([
+            'id_tapel' => $tapel->id_tapel,
+            'hari'     => $request->hari,
+            'jam_id'   => $request->jam_id,
+            'kelas_id' => $request->kelas_id,
+        ])->exists();
+
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => ['jam_id' => ['Slot jadwal ini sudah terisi untuk kelas dan hari yang dipilih.']]
             ], 422);
         }
 
         $jadwal = JadwalPelajaran::create([
-            'hari'        => $request->hari,
-            'jam_id'      => $request->jam_id,
-            'kelas_id'    => $request->kelas_id,
-            'id_mapel'    => $request->id_mapel ?: null,
-            'kegiatan_id' => $request->kegiatan_id ?: null,
-            'id_guru'     => $request->id_guru ?: null,
+            'id_tapel'      => $tapel->id_tapel,
+            'hari'          => $request->hari,
+            'jam_id'        => $request->jam_id,
+            'kelas_id'      => $request->kelas_id      ?: null,
+            'id_mapel'      => $request->id_mapel      ?: null,
+            'nama_kegiatan' => $request->nama_kegiatan ?: null,
+            'id_guru'       => $request->id_guru       ?: null,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Jadwal pelajaran berhasil ditambahkan',
-            'data'    => $jadwal->load(['mataPelajaran.tahunPelajaran', 'jamPelajaran', 'kelas', 'kegiatan', 'guru'])
+            'data'    => $jadwal->load(['mataPelajaran', 'jamPelajaran', 'kelas', 'guru'])
         ], 201);
     }
 
     public function show($id)
     {
-        $jadwal = JadwalPelajaran::with(['mataPelajaran.tahunPelajaran', 'kegiatan'])->find($id);
+        $jadwal = JadwalPelajaran::with(['mataPelajaran', 'jamPelajaran', 'kelas', 'guru'])->find($id);
 
         if (!$jadwal) {
             return response()->json(['success' => false, 'message' => 'Jadwal tidak ditemukan'], 404);
@@ -90,12 +124,12 @@ class JadwalPelajaranController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'hari'        => 'sometimes|required|string|in:Senin,Selasa,Rabu,Kamis,Jumat',
-            'jam_id'      => 'sometimes|required|exists:jam_pelajaran,id_jam',
-            'kelas_id'    => 'nullable|exists:kelas,id_kelas',
-            'id_mapel'    => 'nullable|exists:mata_pelajaran,id_mapel',
-            'kegiatan_id' => 'nullable|exists:kegiatan,id_kegiatan',
-            'id_guru'     => 'nullable|exists:guru,id_guru',
+            'hari'          => 'sometimes|required|string|in:Senin,Selasa,Rabu,Kamis,Jumat',
+            'jam_id'        => 'sometimes|required|exists:jam_pelajaran,id_jam',
+            'kelas_id'      => 'nullable|exists:kelas,id_kelas',
+            'id_mapel'      => 'nullable|exists:mata_pelajaran,id_mapel',
+            'nama_kegiatan' => 'nullable|string|max:255',
+            'id_guru'       => 'nullable|exists:guru,id_guru',
         ]);
 
         if ($validator->fails()) {
@@ -106,32 +140,30 @@ class JadwalPelajaranController extends Controller
             ], 422);
         }
 
-        $newMapel    = $request->has('id_mapel')    ? ($request->id_mapel    ?: null) : $jadwal->id_mapel;
-        $newKegiatan = $request->has('kegiatan_id') ? ($request->kegiatan_id ?: null) : $jadwal->kegiatan_id;
+        $newMapel    = $request->has('id_mapel')       ? ($request->id_mapel      ?: null) : $jadwal->id_mapel;
+        $newKegiatan = $request->has('nama_kegiatan')  ? ($request->nama_kegiatan ?: null) : $jadwal->nama_kegiatan;
 
         if (!$newMapel && !$newKegiatan) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors'  => ['id_mapel' => ['Pilih mata pelajaran atau kegiatan.']]
+                'errors'  => ['id_mapel' => ['Pilih mata pelajaran atau isi kegiatan.']]
             ], 422);
         }
 
-        $newGuru = $request->has('id_guru') ? ($request->id_guru ?: null) : $jadwal->id_guru;
-
         $jadwal->update([
-            'hari'        => $request->hari     ?? $jadwal->hari,
-            'jam_id'      => $request->jam_id   ?? $jadwal->jam_id,
-            'kelas_id'    => $request->kelas_id ?? $jadwal->kelas_id,
-            'id_mapel'    => $newMapel,
-            'kegiatan_id' => $newKegiatan,
-            'id_guru'     => $newGuru,
+            'hari'          => $request->hari     ?? $jadwal->hari,
+            'jam_id'        => $request->jam_id   ?? $jadwal->jam_id,
+            'kelas_id'      => $request->kelas_id ?? $jadwal->kelas_id,
+            'id_mapel'      => $newMapel,
+            'nama_kegiatan' => $newKegiatan,
+            'id_guru'       => $request->has('id_guru') ? ($request->id_guru ?: null) : $jadwal->id_guru,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Jadwal berhasil diupdate',
-            'data'    => $jadwal->load(['mataPelajaran.tahunPelajaran', 'jamPelajaran', 'kelas', 'kegiatan', 'guru'])
+            'data'    => $jadwal->load(['mataPelajaran', 'jamPelajaran', 'kelas', 'guru'])
         ]);
     }
 
@@ -150,13 +182,15 @@ class JadwalPelajaranController extends Controller
 
     public function getByHari()
     {
-        $hariList      = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        $jadwalGrouped = [];
+        $tapel    = $this->getTapelAktif();
+        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 
+        $jadwalGrouped = [];
         foreach ($hariList as $hari) {
             $jadwalGrouped[$hari] = JadwalPelajaran::with([
-                'mataPelajaran.tahunPelajaran', 'jamPelajaran', 'kelas', 'kegiatan'
+                'mataPelajaran', 'jamPelajaran', 'kelas', 'guru'
             ])
+                ->where('id_tapel', $tapel->id_tapel)
                 ->where('hari', $hari)
                 ->orderBy('jam_id')
                 ->get();
@@ -165,14 +199,10 @@ class JadwalPelajaranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data jadwal per hari berhasil diambil',
-            'data'    => $jadwalGrouped
+            'data'    => $jadwalGrouped,
+            'tapel'   => $tapel,
         ]);
     }
-
-    /**
-     * Endpoint: GET /api/kegiatan
-     * Dipakai dropdown modal admin jadwal — hanya kegiatan aktif
-     */
 
     public function listGuru()
     {
@@ -180,21 +210,6 @@ class JadwalPelajaranController extends Controller
             ->orderBy('nama')
             ->get(['id_guru', 'nama', 'nip']);
 
-        return response()->json([
-            'success' => true,
-            'data'    => $guru,
-        ]);
-    }
-
-    public function listKegiatan()
-    {
-        $kegiatan = Kegiatan::where('status', 'aktif')
-            ->orderBy('tanggal', 'desc')
-            ->get(['id_kegiatan', 'judul', 'tanggal', 'kelas_id']);
-
-        return response()->json([
-            'success' => true,
-            'data'    => $kegiatan
-        ]);
+        return response()->json(['success' => true, 'data' => $guru]);
     }
 }

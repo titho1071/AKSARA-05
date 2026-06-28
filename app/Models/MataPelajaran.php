@@ -16,16 +16,7 @@ class MataPelajaran extends Model
 
     protected $fillable = [
         'nama_mapel',
-        'id_tapel',
     ];
-
-    /**
-     * Get the tahun pelajaran for this mata pelajaran.
-     */
-    public function tahunPelajaran()
-    {
-        return $this->belongsTo(TahunPelajaran::class, 'id_tapel', 'id_tapel');
-    }
 
     /**
      * Get all jadwal for this mata pelajaran.

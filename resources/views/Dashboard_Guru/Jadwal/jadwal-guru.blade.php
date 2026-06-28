@@ -42,6 +42,16 @@
         </div>
     </div>
 
+    {{-- ── Peringatan jika tidak ada tapel aktif ── --}}
+    @if($tapelError)
+        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-700 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
+            </svg>
+            Tidak ada tahun pelajaran aktif. Hubungi admin untuk mengaktifkan tahun pelajaran.
+        </div>
+    @endif
+
     {{-- ── Day Selector ── --}}
     <div class="mb-6">
         <h3 class="text-sm font-bold text-gray-700 mb-4">List Jadwal Mengajar</h3>
@@ -75,12 +85,12 @@
         <div class="space-y-4">
             @foreach($jadwalPerHari[$selectedHari] as $item)
                 @php
-                    $jam      = $item->jamPelajaran;
-                    $jamMulai = $jam ? substr($jam->jam_mulai, 0, 5) : '-';
+                    $jam        = $item->jamPelajaran;
+                    $jamMulai   = $jam ? substr($jam->jam_mulai, 0, 5) : '-';
                     $jamSelesai = $jam ? substr($jam->jam_selesai, 0, 5) : '-';
-                    $isKegiatan = !is_null($item->kegiatan);
-                    $judul    = $isKegiatan ? $item->kegiatan->judul : ($item->mataPelajaran->nama_mapel ?? '-');
-                    $kelas    = $item->kelas->nama_kelas ?? '-';
+                    $isKegiatan = !empty($item->nama_kegiatan);
+                    $judul      = $isKegiatan ? $item->nama_kegiatan : ($item->mataPelajaran->nama_mapel ?? '-');
+                    $kelas      = $item->kelas->nama_kelas ?? '-';
                 @endphp
 
                 <div class="bg-white rounded-2xl p-5 border-l-4 {{ $isKegiatan ? 'border-violet-500' : 'border-[#1E2567]' }} shadow-sm flex items-center justify-between gap-4">

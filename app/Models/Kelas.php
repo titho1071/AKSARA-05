@@ -19,7 +19,6 @@ class Kelas extends Model
         'tingkat',
         'tapel_id',
         'guru_id',
-        'wa_group_id',
     ];
 
     public function siswa()
@@ -34,10 +33,6 @@ class Kelas extends Model
 
     public function tahunPelajaran()
     {
-        return $this->belongsTo(
-            TahunPelajaran::class,
-            'tapel_id',
-            'id_tapel'
-        );
+        return $this->belongsTo(TahunPelajaran::class, 'tapel_id', 'id_tapel');
     }
 }

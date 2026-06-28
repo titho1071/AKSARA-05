@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengumuman;
 use App\Models\Kelas;
+use App\Models\OrangTua;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
@@ -13,7 +14,6 @@ class PengumumanController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-
         $query = Pengumuman::with('kelas');
 
         if ($search) {
@@ -51,10 +51,7 @@ class PengumumanController extends Controller
             ];
         });
 
-        return response()->json([
-            'success' => true,
-            'data' => $pengumuman,
-        ]);
+        return response()->json(['success' => true, 'data' => $pengumuman]);
     }
 
     public function show(Pengumuman $pengumuman)
@@ -100,7 +97,6 @@ class PengumumanController extends Controller
             if ($pengumuman->file && Storage::disk('public')->exists($pengumuman->file)) {
                 Storage::disk('public')->delete($pengumuman->file);
             }
-
             $this->handleFileUpload($request, $validated);
         } else {
             unset($validated['file'], $validated['nama_file']);
@@ -136,46 +132,73 @@ class PengumumanController extends Controller
 
         $mulai = optional($pengumuman->tanggal_mulai)->format('d/m/Y') ?? '-';
         $selesai = optional($pengumuman->tanggal_selesai)->format('d/m/Y') ?? '-';
-        $kelas = $pengumuman->kelas?->nama_kelas ?? 'Semua Kelas';
+        $namaKelas = $pengumuman->kelas?->nama_kelas ?? 'Semua Kelas';
 
         $user = auth()->user();
-        $role = $user->role->nama_role ?? 'Admin';
+        $role = $user->role?->nama_role ?? 'Admin';
         $dibuatOleh = "{$user->username} ({$role})";
 
-        $pesan = "📢 *Pengumuman Baru!*\n\n"
-        . "*{$pengumuman->judul}*\n\n"
-        . "{$pengumuman->deskripsi}\n\n"
-        . "🏫 Kelas: {$kelas}\n"
-        . "📅 {$mulai} s/d {$selesai}\n\n"
-        . "👤 Dibuat oleh: {$dibuatOleh}\n"
-        . "🔗 Lihat selengkapnya: -";
-        
+        // Ambil orang tua yang relevan
         if (is_null($pengumuman->kelas_id)) {
-            // Kirim ke semua grup
-            $semuaKelas = Kelas::whereNotNull('wa_group_id')->get();
-            $grupTerkirim = [];
-
-            foreach ($semuaKelas as $k) {
-                if (!in_array($k->wa_group_id, $grupTerkirim)) {
-                    Http::withHeaders(['Authorization' => $token])
-                        ->post('https://api.fonnte.com/send', [
-                            'target'  => $k->wa_group_id,
-                            'message' => $pesan,
-                        ]);
-                    $grupTerkirim[] = $k->wa_group_id;
-                }
-            }
+            // Semua kelas → ambil semua orang tua yang punya siswa aktif
+            $orangTuaList = OrangTua::whereHas('siswa', function ($q) {
+                $q->where('status', 'aktif');
+            })->whereNotNull('no_hp')->get();
         } else {
-            // Kirim ke grup kelas yang dipilih saja
-            $kelas = Kelas::find($pengumuman->kelas_id);
-            if ($kelas && $kelas->wa_group_id) {
-                Http::withHeaders(['Authorization' => $token])
-                    ->post('https://api.fonnte.com/send', [
-                        'target'  => $kelas->wa_group_id,
-                        'message' => $pesan,
-                    ]);
-            }
+            // Kelas tertentu → ambil orang tua yang anaknya di kelas itu
+            $orangTuaList = OrangTua::whereHas('siswa', function ($q) use ($pengumuman) {
+                $q->where('kelas_id', $pengumuman->kelas_id)
+                  ->where('status', 'aktif');
+            })->whereNotNull('no_hp')->get();
         }
+
+        $nomorTerkirim = [];
+
+        foreach ($orangTuaList as $orangTua) {
+            $noHp = $this->formatNomorWA($orangTua->no_hp);
+            if (!$noHp || in_array($noHp, $nomorTerkirim)) continue;
+
+            // Nama anak yang relevan
+            if (is_null($pengumuman->kelas_id)) {
+                $namaAnak = $orangTua->siswa->where('status', 'aktif')->pluck('nama')->join(', ');
+            } else {
+                $namaAnak = $orangTua->siswa
+                    ->where('kelas_id', $pengumuman->kelas_id)
+                    ->where('status', 'aktif')
+                    ->pluck('nama')->join(', ');
+            }
+
+            $pesan = "📢 *Pengumuman Baru!*\n\n"
+                   . "Yth. Bpk/Ibu *{$orangTua->nama}*\n"
+                   . "Orang tua dari: _{$namaAnak}_\n\n"
+                   . "*{$pengumuman->judul}*\n\n"
+                   . "{$pengumuman->deskripsi}\n\n"
+                   . "🏫 Kelas: {$namaKelas}\n"
+                   . "📅 {$mulai} s/d {$selesai}\n\n"
+                   . "👤 Dibuat oleh: {$dibuatOleh}\n"
+                   . "🔗 Lihat selengkapnya: - ";
+
+            Http::withHeaders(['Authorization' => $token])
+                ->post('https://api.fonnte.com/send', [
+                    'target'  => $noHp,
+                    'message' => $pesan,
+                ]);
+
+            $nomorTerkirim[] = $noHp;
+        }
+    }
+
+    protected function formatNomorWA(string $noHp): ?string
+    {
+        $noHp = preg_replace('/[^0-9]/', '', $noHp);
+        if (empty($noHp)) return null;
+        if (str_starts_with($noHp, '0')) {
+            $noHp = '62' . substr($noHp, 1);
+        }
+        if (!str_starts_with($noHp, '62')) {
+            $noHp = '62' . $noHp;
+        }
+        return $noHp;
     }
 
     protected function validateRequest(Request $request, ?int $id = null): array

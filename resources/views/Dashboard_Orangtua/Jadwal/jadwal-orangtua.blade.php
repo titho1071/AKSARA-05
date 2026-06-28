@@ -116,7 +116,7 @@
                                 <div class="bg-violet-50 border border-violet-200 border-l-4 border-l-violet-500
                                             rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
                                     <div class="flex justify-between items-start mb-1">
-                                        <h3 class="font-bold text-sm text-violet-800">{{ $item['judul'] }}</h3>
+                                        <h3 class="font-bold text-sm text-violet-800">{{ $item['nama_kegiatan'] }}</h3>
                                         <span class="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 font-bold text-violet-600">
                                             Kegiatan
                                         </span>
