@@ -14,7 +14,12 @@ import re
 import random
 from locust import HttpUser, TaskSet, task, between
 from locust.exception import StopUser
+import os
 
+# Taruh di scope module, di-load sekali saat locust start
+TEST_IMAGE_PATH = os.path.join(os.path.dirname(__file__), "test.png")
+with open(TEST_IMAGE_PATH, "rb") as f:
+    TEST_IMAGE_BYTES = f.read()
 
 # ============================================================
 # KONFIGURASI AKUN (Silakan sesuaikan dengan database Anda)
@@ -30,7 +35,6 @@ GURU_CREDENTIALS = [
 ORANGTUA_CREDENTIALS = [
     {"login": "alice@gmail.com", "password": "12345678"},
 ]
-
 
 # ============================================================
 # HELPER: Login & CSRF Token Extraction
@@ -49,9 +53,13 @@ def extract_csrf_token(html_text):
     return ""
 
 
-def do_login(client, credentials):
-    """Melakukan login ke aplikasi AKSARA."""
-    with client.get("/", catch_response=True, name="GET /login") as response:
+def do_login(user, credentials):
+    """
+    Melakukan login ke aplikasi AKSARA.
+    `user` adalah instance TaskSet (self), supaya csrf_token bisa disimpan
+    ke user.csrf_token dan dipakai lagi nanti (misalnya saat logout).
+    """
+    with user.client.get("/", catch_response=True, name="GET /login") as response:
         if response.status_code != 200:
             response.failure(f"Gagal memuat halaman login: {response.status_code}")
             return False
@@ -64,7 +72,7 @@ def do_login(client, credentials):
         "password": cred["password"],
     }
 
-    with client.post(
+    with user.client.post(
         "/login",
         data=payload,
         catch_response=True,
@@ -75,9 +83,28 @@ def do_login(client, credentials):
             response.failure("Login gagal - Cek kredensial di locustfile.py")
             return False
         if "dashboard" in response.url or response.status_code == 200:
+            # Simpan token terbaru (dari halaman dashboard hasil redirect)
+            # supaya bisa dipakai lagi untuk request POST/logout berikutnya.
+            latest_token = extract_csrf_token(response.text)
+            user.csrf_token = latest_token or csrf_token
             return True
         response.failure(f"Login gagal, status: {response.status_code}")
         return False
+
+
+def do_logout(user):
+    """Melakukan logout dengan menyertakan CSRF token yang tersimpan."""
+    token = getattr(user, "csrf_token", "") or ""
+    with user.client.post(
+        "/logout",
+        data={"_token": token},
+        catch_response=True,
+        name="POST /logout"
+    ) as r:
+        if r.status_code in [200, 302]:
+            r.success()
+        else:
+            r.failure(f"Logout gagal: {r.status_code} - {r.text[:300]}")
 
 
 # ============================================================
@@ -85,17 +112,22 @@ def do_login(client, credentials):
 # ============================================================
 class AdminTasks(TaskSet):
     def on_start(self):
-        success = do_login(self.client, ADMIN_CREDENTIALS)
+        self.csrf_token = None
+        success = do_login(self, ADMIN_CREDENTIALS)
         if not success:
             raise StopUser()
 
     def on_stop(self):
-        self.client.post("/logout", name="POST /logout")
+        do_logout(self)
 
     @task(3)
     def dashboard(self):
         with self.client.get("/admin/dashboard", catch_response=True, name="[Admin] Dashboard (GET)") as r:
-            r.success() if r.status_code in [200, 302] else r.failure(f"Status: {r.status_code}")
+            if r.status_code in [200, 302]:
+                self.csrf_token = extract_csrf_token(r.text) or self.csrf_token
+                r.success()
+            else:
+                r.failure(f"Status: {r.status_code}")
 
     @task(3)
     def absensi_list(self):
@@ -116,6 +148,7 @@ class AdminTasks(TaskSet):
                 r.failure(f"GET form gagal: {r.status_code}")
                 return
             csrf_token = extract_csrf_token(r.text)
+            self.csrf_token = csrf_token or self.csrf_token
 
         # 2. POST (Create)
         payload_create = {
@@ -126,10 +159,10 @@ class AdminTasks(TaskSet):
             "tanggal_mulai": "2026-06-30",
             "tanggal_selesai": "2026-07-05",
         }
-        
+
         headers = {"X-Requested-With": "XMLHttpRequest"}
         id_pengumuman = None
-        
+
         with self.client.post("/api/pengumuman", data=payload_create, headers=headers, catch_response=True, name="[Admin] Tambah Pengumuman (POST)") as r:
             if r.status_code in [200, 201]:
                 res_data = r.json()
@@ -160,7 +193,7 @@ class AdminTasks(TaskSet):
             "tanggal_mulai": "2026-06-30",
             "tanggal_selesai": "2026-07-06",
         }
-        
+
         with self.client.post(f"/api/pengumuman/{id_pengumuman}", data=payload_update, headers=headers, catch_response=True, name="[Admin] Perbarui Pengumuman (PUT)") as r:
             if r.status_code == 200:
                 r.success()
@@ -181,7 +214,6 @@ class AdminTasks(TaskSet):
     @task(2)
     def jadwal_pelajaran_crud(self):
         """CRUD Lengkap Jadwal Pelajaran (GET, POST, PUT, DELETE) melalui API."""
-        # Ambil referensi kelas, jam, mapel untuk validasi FK
         # 1. GET Kelas
         with self.client.get("/api/kelas", catch_response=True, name="[Admin] Get API Kelas (GET)") as r:
             if r.status_code != 200:
@@ -215,6 +247,7 @@ class AdminTasks(TaskSet):
         # Dapatkan CSRF Token dari dashboard admin
         with self.client.get("/admin/dashboard", catch_response=True, name="[Admin] Get CSRF for Jadwal") as r:
             csrf_token = extract_csrf_token(r.text)
+            self.csrf_token = csrf_token or self.csrf_token
 
         headers = {
             "X-Requested-With": "XMLHttpRequest",
@@ -278,17 +311,22 @@ class AdminTasks(TaskSet):
 # ============================================================
 class GuruTasks(TaskSet):
     def on_start(self):
-        success = do_login(self.client, GURU_CREDENTIALS)
+        self.csrf_token = None
+        success = do_login(self, GURU_CREDENTIALS)
         if not success:
             raise StopUser()
 
     def on_stop(self):
-        self.client.post("/logout", name="POST /logout")
+        do_logout(self)
 
     @task(3)
     def dashboard(self):
         with self.client.get("/guru/dashboard", catch_response=True, name="[Guru] Dashboard (GET)") as r:
-            r.success() if r.status_code == 200 else r.failure(f"Status: {r.status_code}")
+            if r.status_code == 200:
+                self.csrf_token = extract_csrf_token(r.text) or self.csrf_token
+                r.success()
+            else:
+                r.failure(f"Status: {r.status_code}")
 
     @task(3)
     def absensi_flow(self):
@@ -308,8 +346,9 @@ class GuruTasks(TaskSet):
                 r.failure(f"GET kelola gagal: {r.status_code}")
                 return
             csrf_token = extract_csrf_token(r.text)
+            self.csrf_token = csrf_token or self.csrf_token
             student_ids = re.findall(r'name="status\[(\d+)\]"', r.text)
-            
+
         if not student_ids:
             return
 
@@ -336,6 +375,7 @@ class GuruTasks(TaskSet):
                 r.failure(f"GET create form gagal: {r.status_code}")
                 return
             csrf_token = extract_csrf_token(r.text)
+            self.csrf_token = csrf_token or self.csrf_token
 
         # 2. POST (Create)
         payload_create = {
@@ -346,7 +386,7 @@ class GuruTasks(TaskSet):
             "kelas_id": "semua_kelas",
         }
         files = {
-            "foto[]": ("locust_test.png", b"dummy image content bytes", "image/png")
+            "foto[]": ("test.png", TEST_IMAGE_BYTES, "image/png")
         }
 
         # Laravel web form upload
@@ -357,9 +397,12 @@ class GuruTasks(TaskSet):
                 match = re.search(r'/guru/dokumentasi/(\d+)/edit', r.text)
                 if match:
                     id_kegiatan = match.group(1)
+                    # Update token dari halaman hasil redirect, siapa tahu berubah
+                    self.csrf_token = extract_csrf_token(r.text) or self.csrf_token
                     r.success()
                 else:
-                    r.failure("Unggahan sukses tetapi gagal mendeteksi ID kegiatan baru dari HTML")
+                    errors = re.findall(r'<li>(.*?)</li>', r.text)
+                    r.failure(f"ID tidak ditemukan. Validasi/errors: {errors[:5]}")
                     return
             else:
                 r.failure(f"POST unggahan gagal: {r.status_code}")
@@ -370,7 +413,17 @@ class GuruTasks(TaskSet):
 
         # 3. GET Detail & GET Edit Page
         self.client.get(f"/guru/dokumentasi/{id_kegiatan}", name="[Guru] Detail Dokumentasi (GET)")
-        self.client.get(f"/guru/dokumentasi/{id_kegiatan}/edit", name="[Guru] Form Edit Dokumentasi (GET)")
+        with self.client.get(f"/guru/dokumentasi/{id_kegiatan}/edit", catch_response=True, name="[Guru] Form Edit Dokumentasi (GET)") as r:
+            if r.status_code == 200:
+                # Ambil token terbaru dari form edit, ini yang paling aman dipakai
+                # untuk PUT/DELETE berikutnya.
+                edit_token = extract_csrf_token(r.text)
+                if edit_token:
+                    csrf_token = edit_token
+                    self.csrf_token = edit_token
+                r.success()
+            else:
+                r.failure(f"GET edit form gagal: {r.status_code}")
 
         # 4. PUT (Update) menggunakan Form Spoofing method
         payload_update = {
@@ -385,7 +438,7 @@ class GuruTasks(TaskSet):
             if r.status_code in [200, 302]:
                 r.success()
             else:
-                r.failure(f"PUT perbarui gagal: {r.status_code}")
+                r.failure(f"PUT perbarui gagal: {r.status_code} - {r.text[:300]}")
 
         # 5. DELETE (Delete) menggunakan Form Spoofing method
         payload_delete = {
@@ -396,7 +449,7 @@ class GuruTasks(TaskSet):
             if r.status_code in [200, 302]:
                 r.success()
             else:
-                r.failure(f"DELETE gagal: {r.status_code}")
+                r.failure(f"DELETE gagal: {r.status_code} - {r.text[:300]}")
 
 
 # ============================================================
@@ -404,17 +457,22 @@ class GuruTasks(TaskSet):
 # ============================================================
 class OrangTuaTasks(TaskSet):
     def on_start(self):
-        success = do_login(self.client, ORANGTUA_CREDENTIALS)
+        self.csrf_token = None
+        success = do_login(self, ORANGTUA_CREDENTIALS)
         if not success:
             raise StopUser()
 
     def on_stop(self):
-        self.client.post("/logout", name="POST /logout")
+        do_logout(self)
 
     @task(3)
     def dashboard(self):
         with self.client.get("/orangtua/dashboard", catch_response=True, name="[OrangTua] Dashboard (GET)") as r:
-            r.success() if r.status_code == 200 else r.failure(f"Status: {r.status_code}")
+            if r.status_code == 200:
+                self.csrf_token = extract_csrf_token(r.text) or self.csrf_token
+                r.success()
+            else:
+                r.failure(f"Status: {r.status_code}")
 
     @task(5)
     def absensi(self):

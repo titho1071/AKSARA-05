@@ -18,6 +18,13 @@ class Kegiatan extends Model
         'status',
     ];
 
+    public function setKelasIdAttribute($value)
+    {
+        $this->attributes['kelas_id'] = ($value === 'semua_kelas' || $value === '' || $value === null)
+            ? null
+            : $value;
+    }
+
     public function dokumentasi()
     {
         return $this->hasMany(Dokumentasi::class, 'id_kegiatan', 'id_kegiatan');

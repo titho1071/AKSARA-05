@@ -136,7 +136,7 @@
                 </p>
 
                 <div class="mt-3 flex flex-wrap gap-2">
-                    @if($kegiatan->kelas_id === 'semua_kelas')
+                    @if($kegiatan->kelas_id === null || $kegiatan->kelas_id === '' || $kegiatan->kelas_id === 'semua_kelas')
                         <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium">
                             Semua Kelas
                         </span>

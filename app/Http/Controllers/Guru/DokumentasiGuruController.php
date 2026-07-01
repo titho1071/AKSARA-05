@@ -32,8 +32,15 @@ class DokumentasiGuruController extends Controller
             $query->where('judul', 'like', "%{$search}%");
         }
 
-        if ($kelas) {
-            $query->where('kelas_id', $kelas);
+        if ($kelas !== null) {
+            if ($kelas === 'semua_kelas') {
+                $query->where(function ($q) {
+                    $q->whereNull('kelas_id')
+                      ->orWhere('kelas_id', 'semua_kelas');
+                });
+            } else {
+                $query->where('kelas_id', $kelas);
+            }
         }
 
         $kegiatans = $query->orderByDesc('tanggal')->get();

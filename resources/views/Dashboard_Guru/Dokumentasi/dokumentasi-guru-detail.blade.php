@@ -64,16 +64,14 @@
 
             <div class="mb-6 flex flex-wrap gap-2">
 
-                @if(!empty($kegiatan->kelas_id))
-                    @if($kegiatan->kelas_id === 'semua_kelas')
-                        <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
-                            Semua Kelas
-                        </span>
-                    @else
-                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
-                        </span>
-                    @endif
+                @if($kegiatan->kelas_id === null || $kegiatan->kelas_id === '' || $kegiatan->kelas_id === 'semua_kelas')
+                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                        Semua Kelas
+                    </span>
+                @elseif(!empty($kegiatan->kelas_id))
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                        Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
+                    </span>
                 @endif
 
                 <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">

@@ -378,10 +378,10 @@ class OrangTuaController extends Controller
         if ($activeSiswa) {
             $kelasId = $activeSiswa->kelas_id;
 
-            $kegiatans = \App\Models\Kegiatan::with(['guru', 'dokumentasi'])
+            $kegiatans = \App\Models\Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
                 ->where(function ($query) use ($kelasId) {
                     $query->where('kelas_id', $kelasId)
-                        ->orWhere('kelas_id', 'semua_kelas');
+                        ->orWhereNull('kelas_id');
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($q) use ($search) {

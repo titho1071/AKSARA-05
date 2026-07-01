@@ -33,16 +33,14 @@
                 <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                     {{ $kegiatan->guru->nama ?? $kegiatan->guru->username }}
                 </span>
-                @if(!empty($kegiatan->kelas_id))
-                    @if($kegiatan->kelas_id === 'semua_kelas')
-                        <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
-                            Semua Kelas
-                        </span>
-                    @else
-                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
-                        </span>
-                    @endif
+                @if($kegiatan->kelas_id === null || $kegiatan->kelas_id === '' || $kegiatan->kelas_id === 'semua_kelas')
+                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
+                        Semua Kelas
+                    </span>
+                @else
+                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                        Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
+                    </span>
                 @endif
                 <span class="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
                     {{ \Carbon\Carbon::parse($kegiatan->tanggal)->translatedFormat('d F Y') }}
@@ -109,18 +107,24 @@
                     <span class="text-sm text-gray-500">Total foto</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $kegiatan->dokumentasi->count() }} foto</span>
                 </div>
-                @if(!empty($kegiatan->kelas_id))
+                @if($kegiatan->kelas_id === null || $kegiatan->kelas_id === '' || $kegiatan->kelas_id === 'semua_kelas')
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-500">
                             Kelas
                         </span>
 
                         <span class="text-sm font-semibold text-slate-900">
-                            @if($kegiatan->kelas_id === 'semua_kelas')
-                                Semua Kelas
-                            @else
-                                Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
-                            @endif
+                            Semua Kelas
+                        </span>
+                    </div>
+                @else
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-slate-500">
+                            Kelas
+                        </span>
+
+                        <span class="text-sm font-semibold text-slate-900">
+                            Kelas {{ optional($kegiatan->kelas)->nama_kelas ?? '-' }}
                         </span>
                     </div>
                 @endif

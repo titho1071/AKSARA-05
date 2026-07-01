@@ -121,16 +121,12 @@
                         <td class="px-4 py-4 text-sm text-slate-600">{{ $index + 1 }}</td>
                         <td class="px-4 py-4 text-sm font-semibold text-slate-900">{{ $kegiatan->judul }}</td>
                         <td class="px-4 py-4 text-sm text-gray-600">
-                            @if($kegiatan->kelas_id)
-                                @if($kegiatan->kelas_id === 'semua_kelas')
-                                    <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
-                                @else
-                                    <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                                        {{ $kegiatan->kelas->nama_kelas ?? '-' }}
-                                    </span>
-                                @endif
+                            @if($kegiatan->kelas_id === null || $kegiatan->kelas_id === '' || $kegiatan->kelas_id === 'semua_kelas')
+                                <span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">Semua Kelas</span>
                             @else
-                                <span class="text-xs text-gray-400">-</span>
+                                <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                    {{ $kegiatan->kelas->nama_kelas ?? '-' }}
+                                </span>
                             @endif
                         </td>
                         <td class="px-4 py-4 text-sm text-slate-600">
