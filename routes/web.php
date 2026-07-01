@@ -14,6 +14,11 @@ use App\Http\Controllers\Guru\RekapAbsensiGuruController;
 use App\Http\Controllers\Admin\DokumentasiAdminController;
 use App\Http\Controllers\Admin\AbsensiAdminController;
 use App\Http\Controllers\Admin\RekapAbsensiAdminController;
+use App\Models\Absensi;
+use App\Models\Kegiatan;
+use App\Models\Kelas;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\Orangtua\OrangtuaJadwalController;
@@ -41,14 +46,71 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    Route::get('/dashboard', function () {
-        $countAdmin = \Illuminate\Support\Facades\DB::table('admin')->count();
+    Route::get('/dashboard', function (Request $request) {
+        $countAdmin = DB::table('admin')->count();
         $countGuru = \App\Models\Guru::count();
         $countSiswa = \App\Models\Siswa::count();
         $countOrangTua = \App\Models\OrangTua::count();
-        $countKelas = \App\Models\Kelas::count();
+        $countKelas = Kelas::count();
 
-        return view('pages.dashboard-admin', compact('countAdmin', 'countGuru', 'countSiswa', 'countOrangTua', 'countKelas'));
+        $classes = Kelas::orderBy('nama_kelas')->get();
+        $selectedClassId = $request->query('class_id') ?: $classes->first()?->id_kelas;
+        $selectedClass = $classes->firstWhere('id_kelas', $selectedClassId);
+        $bulan = $request->query('bulan', now()->month);
+        $tahun = $request->query('tahun', now()->year);
+        $bulanLabel = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
+
+        $siswaIds = $selectedClassId
+            ? DB::table('siswa')->where('kelas_id', $selectedClassId)->pluck('id_siswa')
+            : collect();
+
+        $absensi = Absensi::whereIn('siswa_id', $siswaIds)
+            ->whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulan)
+            ->get();
+
+        $absensiSummary = [
+            'hadir' => $absensi->where('status_kehadiran', 'H')->count(),
+            'sakit' => $absensi->where('status_kehadiran', 'S')->count(),
+            'izin' => $absensi->where('status_kehadiran', 'I')->count(),
+            'alpha' => $absensi->where('status_kehadiran', 'A')->count(),
+            'total' => $absensi->count(),
+        ];
+        $absensiSummary['persen'] = $absensiSummary['total'] > 0
+            ? round(($absensiSummary['hadir'] / $absensiSummary['total']) * 100)
+            : 0;
+
+        $absensiChart = [
+            $absensiSummary['hadir'],
+            $absensiSummary['sakit'],
+            $absensiSummary['izin'],
+            $absensiSummary['alpha'],
+        ];
+
+        $latestDokumentasi = $selectedClassId
+            ? Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
+                ->where('status', 'aktif')
+                ->where('kelas_id', $selectedClassId)
+                ->orderByDesc('tanggal')
+                ->first()
+            : null;
+
+        return view('pages.dashboard-admin', compact(
+            'countAdmin',
+            'countGuru',
+            'countSiswa',
+            'countOrangTua',
+            'countKelas',
+            'classes',
+            'selectedClassId',
+            'selectedClass',
+            'bulan',
+            'tahun',
+            'bulanLabel',
+            'absensiSummary',
+            'absensiChart',
+            'latestDokumentasi'
+        ));
     })->name('dashboard');
 
     // Biodata Admin

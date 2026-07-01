@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Admin\Biodata;
 use App\Models\User;
 use App\Models\Pengumuman;
 use App\Models\Kelas;
+use App\Models\Absensi;
+use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class GuruController extends Controller
 {
@@ -23,36 +26,81 @@ class GuruController extends Controller
             ?: abort(500, 'Role guru tidak ditemukan.');
     }
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $user = auth()->user();
         
         // Ambil data guru berdasarkan user_id
         $guru = DB::table('guru')->where('user_id', $user->id)->first();
-        
-        if (!$guru) {
-            // Jika data guru tidak ditemukan (mungkin baru dibuat user-nya saja)
-            $today = now()->format('Y-m-d');
-            $pengumuman = Pengumuman::whereNull('kelas_id')
-                ->where(function ($query) use ($today) {
-                    $query->whereNull('tanggal_mulai')
-                          ->orWhereDate('tanggal_mulai', '<=', $today);
-                })
-                ->where(function ($query) use ($today) {
-                    $query->whereNull('tanggal_selesai')
-                          ->orWhereDate('tanggal_selesai', '>=', $today);
-                })
-                ->orderByDesc('created_at')
-                ->take(5)
+
+        $bulan = $request->query('bulan', now()->month);
+        $tahun = $request->query('tahun', now()->year);
+        $selectedClassName = null;
+        $absensiSummary = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+            'total' => 0,
+            'persen' => 0,
+        ];
+        $absensiChart = [0, 0, 0, 0];
+        $latestDokumentasi = null;
+
+        if ($guru) {
+            // Ambil ID kelas yang diajar oleh guru ini
+            $kelasIds = Kelas::where('guru_id', $guru->id_guru)->pluck('id_kelas');
+            $selectedClassId = $kelasIds->first();
+            $selectedClass = Kelas::find($selectedClassId);
+            $selectedClassName = $selectedClass?->nama_kelas;
+
+            $siswaIds = $selectedClassId
+                ? DB::table('siswa')->where('kelas_id', $selectedClassId)->pluck('id_siswa')
+                : collect();
+
+            $absensi = Absensi::whereIn('siswa_id', $siswaIds)
+                ->whereYear('tanggal', $tahun)
+                ->whereMonth('tanggal', $bulan)
                 ->get();
-            return view('pages.dashboard-guru', compact('pengumuman'));
+
+            $absensiSummary = [
+                'hadir' => $absensi->where('status_kehadiran', 'H')->count(),
+                'sakit' => $absensi->where('status_kehadiran', 'S')->count(),
+                'izin' => $absensi->where('status_kehadiran', 'I')->count(),
+                'alpha' => $absensi->where('status_kehadiran', 'A')->count(),
+                'total' => $absensi->count(),
+            ];
+            $absensiSummary['persen'] = $absensiSummary['total'] > 0
+                ? round(($absensiSummary['hadir'] / $absensiSummary['total']) * 100)
+                : 0;
+
+            $absensiChart = [
+                $absensiSummary['hadir'],
+                $absensiSummary['sakit'],
+                $absensiSummary['izin'],
+                $absensiSummary['alpha'],
+            ];
+
+            $countKelasGuru = $kelasIds->count();
+            $countSiswa = $siswaIds->count();
+            $countDokumentasi = Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
+                ->where('status', 'aktif')
+                ->whereIn('kelas_id', $kelasIds)
+                ->count();
+
+            $latestDokumentasi = Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
+                ->where('status', 'aktif')
+                ->whereIn('kelas_id', $kelasIds)
+                ->orderByDesc('tanggal')
+                ->first();
+        } else {
+            $countKelasGuru = 0;
+            $countSiswa = 0;
+            $countDokumentasi = 0;
         }
 
-        // Ambil ID kelas yang diajar oleh guru ini
-        $kelasIds = Kelas::where('guru_id', $guru->id_guru)->pluck('id_kelas');
-
         $today = now()->format('Y-m-d');
-        // Ambil pengumuman yang sesuai dengan kelas guru tersebut atau untuk semua kelas (kelas_id null)
+        $kelasIds = $guru ? Kelas::where('guru_id', $guru->id_guru)->pluck('id_kelas') : collect();
         $pengumuman = Pengumuman::where(function ($query) use ($kelasIds) {
                 $query->whereIn('kelas_id', $kelasIds)
                       ->orWhereNull('kelas_id');
@@ -66,10 +114,21 @@ class GuruController extends Controller
                       ->orWhereDate('tanggal_selesai', '>=', $today);
             })
             ->orderByDesc('created_at')
-            ->take(5) // Ambil 5 terbaru saja untuk dashboard
+            ->take(5)
             ->get();
 
-        return view('pages.dashboard-guru', compact('pengumuman'));
+        return view('pages.dashboard-guru', compact(
+            'pengumuman',
+            'selectedClassName',
+            'bulan',
+            'tahun',
+            'absensiSummary',
+            'absensiChart',
+            'latestDokumentasi',
+            'countKelasGuru',
+            'countSiswa',
+            'countDokumentasi'
+        ));
     }
 
     public function index(Request $request)

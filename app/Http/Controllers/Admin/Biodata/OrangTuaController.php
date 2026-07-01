@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin\Biodata;
 
 use App\Models\User;
 use App\Models\Pengumuman;
+use App\Models\Absensi;
+use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class OrangTuaController extends Controller
 {
@@ -60,6 +63,11 @@ class OrangTuaController extends Controller
         $activeSiswaId = $request->query('siswa_id', $siswa->first()?->id_siswa);
         $activeSiswa = $siswa->where('id_siswa', $activeSiswaId)->first();
 
+        // Pilihan bulan default
+        $bulan = $request->query('bulan', now()->month);
+        $tahun = $request->query('tahun', now()->year);
+        $bulanLabel = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
+
         // Ambil pengumuman terbaru
         if ($activeSiswa) {
             $pengumuman = Pengumuman::where(function ($query) use ($activeSiswa) {
@@ -92,7 +100,62 @@ class OrangTuaController extends Controller
                 ->get();
         }
 
-        return view('pages.dashboard-orangtua', compact('siswa', 'activeSiswa', 'pengumuman'));
+        $absensiSummary = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+            'total' => 0,
+            'persen' => 0,
+        ];
+        $absensiChart = [0, 0, 0, 0];
+        $latestDokumentasi = null;
+
+        if ($activeSiswa) {
+            $absensi = Absensi::where('siswa_id', $activeSiswa->id_siswa)
+                ->whereYear('tanggal', $tahun)
+                ->whereMonth('tanggal', $bulan)
+                ->get();
+
+            $absensiSummary = [
+                'hadir' => $absensi->where('status_kehadiran', 'H')->count(),
+                'sakit' => $absensi->where('status_kehadiran', 'S')->count(),
+                'izin'  => $absensi->where('status_kehadiran', 'I')->count(),
+                'alpha' => $absensi->where('status_kehadiran', 'A')->count(),
+                'total' => $absensi->count(),
+            ];
+            $absensiSummary['persen'] = $absensiSummary['total'] > 0
+                ? round(($absensiSummary['hadir'] / $absensiSummary['total']) * 100)
+                : 0;
+
+            $absensiChart = [
+                $absensiSummary['hadir'],
+                $absensiSummary['sakit'],
+                $absensiSummary['izin'],
+                $absensiSummary['alpha'],
+            ];
+
+            $latestDokumentasi = Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
+                ->where('status', 'aktif')
+                ->where(function ($query) use ($activeSiswa) {
+                    $query->where('kelas_id', $activeSiswa->kelas_id)
+                          ->orWhereNull('kelas_id');
+                })
+                ->orderByDesc('tanggal')
+                ->first();
+        }
+
+        return view('pages.dashboard-orangtua', compact(
+            'siswa',
+            'activeSiswa',
+            'pengumuman',
+            'bulan',
+            'tahun',
+            'bulanLabel',
+            'absensiSummary',
+            'absensiChart',
+            'latestDokumentasi'
+        ));
     }
 
     public function profil()
@@ -378,10 +441,10 @@ class OrangTuaController extends Controller
         if ($activeSiswa) {
             $kelasId = $activeSiswa->kelas_id;
 
-            $kegiatans = \App\Models\Kegiatan::with(['guru', 'dokumentasi'])
+            $kegiatans = \App\Models\Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
                 ->where(function ($query) use ($kelasId) {
                     $query->where('kelas_id', $kelasId)
-                        ->orWhere('kelas_id', 'semua_kelas');
+                        ->orWhereNull('kelas_id');
                 })
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($q) use ($search) {

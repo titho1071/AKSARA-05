@@ -102,50 +102,52 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 px-4">
-        <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 px-4">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-semibold text-slate-900">Grafik Absensi</h2>
+                    <p class="text-sm text-gray-500 mt-1">{{ $selectedClass?->nama_kelas ?? 'Pilih kelas' }}</p>
                 </div>
-                <div class="flex flex-col gap-2 sm:flex-row">
-                    <div x-data="{ open: false, selected: 'April 2026' }" class="relative">
-                        <button @click="open = !open" class="inline-flex items-center justify-between gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 w-full sm:w-auto">
-                            <span x-text="selected"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div x-show="open" x-transition @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                            <button @click="selected = 'Januari 2026'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Januari 2026</button>
-                            <button @click="selected = 'Februari 2026'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Februari 2026</button>
-                            <button @click="selected = 'Maret 2026'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Maret 2026</button>
-                            <button @click="selected = 'April 2026'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">April 2026</button>
-                        </div>
-                    </div>
-                    <div x-data="{ open: false, selected: 'Kelas III A' }" class="relative">
-                        <button @click="open = !open" class="inline-flex items-center justify-between gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 w-full sm:w-auto">
-                            <span x-text="selected"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        <div x-show="open" x-transition @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                            <button @click="selected = 'Kelas I A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas I A</button>
-                            <button @click="selected = 'Kelas II A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas II A</button>
-                            <button @click="selected = 'Kelas III A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III A</button>
-                            <button @click="selected = 'Kelas III B'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III B</button>
-                        </div>
-                    </div>
-                </div>
+                <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-center gap-2">
+                    @php $classOptions = is_iterable($classes) ? $classes : []; @endphp
+                    <select name="class_id" class="min-w-[160px] border border-gray-300 rounded-3xl px-3 py-2 text-sm bg-white">
+                        @foreach($classOptions as $kelas)
+                            <option value="{{ $kelas->id_kelas }}" {{ $kelas->id_kelas == $selectedClassId ? 'selected' : '' }}>{{ $kelas->nama_kelas }}</option>
+                        @endforeach
+                    </select>
+                    <select name="bulan" class="min-w-[140px] border border-gray-300 rounded-3xl px-3 py-2 text-sm bg-white">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::createFromDate($tahun, $m, 1)->translatedFormat('F') }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="bg-[#313589] text-white rounded-3xl px-4 py-2 text-sm whitespace-nowrap">Terapkan</button>
+                </form>
             </div>
             <div class="relative h-64">
                 <canvas id="absenceChart"></canvas>
             </div>
-            <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Detail</a>
+            <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-gray-500">Hadir</p>
+                    <p class="text-xl font-semibold text-slate-900">{{ $absensiSummary['hadir'] }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-gray-500">Sakit</p>
+                    <p class="text-xl font-semibold text-slate-900">{{ $absensiSummary['sakit'] }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-gray-500">Izin</p>
+                    <p class="text-xl font-semibold text-slate-900">{{ $absensiSummary['izin'] }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-gray-500">Alpha</p>
+                    <p class="text-xl font-semibold text-slate-900">{{ $absensiSummary['alpha'] }}</p>
+                </div>
+            </div>
         </div>
 
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200" x-data="pengumumanDashboard()" x-init="initPengumuman()">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-200" x-data="pengumumanDashboard()" x-init="initPengumuman()">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-semibold text-slate-900">Pengumuman</h2>
@@ -195,34 +197,35 @@
     <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 px-4 mb-8">
         <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-                <h2 class="text-xl font-semibold text-slate-900">Dokumentasi</h2>
-                <div x-data="{ open: false, selected: 'Kelas III A' }" class="relative">
-                    <button @click="open = !open" class="inline-flex items-center justify-between gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 w-full sm:w-auto">
-                        <span x-text="selected"></span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-transition @click.outside="open = false" class="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                        <button @click="selected = 'Kelas I A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas I A</button>
-                        <button @click="selected = 'Kelas II A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas II A</button>
-                        <button @click="selected = 'Kelas III A'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III A</button>
-                        <button @click="selected = 'Kelas III B'; open = false" class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Kelas III B</button>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-900">Dokumentasi Terbaru</h2>
+                    <p class="text-sm text-gray-500 mt-1">{{ $selectedClass?->nama_kelas ?? 'Pilih kelas untuk melihat dokumentasi' }}</p>
+                </div>
+            </div>
+            @if ($latestDokumentasi)
+                @php
+                    $foto = $latestDokumentasi->dokumentasi->first()?->foto;
+                    $imageUrl = $foto ? asset('storage/' . $foto) : 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=450&fit=crop';
+                @endphp
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-[140px_minmax(0,1fr)] md:items-center">
+                    <div class="overflow-hidden rounded-3xl">
+                        <img src="{{ $imageUrl }}" alt="Dokumentasi {{ $latestDokumentasi->judul }}" class="h-28 w-full object-cover md:h-24 md:w-36" />
+                    </div>
+                    <div>
+                        <p class="text-base font-semibold text-slate-900">{{ $latestDokumentasi->judul }}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">{{ Str::limit($latestDokumentasi->deskripsi, 140) }}</p>
+                        <p class="text-xs text-slate-500 mt-2">{{ $latestDokumentasi->kelas?->nama_kelas ?? 'Semua Kelas' }} • {{ \Carbon\Carbon::parse($latestDokumentasi->tanggal)->translatedFormat('d F Y') }}</p>
                     </div>
                 </div>
-            </div>
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-[140px_minmax(0,1fr)] md:items-center">
-                <div class="overflow-hidden rounded-3xl">
-                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=450&fit=crop" alt="Upacara Bendera" class="h-28 w-full object-cover md:h-24 md:w-36" />
+                <div class="mt-6 flex justify-end">
+                    <a href="#" class="text-blue-500 text-sm font-medium hover:underline">Lihat Detail</a>
                 </div>
-                <div>
-                    <p class="text-base font-semibold text-slate-900">Upacara Bendera</p>
-                    <p class="text-sm text-slate-600 leading-relaxed">Upacara bendera hari Senin merupakan kegiatan rutin yang dilaksanakan setiap awal pekan sebagai bentuk penghormatan nilai kedisiplinan, tanggung jawab, dan rasa cinta tanah air.</p>
+            @else
+                <div class="text-gray-500">
+                    <p class="font-semibold mb-3">Tidak ada dokumentasi terbaru untuk kelas ini.</p>
+                    <p class="text-sm">Pilih kelas lain atau tambahkan dokumentasi untuk menampilkannya di dashboard.</p>
                 </div>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <a href="#" class="text-blue-500 text-sm font-medium hover:underline">Lihat Detail</a>
-            </div>
+            @endif
         </div>
     </div>
 @endsection
@@ -236,7 +239,7 @@
                 data: {
                     labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
                     datasets: [{
-                        data: [8, 12, 2, 11],
+                        data: [{{ $absensiChart[0] ?? 0 }}, {{ $absensiChart[1] ?? 0 }}, {{ $absensiChart[2] ?? 0 }}, {{ $absensiChart[3] ?? 0 }}],
                         backgroundColor: ['#3B82F6', '#F97316', '#FCD34D', '#A0AEC0'],
                         borderColor: '#FFFFFF',
                         borderWidth: 2

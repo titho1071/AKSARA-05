@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 
 class DokumentasiAdminController extends Controller
@@ -16,7 +17,9 @@ class DokumentasiAdminController extends Controller
         $search = $request->query('search');
         $kelas = $request->query('kelas');
 
-        $query = Kegiatan::with(['dokumentasi', 'guru'])
+        $kelasList = Kelas::orderBy('nama_kelas')->get();
+
+        $query = Kegiatan::with(['dokumentasi', 'guru', 'kelas'])
             ->where('status', 'aktif');
 
         if ($search) {
@@ -24,13 +27,20 @@ class DokumentasiAdminController extends Controller
                 ->orWhere('deskripsi', 'like', "%{$search}%");
         }
 
-        if ($kelas) {
-            $query->where('kelas_id', $kelas);
+        if ($kelas !== null) {
+            if ($kelas === 'semua_kelas') {
+                $query->where(function ($q) {
+                    $q->whereNull('kelas_id')
+                      ->orWhere('kelas_id', 'semua_kelas');
+                });
+            } else {
+                $query->where('kelas_id', $kelas);
+            }
         }
 
         $kegiatans = $query->orderByDesc('tanggal')->get();
 
-        return view('Dashboard_Admin.Dokumentasi.dokumentasi', compact('kegiatans', 'search', 'kelas'));
+        return view('Dashboard_Admin.Dokumentasi.dokumentasi', compact('kegiatans', 'search', 'kelas', 'kelasList'));
     }
 
     // =============================================

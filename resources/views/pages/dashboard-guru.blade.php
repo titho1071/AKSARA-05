@@ -33,9 +33,10 @@
 
         <div>
             <p class="text-1x3 font-bold text-slate-900">Absensi Siswa</p>
+            <p class="text-sm text-gray-500">Total entri bulan ini</p>
         </div>
     </div>
-
+    <p class="mt-5 text-3xl font-bold text-slate-900">{{ $absensiSummary['total'] ?? 0 }}</p>
     <a href="#" class="text-sm text-blue-500 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
@@ -55,9 +56,10 @@
 
         <div>
             <p class="text-1x3 font-bold text-slate-900">Data Kelas</p>
+            <p class="text-sm text-gray-500">Jumlah kelas yang Anda wali</p>
         </div>
     </div>
-
+    <p class="mt-5 text-3xl font-bold text-slate-900">{{ $countKelasGuru ?? 0 }}</p>
     <a href="#" class="text-sm text-amber-600 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
@@ -78,9 +80,10 @@
 
         <div>
             <p class="text-1x3 font-bold text-slate-900">Data Siswa</p>
+            <p class="text-sm text-gray-500">Jumlah siswa dalam kelas</p>
         </div>
     </div>
-
+    <p class="mt-5 text-3xl font-bold text-slate-900">{{ $countSiswa ?? 0 }}</p>
     <a href="#" class="text-sm text-sky-600 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
@@ -111,10 +114,40 @@
 
     <!-- Charts and Content Row -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 px-4">
-        <!-- Grafik Absensi -->
+        <!-- Statistik Absensi -->
         <div class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-gray-900">Grafik Absensi</h2>
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Grafik Absensi</h2>
+                    <p class="text-sm text-gray-500">{{ $selectedClassName ?? 'Kelas belum ditentukan' }}</p>
+                </div>
+                <form method="GET" action="{{ route('guru.dashboard') }}" class="flex flex-wrap items-center gap-2">
+                    <select name="bulan" class="min-w-[140px] border border-gray-300 rounded-3xl px-3 py-2 text-sm bg-white">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>{{ \Carbon\Carbon::createFromDate($tahun, $m, 1)->translatedFormat('F') }}</option>
+                        @endforeach
+                    </select>
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                    <button type="submit" class="bg-[#313589] text-white rounded-3xl px-4 py-2 text-sm whitespace-nowrap">Terapkan</button>
+                </form>
+            </div>
+            <div class="grid gap-4 mb-6">
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-sm text-gray-500">Hadir</p>
+                    <p class="text-2xl font-semibold text-slate-900">{{ $absensiSummary['hadir'] ?? 0 }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-sm text-gray-500">Sakit</p>
+                    <p class="text-2xl font-semibold text-slate-900">{{ $absensiSummary['sakit'] ?? 0 }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-sm text-gray-500">Izin</p>
+                    <p class="text-2xl font-semibold text-slate-900">{{ $absensiSummary['izin'] ?? 0 }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-sm text-gray-500">Alpha</p>
+                    <p class="text-2xl font-semibold text-slate-900">{{ $absensiSummary['alpha'] ?? 0 }}</p>
+                </div>
             </div>
             <div class="relative h-64">
                 <canvas id="absenceChart"></canvas>
@@ -154,13 +187,25 @@
         <!-- Dokumentasi -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Dokumentasi Terbaru</h2>
-            <div class="mb-6">
-                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop" alt="Upacara Bendera" class="w-full rounded-xl object-cover h-40">
-            </div>
-            <div>
-                <p class="font-semibold text-gray-900 mb-2">Upacara Bendera</p>
-                <p class="text-gray-600 text-sm leading-relaxed">Upacara bendera hari Senin merupakan kegiatan rutin yang dilaksanakan setiap awal pekan sebagai bentuk penghormatan nilai kedisiplinan, tanggung jawab, dan rasa cinta tanah air.</p>
-            </div>
+            @if ($latestDokumentasi)
+                @php
+                    $foto = $latestDokumentasi->dokumentasi->first()?->foto;
+                    $imageUrl = $foto ? asset('storage/' . $foto) : 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop';
+                @endphp
+                <div class="mb-6 overflow-hidden rounded-xl">
+                    <img src="{{ $imageUrl }}" alt="Dokumentasi {{ $latestDokumentasi->judul }}" class="w-full object-cover h-40">
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900 mb-2">{{ $latestDokumentasi->judul }}</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">{{ Str::limit($latestDokumentasi->deskripsi, 140) }}</p>
+                    <p class="text-xs text-slate-500 mt-3">{{ $latestDokumentasi->kelas?->nama_kelas ?? 'Semua Kelas' }} • {{ \Carbon\Carbon::parse($latestDokumentasi->tanggal)->translatedFormat('d F Y') }}</p>
+                </div>
+            @else
+                <div class="text-gray-500">
+                    <p class="font-semibold mb-3">Tidak ada dokumentasi terbaru.</p>
+                    <p class="text-sm">Dokumentasi kelas Anda akan tampil di sini setelah tersedia.</p>
+                </div>
+            @endif
             <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Detail</a>
         </div>
 
@@ -169,19 +214,11 @@
             <h2 class="text-xl font-bold text-gray-900 mb-6">Jadwal Pelajaran Aktif</h2>
             <div class="space-y-4">
                 <div class="pb-4 border-b border-gray-200">
-                    <p class="font-semibold text-gray-900 mb-2">Kelas III A</p>
+                    <p class="font-semibold text-gray-900 mb-2">{{ $selectedClassName ?? 'Kelas Anda' }}</p>
                     <div class="text-sm text-gray-600 space-y-1">
-                        <p><span class="font-medium">Wali Kelas:</span> Siti Rahayu, S.Pd I</p>
-                        <p><span class="font-medium">Tahun pelajaran:</span> 2024/2025 - Semester 2</p>
-                        <p><span class="font-medium">Jumlah Siswa:</span> 35 Siswa</p>
-                    </div>
-                </div>
-                <div>
-                    <p class="font-semibold text-gray-900 mb-2">Kelas III B</p>
-                    <div class="text-sm text-gray-600 space-y-1">
-                        <p><span class="font-medium">Wali Kelas:</span> Ahmad Suryanto, S.Pd</p>
-                        <p><span class="font-medium">Tahun pelajaran:</span> 2024/2025 - Semester 2</p>
-                        <p><span class="font-medium">Jumlah Siswa:</span> 33 Siswa</p>
+                        <p><span class="font-medium">Wali Kelas:</span> {{ auth()->user()->name ?? '-' }}</p>
+                        <p><span class="font-medium">Tahun pelajaran:</span> {{ now()->year }}/{{ now()->addYear()->year }} - Semester {{ now()->month <= 6 ? 2 : 1 }}</p>
+                        <p><span class="font-medium">Jumlah Siswa:</span> {{ $absensiSummary['total'] > 0 ? $absensiSummary['total'] : 'Belum tersedia' }}</p>
                     </div>
                 </div>
             </div>
@@ -200,7 +237,7 @@
                 data: {
                     labels: ['Hadir', 'Sakit', 'Izin', 'Alpha'],
                     datasets: [{
-                        data: [8, 12, 2, 11],
+                        data: [{{ $absensiChart[0] ?? 0 }}, {{ $absensiChart[1] ?? 0 }}, {{ $absensiChart[2] ?? 0 }}, {{ $absensiChart[3] ?? 0 }}],
                         backgroundColor: [
                             '#3B82F6',
                             '#F97316',
