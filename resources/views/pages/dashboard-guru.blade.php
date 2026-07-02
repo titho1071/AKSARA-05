@@ -211,18 +211,40 @@
 
         <!-- Jadwal Pelajaran -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h2 class="text-xl font-bold text-gray-900 mb-6">Jadwal Pelajaran Aktif</h2>
-            <div class="space-y-4">
-                <div class="pb-4 border-b border-gray-200">
-                    <p class="font-semibold text-gray-900 mb-2">{{ $selectedClassName ?? 'Kelas Anda' }}</p>
-                    <div class="text-sm text-gray-600 space-y-1">
-                        <p><span class="font-medium">Wali Kelas:</span> {{ auth()->user()->name ?? '-' }}</p>
-                        <p><span class="font-medium">Tahun pelajaran:</span> {{ now()->year }}/{{ now()->addYear()->year }} - Semester {{ now()->month <= 6 ? 2 : 1 }}</p>
-                        <p><span class="font-medium">Jumlah Siswa:</span> {{ $absensiSummary['total'] > 0 ? $absensiSummary['total'] : 'Belum tersedia' }}</p>
-                    </div>
+            <div class="flex items-center justify-between gap-3 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">Data Jadwal Mengajar</h2>
+                    <p class="text-sm text-gray-500">Seluruh jadwal mengajar yang tersedia</p>
                 </div>
             </div>
-            <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Semua Jadwal</a>
+            <div class="space-y-4">
+                @if($jadwalMengajarAktif->isNotEmpty())
+                    @foreach($jadwalMengajarAktif->take(3) as $jadwal)
+                        @php
+                            $jam = $jadwal->jamPelajaran;
+                            $jamMulai = $jam ? substr($jam->jam_mulai, 0, 5) : '-';
+                            $jamSelesai = $jam ? substr($jam->jam_selesai, 0, 5) : '-';
+                            $judul = $jadwal->nama_kegiatan ?: ($jadwal->mataPelajaran->nama_mapel ?? '-');
+                            $kelas = $jadwal->kelas->nama_kelas ?? '-';
+                        @endphp
+                        <div class="pb-4 border-b border-gray-200 last:border-b-0">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ $judul }}</p>
+                                    <p class="text-sm text-gray-600 mt-1">{{ $jadwal->hari }} · {{ $jamMulai }} - {{ $jamSelesai }}</p>
+                                    <p class="text-sm text-gray-500 mt-1">{{ $kelas }}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $jadwal->nama_kegiatan ? 'bg-violet-100 text-violet-700' : 'bg-[#1E2567] text-white' }}">
+                                    {{ $jadwal->nama_kegiatan ? 'Kegiatan' : 'Pelajaran' }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-sm text-gray-500">Belum ada data jadwal mengajar.</div>
+                @endif
+            </div>
+            <a href="{{ route('guru.jadwal') }}" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Semua Jadwal</a>
         </div>
     </div>
 @endsection

@@ -146,10 +146,22 @@
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Jadwal Pelajaran</h2>
             <div class="space-y-4">
-                <div class="pb-4 border-b border-gray-200">
-                    <p class="font-semibold text-gray-900 mb-2">Jadwal Pelajaran Hari ini</p>
-                    <p class="text-sm text-gray-600">07:30 - 09:00: Matematika</p>
-                </div>
+                @if($jadwalPelajaranHariIni->isNotEmpty())
+                    @foreach($jadwalPelajaranHariIni as $jadwal)
+                        @php
+                            $jam = $jadwal->jamPelajaran;
+                            $jamMulai = $jam ? substr($jam->jam_mulai, 0, 5) : '-';
+                            $jamSelesai = $jam ? substr($jam->jam_selesai, 0, 5) : '-';
+                            $judul = $jadwal->nama_kegiatan ?: ($jadwal->mataPelajaran->nama_mapel ?? '-');
+                        @endphp
+                        <div class="pb-4 border-b border-gray-200 last:border-b-0">
+                            <p class="font-semibold text-gray-900 mb-1">{{ $judul }}</p>
+                            <p class="text-sm text-gray-600">{{ $jamMulai }} - {{ $jamSelesai }}</p>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-sm text-gray-500">Belum ada jadwal pelajaran untuk hari ini.</div>
+                @endif
             </div>
             <a href="#" class="text-blue-500 text-sm font-medium mt-4 inline-block hover:underline">Lihat Detail</a>
         </div>

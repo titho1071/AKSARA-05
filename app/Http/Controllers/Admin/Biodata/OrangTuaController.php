@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Pengumuman;
 use App\Models\Absensi;
 use App\Models\Kegiatan;
+use App\Models\JadwalPelajaran;
+use App\Models\TahunPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -110,6 +112,7 @@ class OrangTuaController extends Controller
         ];
         $absensiChart = [0, 0, 0, 0];
         $latestDokumentasi = null;
+        $jadwalPelajaranHariIni = collect();
 
         if ($activeSiswa) {
             $absensi = Absensi::where('siswa_id', $activeSiswa->id_siswa)
@@ -143,6 +146,18 @@ class OrangTuaController extends Controller
                 })
                 ->orderByDesc('tanggal')
                 ->first();
+
+            $tapelAktif = TahunPelajaran::where('is_active', 1)->first();
+            $hariIni = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'][now()->format('l')] ?? 'Senin';
+
+            $jadwalPelajaranHariIni = $tapelAktif
+                ? JadwalPelajaran::with(['jamPelajaran', 'mataPelajaran', 'kelas'])
+                    ->where('kelas_id', $activeSiswa->kelas_id)
+                    ->where('id_tapel', $tapelAktif->id_tapel)
+                    ->where('hari', $hariIni)
+                    ->orderBy('jam_id')
+                    ->get()
+                : collect();
         }
 
         return view('pages.dashboard-orangtua', compact(
@@ -154,7 +169,8 @@ class OrangTuaController extends Controller
             'bulanLabel',
             'absensiSummary',
             'absensiChart',
-            'latestDokumentasi'
+            'latestDokumentasi',
+            'jadwalPelajaranHariIni'
         ));
     }
 

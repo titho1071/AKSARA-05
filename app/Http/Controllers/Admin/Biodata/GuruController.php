@@ -7,6 +7,8 @@ use App\Models\Pengumuman;
 use App\Models\Kelas;
 use App\Models\Absensi;
 use App\Models\Kegiatan;
+use App\Models\JadwalPelajaran;
+use App\Models\TahunPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +48,7 @@ class GuruController extends Controller
         ];
         $absensiChart = [0, 0, 0, 0];
         $latestDokumentasi = null;
+        $jadwalMengajarAktif = collect();
 
         if ($guru) {
             // Ambil ID kelas yang diajar oleh guru ini
@@ -93,6 +96,20 @@ class GuruController extends Controller
                 ->whereIn('kelas_id', $kelasIds)
                 ->orderByDesc('tanggal')
                 ->first();
+
+            $tapelAktif = TahunPelajaran::where('is_active', 1)->first();
+
+            $jadwalMengajarAktif = $tapelAktif
+                ? JadwalPelajaran::with(['jamPelajaran', 'mataPelajaran', 'kelas'])
+                    ->where('id_guru', $guru->id_guru)
+                    ->where('id_tapel', $tapelAktif->id_tapel)
+                    ->get()
+                    ->sortBy(function ($item) {
+                        $hariOrder = ['Senin' => 1, 'Selasa' => 2, 'Rabu' => 3, 'Kamis' => 4, 'Jumat' => 5];
+                        return [$hariOrder[$item->hari] ?? 99, $item->jam_id ?? 9999];
+                    })
+                    ->values()
+                : collect();
         } else {
             $countKelasGuru = 0;
             $countSiswa = 0;
@@ -127,7 +144,8 @@ class GuruController extends Controller
             'latestDokumentasi',
             'countKelasGuru',
             'countSiswa',
-            'countDokumentasi'
+            'countDokumentasi',
+            'jadwalMengajarAktif'
         ));
     }
 
