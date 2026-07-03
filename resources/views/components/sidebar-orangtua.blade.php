@@ -1,5 +1,10 @@
 <script src="//unpkg.com/alpinejs" defer></script>
 
+@php
+    $route = request()->route()?->getName();
+    $pengumumanActive = request()->routeIs('orangtua.pengumuman*');
+@endphp
+
 <div x-data="{ open: false }" class="relative">
 
     {{-- ── Hamburger Button (mobile / tablet < lg) ── --}}
@@ -52,7 +57,39 @@
                 </svg>
             </button>
         </div>
-        @include('components._sidebar-orangtua-nav')
+        <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
+            <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
+
+            <a href="{{ route('orangtua.dashboard') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $route === 'orangtua.dashboard' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Dashboard
+            </a>
+
+            <a href="{{ route('orangtua.absensi') }}"
+                class="block px-3 py-2 rounded transition
+                {{ request()->routeIs('orangtua.absensi') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Absensi
+            </a>
+
+            <a href="{{ route('orangtua.dokumentasi') }}"
+                class="block px-3 py-2 rounded transition
+                {{ str_contains($route, 'orangtua.dokumentasi') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Dokumentasi
+            </a>
+
+            <a href="{{ route('orangtua.pengumuman') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $pengumumanActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Pengumuman
+            </a>
+
+            <a href="{{ route('orangtua.jadwal') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $route === 'orangtua.jadwal' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Jadwal
+            </a>
+        </nav>
     </aside>
 
     {{-- ── Desktop Sidebar (tetap, hanya >= lg) ── --}}
@@ -65,7 +102,39 @@
                 <span>AKSARA</span>
             </div>
         </div>
-        @include('components._sidebar-orangtua-nav')
+        <nav class="sidebar-scrollbar flex-1 p-4 space-y-2 overflow-y-auto">
+            <div class="my-6 text-slate-400 uppercase text-xs tracking-wider">Dashboard</div>
+
+            <a href="{{ route('orangtua.dashboard') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $route === 'orangtua.dashboard' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Dashboard
+            </a>
+
+            <a href="{{ route('orangtua.absensi') }}"
+                class="block px-3 py-2 rounded transition
+                {{ request()->routeIs('orangtua.absensi') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Absensi
+            </a>
+
+            <a href="{{ route('orangtua.dokumentasi') }}"
+                class="block px-3 py-2 rounded transition
+                {{ str_contains($route, 'orangtua.dokumentasi') ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Dokumentasi
+            </a>
+
+            <a href="{{ route('orangtua.pengumuman') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $pengumumanActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Pengumuman
+            </a>
+
+            <a href="{{ route('orangtua.jadwal') }}"
+                class="block px-3 py-2 rounded transition
+                {{ $route === 'orangtua.jadwal' ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
+                Jadwal
+            </a>
+        </nav>
     </aside>
 
 </div>
