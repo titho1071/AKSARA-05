@@ -56,9 +56,12 @@ class OrangtuaJadwalController extends Controller
             ]);
         }
 
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+
         $jadwalRaw = JadwalPelajaran::with(['jamPelajaran', 'mataPelajaran', 'guru'])
             ->where('kelas_id', $kelasId)
             ->where('id_tapel', $tapel->id_tapel)
+            ->whereIn('hari', $days)
             ->orderBy('hari')
             ->get();
 
@@ -66,7 +69,6 @@ class OrangtuaJadwalController extends Controller
         $mapelColorMap = [];
         $colorIndex    = 0;
 
-        $days     = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
         $jadwal   = array_fill_keys($days, []);
         $semuaJam = JamPelajaran::orderBy('jam_mulai')->get();
 
@@ -119,11 +121,30 @@ class OrangtuaJadwalController extends Controller
             $jadwal[$day] = $slotList;
         }
 
+        // Hitung statistik dari $jadwal yang SUDAH dibangun (bukan $jadwalRaw mentah),
+        // supaya baris yang jam_id-nya kebetulan jatuh di slot ISTIRAHAT
+        // (data nyasar/sampah) otomatis tidak ikut terhitung — sama seperti
+        // yang terjadi di grid tampilan.
+        $semuaSlotTerisi = collect($jadwal)->flatten(1)
+            ->filter(fn($item) => in_array($item['type'], ['pelajaran', 'kegiatan']));
+
         $stats = [
-            'total_jp'       => $jadwalRaw->count(),
-            'total_mapel'    => $jadwalRaw->pluck('id_mapel')->filter()->unique()->count(),
-            'hari_aktif'     => $jadwalRaw->pluck('hari')->unique()->count(),
-            'total_kegiatan' => $jadwalRaw->filter(fn($j) => !empty($j->nama_kegiatan))->count(),
+            'total_jp'       => $semuaSlotTerisi->count(),
+
+            'total_mapel'    => $semuaSlotTerisi
+                                    ->where('type', 'pelajaran')
+                                    ->pluck('mapel')
+                                    ->filter()
+                                    ->unique()
+                                    ->count(),
+
+            'hari_aktif'     => collect($jadwal)
+                                    ->filter(fn($items) => collect($items)->contains(
+                                        fn($item) => in_array($item['type'], ['pelajaran', 'kegiatan'])
+                                    ))
+                                    ->count(),
+
+            'total_kegiatan' => $semuaSlotTerisi->where('type', 'kegiatan')->count(),
         ];
 
         return view('Dashboard_Orangtua.Jadwal.jadwal-orangtua', [
