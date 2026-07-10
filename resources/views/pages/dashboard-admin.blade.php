@@ -194,36 +194,47 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 px-4 mb-8">
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div class="px-4 mb-8">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-emerald-200">
+            <div class="flex items-center justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-semibold text-slate-900">Dokumentasi Terbaru</h2>
-                    <p class="text-sm text-gray-500 mt-1">{{ $selectedClass?->nama_kelas ?? 'Pilih kelas untuk melihat dokumentasi' }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Semua Kelas</p>
                 </div>
+                <a href="{{ route('admin.dokumentasi') }}" class="text-blue-500 text-sm font-medium hover:underline">Lihat Semua</a>
             </div>
-            @if ($latestDokumentasi)
+
+            @if($latestDokumentasi)
                 @php
                     $foto = $latestDokumentasi->dokumentasi->first()?->foto;
                     $imageUrl = $foto ? asset('storage/' . $foto) : 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=450&fit=crop';
                 @endphp
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-[140px_minmax(0,1fr)] md:items-center">
+                <div class="grid grid-cols-1 md:grid-cols-[140px_minmax(0,1fr)] md:items-center gap-4">
                     <div class="overflow-hidden rounded-3xl">
-                        <img src="{{ $imageUrl }}" alt="Dokumentasi {{ $latestDokumentasi->judul }}" class="h-28 w-full object-cover md:h-24 md:w-36" />
+                        <img src="{{ $imageUrl }}"
+                            alt="Dokumentasi {{ $latestDokumentasi->judul }}"
+                            class="h-28 w-full object-cover md:h-24 md:w-36" />
                     </div>
                     <div>
                         <p class="text-base font-semibold text-slate-900">{{ $latestDokumentasi->judul }}</p>
-                        <p class="text-sm text-slate-600 leading-relaxed">{{ Str::limit($latestDokumentasi->deskripsi, 140) }}</p>
-                        <p class="text-xs text-slate-500 mt-2">{{ $latestDokumentasi->kelas?->nama_kelas ?? 'Semua Kelas' }} • {{ \Carbon\Carbon::parse($latestDokumentasi->tanggal)->translatedFormat('d F Y') }}</p>
+                        <p class="text-sm text-slate-600 leading-relaxed mt-1">{{ Str::limit($latestDokumentasi->deskripsi, 140) }}</p>
+                        <p class="text-xs text-slate-500 mt-2">
+                            {{ $latestDokumentasi->kelas?->nama_kelas ?? 'Semua Kelas' }}
+                            &bull;
+                            {{ \Carbon\Carbon::parse($latestDokumentasi->tanggal)->translatedFormat('d F Y') }}
+                        </p>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end">
-                    <a href="#" class="text-blue-500 text-sm font-medium hover:underline">Lihat Detail</a>
+                <div class="mt-4 flex justify-end">
+                    <a href="{{ route('admin.dokumentasi.show', $latestDokumentasi->id_kegiatan) }}"
+                    class="text-blue-500 text-sm font-medium hover:underline">
+                        Lihat Detail
+                    </a>
                 </div>
             @else
                 <div class="text-gray-500">
-                    <p class="font-semibold mb-3">Tidak ada dokumentasi terbaru untuk kelas ini.</p>
-                    <p class="text-sm">Pilih kelas lain atau tambahkan dokumentasi untuk menampilkannya di dashboard.</p>
+                    <p class="font-semibold mb-1">Belum ada dokumentasi.</p>
+                    <p class="text-sm">Tambahkan dokumentasi kegiatan untuk menampilkannya di sini.</p>
                 </div>
             @endif
         </div>

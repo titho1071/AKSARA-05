@@ -133,7 +133,10 @@ class AbsensiGuruController extends Controller
         }
 
         return redirect()
-            ->back()
+            ->route('guru.absensi.detail', [
+                'id' => $id,
+                'bulan' => $bulan,
+            ])
             ->with('success', 'Absensi berhasil disimpan.');
     }
 

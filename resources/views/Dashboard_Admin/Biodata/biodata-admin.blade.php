@@ -66,7 +66,7 @@
                         <tr class="odd:bg-slate-50 even:bg-white">
                             <td class="px-4 py-4 text-slate-600">{{ $index + 1 }}</td>
                             <td class="px-4 py-4 font-semibold text-slate-900">{{ $admin->nama }}</td>
-                            <td class="px-4 py-4 text-slate-700">{{ $admin->gender ?? '-' }}</td>
+                            <td class="px-4 py-4 text-slate-700">@include('components.gender-label', ['value' => $admin->gender])</td>
                             <td class="px-4 py-4 text-slate-700">{{ $admin->nip ?? '-' }}</td>
                             <td class="px-4 py-4 text-slate-700">{{ $admin->nuptk ?? '-' }}</td>
                             <td class="px-4 py-4 text-slate-700">{{ $admin->phone ?? '-' }}</td>

@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
+use App\Imports\OrangTuaImport;
+use App\Exports\TemplateExport;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrangTuaController extends Controller
 {
@@ -172,6 +175,103 @@ class OrangTuaController extends Controller
             'latestDokumentasi',
             'jadwalPelajaranHariIni'
         ));
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        Excel::import(new OrangTuaImport, $request->file('file'));
+
+        return redirect()->route('admin.orangtua.index')
+            ->with('success', 'Data orang tua berhasil diimport.');
+    }
+
+    public function templateOrangTua()
+    {
+        $headers = ['nama', 'email', 'username', 'password', 'nik', 'jenis_kelamin', 'no_hp', 'alamat', 'status'];
+        $contoh  = ['Siti Aminah', 'siti@email.com', 'siti.aminah', 'password123', '3201010101800001', 'Perempuan', '08198765432', 'Jl. Melati No. 2', 'aktif'];
+
+        return Excel::download(new TemplateExport($headers, $contoh), 'template-import-orangtua.xlsx');
+    }
+
+    public function preview(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        $sheets = Excel::toArray(null, $request->file('file'));
+        $sheet = $sheets[0] ?? [];
+
+        if (count($sheet) === 0) {
+            return response()->json(['success' => false, 'message' => 'File kosong atau tidak dapat dibaca.']);
+        }
+
+        $headersRaw = $sheet[0];
+        $headers = array_map(function ($h) {
+            return strtolower(str_replace(' ', '_', trim((string)$h)));
+        }, $headersRaw);
+
+        $rows = [];
+        $max = min(10, count($sheet) - 1);
+        for ($i = 1; $i <= $max; $i++) {
+            $row = $sheet[$i];
+            $assoc = [];
+            foreach ($headers as $idx => $key) {
+                $assoc[$key] = $row[$idx] ?? null;
+            }
+
+            $warnings = [];
+            $email = strtolower(trim((string)($assoc['email'] ?? '')));
+            $existingUser = null;
+            if ($email !== '') {
+                $existingUser = User::where('email', $email)->first();
+                if ($existingUser) {
+                    $existingRole = DB::table('roles')->where('id_role', $existingUser->role_id)->value('nama_role');
+                        if ($existingRole !== 'guru') {
+                            $warnings[] = 'Email sudah terdaftar';
+                        } else {
+                            // jika email milik guru, beri tahu akan direuse (kecuali sudah punya profile orang_tua)
+                            $hasOrtu = DB::table('orang_tua')->where('user_id', $existingUser->id)->exists();
+                            if ($hasOrtu) {
+                                $warnings[] = 'Email sudah terdaftar';
+                            } else {
+                                $warnings[] = 'Email terdaftar sebagai guru — akan mengaitkan ke akun guru yang ada';
+                            }
+                        }
+                }
+            }
+
+            if (!empty($assoc['username'])) {
+                $existingByUsername = User::where('username', $assoc['username'])->first();
+                if ($existingByUsername) {
+                    // allow if username belongs to the same existing user (when reusing guru email)
+                    if (!($existingUser && $existingByUsername->id === $existingUser->id)) {
+                        $warnings[] = 'Username sudah terdaftar';
+                    }
+                }
+            }
+
+            $status = strtolower(trim((string)($assoc['status'] ?? '')));
+            $nonaktifValues = ['tidak aktif', 'tidak_aktif', 'nonaktif', 'non-active', 'no', 'tidak'];
+            if ($status !== '' && in_array($status, $nonaktifValues, true)) {
+                $warnings[] = 'Status terdeteksi non-aktif';
+            }
+
+            $gender = strtolower(trim((string)($assoc['jenis_kelamin'] ?? '')));
+            $male = ['l', 'laki', 'laki-laki', 'laki laki', 'male'];
+            $female = ['p', 'perempuan', 'wanita', 'female'];
+            if ($gender !== '' && !in_array($gender, array_merge($male, $female), true)) {
+                $warnings[] = 'Format jenis_kelamin tidak dikenali';
+            }
+
+            $rows[] = ['data' => $assoc, 'warnings' => $warnings];
+        }
+
+        return response()->json(['success' => true, 'headers' => $headers, 'rows' => $rows]);
     }
 
     public function profil()

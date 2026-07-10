@@ -15,10 +15,27 @@
                 <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Kelola Biodata Orang Tua</h1>
                 <p class="text-gray-600 mt-1">Lihat dan tambahkan data orang tua siswa.</p>
             </div>
-            <a href="{{ route('admin.orangtua.create') }}"
-                class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
-                + Tambah Data Orang Tua
-            </a>
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ route('admin.orangtua.template') }}"
+                    class="inline-flex items-center gap-2 rounded-[16px] bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Download Template
+                </a>
+                <button type="button"
+                    onclick="document.getElementById('importModalOrtu').classList.remove('hidden'); document.getElementById('importModalOrtu').classList.add('flex')"
+                    class="inline-flex items-center gap-2 rounded-[16px] bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    Import Excel
+                </button>
+                <a href="{{ route('admin.orangtua.create') }}"
+                    class="inline-flex items-center gap-2 rounded-[16px] bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+                    + Tambah Data Orang Tua
+                </a>
+            </div>
         </div>
     </div>
 
@@ -35,6 +52,105 @@
             });
         </script>
     @endif
+
+    <div id="importModalOrtu" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 px-4">
+        <div class="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div class="flex items-center justify-between bg-indigo-700 px-5 py-4">
+                <span class="text-sm font-semibold uppercase tracking-wide text-white">Import Data Orang Tua</span>
+                <button type="button" onclick="document.getElementById('importModalOrtu').classList.add('hidden'); document.getElementById('importModalOrtu').classList.remove('flex')" class="text-xl leading-none text-white/70 hover:text-white">&times;</button>
+            </div>
+            <div class="p-6">
+                <p class="mb-4 text-sm text-slate-500">Upload file Excel/CSV. Pastikan format sesuai template yang sudah diunduh. Data dengan email/username yang sudah ada akan dilewati.</p>
+                <form action="{{ route('admin.orangtua.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">File Excel / CSV</label>
+                    <input id="ortuFileInput" type="file" name="file" accept=".xlsx,.xls,.csv" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('importModalOrtu').classList.add('hidden'); document.getElementById('importModalOrtu').classList.remove('flex')" class="rounded-xl bg-slate-200 px-5 py-3 font-medium text-slate-900 transition hover:bg-slate-300">Batal</button>
+                        <button id="ortuPreviewBtn" type="button" class="rounded-xl bg-indigo-700 px-5 py-3 font-medium text-white transition hover:bg-indigo-800">Preview</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="previewModalOrtu" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
+        <div class="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div class="flex items-center justify-between bg-indigo-700 px-5 py-4">
+                <span class="text-sm font-semibold uppercase tracking-wide text-white">Preview Data Orang Tua (max 10 baris)</span>
+                <button type="button" onclick="document.getElementById('previewModalOrtu').classList.add('hidden'); document.getElementById('previewModalOrtu').classList.remove('flex')" class="text-xl leading-none text-white/70 hover:text-white">&times;</button>
+            </div>
+            <div class="p-4 overflow-auto">
+                <div id="ortuPreviewContainer"></div>
+            </div>
+            <div class="p-4 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('previewModalOrtu').classList.add('hidden'); document.getElementById('previewModalOrtu').classList.remove('flex')" class="rounded-xl bg-slate-200 px-5 py-3 font-medium text-slate-900 transition hover:bg-slate-300">Tutup</button>
+                <button id="ortuConfirmImport" type="button" class="rounded-xl bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700">Import Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('ortuPreviewBtn').addEventListener('click', async function () {
+            const input = document.getElementById('ortuFileInput');
+            if (!input.files.length) return alert('Pilih file terlebih dahulu.');
+
+            const fd = new FormData();
+            fd.append('file', input.files[0]);
+            fd.append('_token', '{{ csrf_token() }}');
+
+            const res = await fetch('{{ route('admin.orangtua.preview') }}', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (!data.success) return alert(data.message || 'Gagal membaca file.');
+
+            const container = document.getElementById('ortuPreviewContainer');
+            const tableId = `ortu-preview-table`;
+            let tableHtml = '<table id="'+tableId+'" class="border-collapse table-auto text-sm w-full">';
+            tableHtml += '<thead class="bg-slate-100"><tr>' + data.headers.map(h=>`<th class="border px-2 py-2 text-left" style="font-weight:600; white-space:nowrap;">${h.replace(/_/g, ' ').replace(/\b\w/g, c=>c.toUpperCase())}</th>`).join('') + '</tr></thead>';
+            tableHtml += '<tbody>' + data.rows.map((r,ri)=>{
+                const hasWarn = Array.isArray(r.warnings) && r.warnings.length > 0;
+                const rowClass = hasWarn ? 'bg-yellow-50' : '';
+                const cells = data.headers.map(h=>`<td class="border px-2 py-1" style="white-space:nowrap;">${(r.data[h]!==null? r.data[h] : '')}</td>`).join('');
+                return `<tr id="ortu-preview-row-${ri}" class="${rowClass}">` + cells + `</tr>`;
+            }).join('') + '</tbody>';
+            tableHtml += '</table>';
+
+            let warningsHtml = '<div class="mb-3"><p class="text-sm text-slate-600">Klik sebuah item untuk menyorot baris terkait.</p></div>';
+            warningsHtml += '<div class="space-y-3">';
+            data.rows.forEach((r,ri)=>{
+                if (Array.isArray(r.warnings) && r.warnings.length) {
+                    warningsHtml += `<div class=\"p-3 border rounded-lg bg-rose-50\"><div class=\"text-sm font-semibold text-rose-700\">Baris ${ri+1} - Peringatan</div><ul class=\"list-disc pl-5 text-xs text-rose-700 mt-2\">`;
+                    r.warnings.forEach(w=>{ warningsHtml += `<li>${w}</li>` });
+                    warningsHtml += `</ul><div class=\"mt-2\"><button data-row=\"${ri}\" class=\"ortu-highlight-btn inline-flex items-center gap-2 rounded-md bg-rose-600 px-3 py-1 text-xs text-white\">Sorot baris</button></div></div>`;
+                }
+            });
+            warningsHtml += '</div>';
+
+            const html = `<div class="flex gap-4"><div class="flex-1 overflow-auto" style="max-height:60vh;">` +
+                `<div class="overflow-auto" style="min-width:0">${tableHtml}</div>` +
+                `</div><div class="w-80 border-l pl-4 overflow-auto" style="max-height:60vh;">${warningsHtml}</div></div>`;
+            container.innerHTML = html;
+
+            document.querySelectorAll('.ortu-highlight-btn').forEach(btn=>{
+                btn.addEventListener('click', function(){
+                    const idx = this.getAttribute('data-row');
+                    const el = document.getElementById(`ortu-preview-row-${idx}`);
+                    if (!el) return;
+                    el.scrollIntoView({behavior:'smooth', block:'center'});
+                    el.classList.add('ring-2','ring-rose-400');
+                    setTimeout(()=> el.classList.remove('ring-2','ring-rose-400'), 2500);
+                });
+            });
+
+            document.getElementById('previewModalOrtu').classList.remove('hidden');
+            document.getElementById('previewModalOrtu').classList.add('flex');
+
+            document.getElementById('ortuConfirmImport').onclick = function () {
+                const form = input.closest('form');
+                form.submit();
+            };
+        });
+    </script>
 
     <div class="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
         <div class="mb-6">
@@ -65,7 +181,7 @@
                         <tr class="odd:bg-slate-50 even:bg-white">
                             <td class="px-4 py-4 text-slate-600">{{ $index + 1 }}</td>
                             <td class="px-4 py-4 font-semibold text-slate-900">{{ $orangTua->nama }}</td>
-                            <td class="px-4 py-4 text-slate-700">{{ $orangTua->gender ?? '-' }}</td>
+                            <td class="px-4 py-4 text-slate-700">@include('components.gender-label', ['value' => $orangTua->gender])</td>
                             <td class="px-4 py-4 text-slate-700">{{ $orangTua->nik ?? '-' }}</td>
                             <td class="px-4 py-4 text-slate-700">{{ $orangTua->phone ?? '-' }}</td>
                             <td class="px-4 py-4 text-slate-600">{{ $orangTua->username }}</td>

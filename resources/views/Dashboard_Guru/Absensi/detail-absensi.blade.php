@@ -6,6 +6,19 @@
 
 @section('content')
 @include('components.navbar', ['role' => $role])
+@if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6366f1'
+            });
+        });
+    </script>
+@endif
 @php
 $namaBulan = [
     1 => 'Januari',

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin\Biodata;
 
+use App\Imports\SiswaImport;
+use App\Exports\TemplateExport;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaController extends Controller
 {
@@ -60,6 +63,80 @@ class SiswaController extends Controller
 
         return redirect()->route('admin.siswa.index')
             ->with('success', 'Data siswa berhasil ditambahkan.');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        Excel::import(new SiswaImport, $request->file('file'));
+
+        return redirect()->route('admin.siswa.index')
+            ->with('success', 'Data siswa berhasil diimport.');
+    }
+
+    public function templateSiswa()
+    {
+        $headers = ['nama', 'nis', 'nisn', 'jenis_kelamin', 'nama_kelas', 'tanggal_lahir', 'alamat', 'status'];
+        $contoh  = ['Ahmad Fauzi', '2024001', '0012345678', 'L', 'VII A', '2010-05-15', 'Jl. Merdeka No. 3', 'aktif'];
+
+        return Excel::download(new TemplateExport($headers, $contoh), 'template-import-siswa.xlsx');
+    }
+
+    public function preview(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        $sheets = Excel::toArray(null, $request->file('file'));
+        $sheet = $sheets[0] ?? [];
+
+        if (count($sheet) === 0) {
+            return response()->json(['success' => false, 'message' => 'File kosong atau tidak dapat dibaca.']);
+        }
+
+        $headersRaw = $sheet[0];
+        $headers = array_map(function ($h) {
+            return strtolower(str_replace(' ', '_', trim((string)$h)));
+        }, $headersRaw);
+
+        $rows = [];
+        $max = min(10, count($sheet) - 1);
+        for ($i = 1; $i <= $max; $i++) {
+            $row = $sheet[$i];
+            $assoc = [];
+            foreach ($headers as $idx => $key) {
+                $assoc[$key] = $row[$idx] ?? null;
+            }
+
+            $warnings = [];
+            if (!empty($assoc['nis']) && Siswa::where('nis', $assoc['nis'])->exists()) {
+                $warnings[] = 'NIS sudah terdaftar';
+            }
+            if (!empty($assoc['nisn']) && Siswa::where('nisn', $assoc['nisn'])->exists()) {
+                $warnings[] = 'NISN sudah terdaftar';
+            }
+
+            $status = strtolower(trim((string)($assoc['status'] ?? '')));
+            $nonaktifValues = ['tidak aktif', 'tidak_aktif', 'nonaktif', 'non-active', 'no', 'tidak'];
+            if ($status !== '' && in_array($status, $nonaktifValues, true)) {
+                $warnings[] = 'Status terdeteksi non-aktif';
+            }
+
+            $gender = strtolower(trim((string)($assoc['jenis_kelamin'] ?? '')));
+            $male = ['l', 'laki', 'laki-laki', 'laki laki', 'male'];
+            $female = ['p', 'perempuan', 'wanita', 'female'];
+            if ($gender !== '' && !in_array($gender, array_merge($male, $female), true)) {
+                $warnings[] = 'Format jenis_kelamin tidak dikenali';
+            }
+
+            $rows[] = ['data' => $assoc, 'warnings' => $warnings];
+        }
+
+        return response()->json(['success' => true, 'headers' => $headers, 'rows' => $rows]);
     }
 
     public function edit($id)

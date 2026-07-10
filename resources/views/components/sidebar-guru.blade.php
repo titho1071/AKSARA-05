@@ -3,9 +3,9 @@
 @php
     $route = request()->route()?->getName();
     $dashboardActive      = in_array($route, ['guru.dashboard'], true);
-    $absensiActive        = in_array($route, ['guru.absensi','guru.absensi.recap','guru.absensi.kelola','guru.absensi.detail','guru.absensi.pilih-bulan'], true);
+    $absensiActive = in_array($route, ['guru.absensi', 'guru.absensi.rekap', 'guru.absensi.kelola', 'guru.absensi.detail', 'guru.absensi.pilih-bulan'], true);
     $kelolaAbsensiActive  = in_array($route, ['guru.absensi','guru.absensi.kelola','guru.absensi.detail','guru.absensi.pilih-bulan'], true);
-    $recapAbsensiActive   = $route === 'guru.absensi.rekap';
+    $recapAbsensiActive = $route === 'guru.absensi.rekap';
     $dokumentasiActive    = in_array($route, ['guru.dokumentasi.index','guru.dokumentasi.create','guru.dokumentasi.edit','guru.dokumentasi.show'], true);
     $pengumumanActive     = in_array($route, ['guru.pengumuman','guru.pengumuman.create','guru.pengumuman.edit','guru.pengumuman.show'], true);
     $jadwalActive         = in_array($route, ['guru.jadwal'], true);
@@ -73,14 +73,14 @@
                 Dashboard
             </a>
 
-            <div x-data="{ open: {{ $absensiActive ? 'true' : 'false' }} }" class="relative">
+            <div x-data="{ open: false }" x-init="open = {{ $absensiActive ? 'true' : 'false' }}" class="relative">
                 <button @click="open = !open"
                     class="w-full flex justify-between items-center px-3 py-2 rounded transition
                     {{ $absensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Absensi
                     <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
                 </button>
-                <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
+                <div x-show="open" x-transition x-cloak class="mt-1 ml-2 space-y-1">
                     <a href="{{ route('guru.absensi') }}"
                         class="block px-3 py-2 rounded transition
                         {{ $kelolaAbsensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
@@ -151,14 +151,14 @@
                 Dashboard
             </a>
 
-            <div x-data="{ open: {{ $absensiActive ? 'true' : 'false' }} }" class="relative">
+            <div x-data="{ open: false }" x-init="open = {{ $absensiActive ? 'true' : 'false' }}" class="relative">
                 <button @click="open = !open"
                     class="w-full flex justify-between items-center px-3 py-2 rounded transition
                     {{ $absensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">
                     Absensi
                     <span x-bind:class="{'rotate-180': open}" class="transition-transform">&#9662;</span>
                 </button>
-                <div x-show="open" x-transition class="mt-1 ml-2 space-y-1">
+                <div x-show="open" x-transition x-cloak class="mt-1 ml-2 space-y-1">
                     <a href="{{ route('guru.absensi') }}"
                         class="block px-3 py-2 rounded transition
                         {{ $kelolaAbsensiActive ? 'bg-[#F59E0B] text-slate-950' : 'bg-white/10 hover:bg-[#F59E0B] hover:text-slate-950' }}">

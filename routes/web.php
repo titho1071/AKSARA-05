@@ -87,13 +87,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
             $absensiSummary['alpha'],
         ];
 
-        $latestDokumentasi = $selectedClassId
-            ? Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
-                ->where('status', 'aktif')
-                ->where('kelas_id', $selectedClassId)
-                ->orderByDesc('tanggal')
-                ->first()
-            : null;
+        $latestDokumentasi = Kegiatan::with(['guru', 'dokumentasi', 'kelas'])
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal')
+            ->first();
 
         return view('pages.dashboard-admin', compact(
             'countAdmin',
@@ -171,6 +168,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
     Route::get('/guru/create', [GuruController::class, 'create'])->name('guru.create');
     Route::post('/guru', [GuruController::class, 'store'])->name('guru.store');
+    Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import');
+    Route::get('/guru/template', [GuruController::class, 'templateGuru'])->name('guru.template');
+    Route::post('/guru/preview', [GuruController::class, 'preview'])->name('guru.preview');
     Route::delete('/guru/{user}', [GuruController::class, 'destroy'])->name('guru.destroy');
     Route::get('/guru/{user}/edit', [GuruController::class, 'edit'])->name('guru.edit');
     Route::put('/guru/{user}', [GuruController::class, 'update'])->name('guru.update');
@@ -179,6 +179,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/orangtua', [OrangTuaController::class, 'index'])->name('orangtua.index');
     Route::get('/orangtua/create', [OrangTuaController::class, 'create'])->name('orangtua.create');
     Route::post('/orangtua', [OrangTuaController::class, 'store'])->name('orangtua.store');
+    Route::post('/orangtua/import', [OrangTuaController::class, 'import'])->name('orangtua.import');
+    Route::get('/orangtua/template', [OrangTuaController::class, 'templateOrangTua'])->name('orangtua.template');
+    Route::post('/orangtua/preview', [OrangTuaController::class, 'preview'])->name('orangtua.preview');
     Route::delete('/orangtua/{user}', [OrangTuaController::class, 'destroy'])->name('orangtua.destroy');
     Route::get('/orangtua/{user}/edit', [OrangTuaController::class, 'edit'])->name('orangtua.edit');
     Route::put('/orangtua/{user}', [OrangTuaController::class, 'update'])->name('orangtua.update');
@@ -187,6 +190,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
     Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create');
     Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
+    Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
+    Route::get('/siswa/template', [SiswaController::class, 'templateSiswa'])->name('siswa.template');
+    Route::post('/siswa/preview', [SiswaController::class, 'preview'])->name('siswa.preview');
     Route::get('/siswa/{id}/edit', [SiswaController::class, 'edit'])->name('siswa.edit');
     Route::put('/siswa/{id}', [SiswaController::class, 'update'])->name('siswa.update');
     Route::delete('/siswa/{id}', [SiswaController::class, 'destroy'])->name('siswa.destroy');

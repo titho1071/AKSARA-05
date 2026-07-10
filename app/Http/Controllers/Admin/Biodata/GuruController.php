@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Biodata;
 
 use App\Models\User;
+use App\Models\Siswa;
 use App\Models\Pengumuman;
 use App\Models\Kelas;
 use App\Models\Absensi;
@@ -14,7 +15,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
+use App\Imports\GuruImport;
+use App\Exports\TemplateExport;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
@@ -304,6 +308,83 @@ class GuruController extends Controller
         'message' => 'Guru berhasil dihapus.'
     ]);
 }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        Excel::import(new GuruImport, $request->file('file'));
+
+        return redirect()->route('admin.guru.index')
+            ->with('success', 'Data guru berhasil diimport.');
+    }
+
+    public function preview(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        $sheets = Excel::toArray(null, $request->file('file'));
+        $sheet = $sheets[0] ?? [];
+
+        if (count($sheet) === 0) {
+            return response()->json(['success' => false, 'message' => 'File kosong atau tidak dapat dibaca.']);
+        }
+
+        $headersRaw = $sheet[0];
+        $headers = array_map(function ($h) {
+            return strtolower(str_replace(' ', '_', trim((string)$h)));
+        }, $headersRaw);
+
+        $rows = [];
+        $max = min(10, count($sheet) - 1);
+        for ($i = 1; $i <= $max; $i++) {
+            $row = $sheet[$i];
+            $assoc = [];
+            foreach ($headers as $idx => $key) {
+                $assoc[$key] = $row[$idx] ?? null;
+            }
+
+            $warnings = [];
+            // Duplicate checks
+            if (!empty($assoc['email']) && User::where('email', strtolower($assoc['email']))->exists()) {
+                $warnings[] = 'Email sudah terdaftar';
+            }
+            if (!empty($assoc['username']) && User::where('username', $assoc['username'])->exists()) {
+                $warnings[] = 'Username sudah terdaftar';
+            }
+
+            // Status non-aktif
+            $status = strtolower(trim((string)($assoc['status'] ?? '')));
+            $nonaktifValues = ['tidak aktif', 'tidak_aktif', 'nonaktif', 'non-active', 'no', 'tidak'];
+            if ($status !== '' && in_array($status, $nonaktifValues, true)) {
+                $warnings[] = 'Status terdeteksi non-aktif';
+            }
+
+            // Gender format warning
+            $gender = strtolower(trim((string)($assoc['jenis_kelamin'] ?? '')));
+            $male = ['l', 'laki', 'laki-laki', 'laki laki', 'male'];
+            $female = ['p', 'perempuan', 'wanita', 'female'];
+            if ($gender !== '' && !in_array($gender, array_merge($male, $female), true)) {
+                $warnings[] = 'Format jenis_kelamin tidak dikenali';
+            }
+
+            $rows[] = ['data' => $assoc, 'warnings' => $warnings];
+        }
+
+        return response()->json(['success' => true, 'headers' => $headers, 'rows' => $rows]);
+    }
+
+    public function templateGuru()
+    {
+        $headers = ['nama', 'email', 'username', 'password', 'nip', 'nuptk', 'jenis_kelamin', 'no_hp', 'alamat', 'status'];
+        $contoh  = ['Budi Santoso', 'budi@email.com', 'budi.santoso', 'password123', '198001012005011001', '1234567890123456', 'Laki-laki', '08123456789', 'Jl. Contoh No. 1', 'aktif'];
+
+        return Excel::download(new TemplateExport($headers, $contoh), 'template-import-guru.xlsx');
+    }
 
     public function profil()
     {

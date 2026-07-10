@@ -40,7 +40,11 @@ class DokumentasiAdminController extends Controller
 
         $kegiatans = $query->orderByDesc('tanggal')->get();
 
-        return view('Dashboard_Admin.Dokumentasi.dokumentasi', compact('kegiatans', 'search', 'kelas', 'kelasList'));
+        $latestDokumentasi = Kegiatan::with(['dokumentasi', 'kelas', 'guru'])
+            ->latest('tanggal')
+            ->first();
+
+        return view('Dashboard_Admin.Dokumentasi.dokumentasi', compact('kegiatans', 'search', 'kelas', 'kelasList', 'latestDokumentasi'));
     }
 
     // =============================================
