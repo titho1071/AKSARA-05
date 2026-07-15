@@ -391,13 +391,27 @@ class GuruTasks(TaskSet):
 
         # Laravel web form upload
         id_kegiatan = None
-        with self.client.post("/guru/dokumentasi", data=payload_create, files=files, allow_redirects=True, catch_response=True, name="[Guru] Tambah Dokumentasi (POST)") as r:
-            if r.status_code == 200:
-                # Scrape ID kegiatan terbaru dari tabel di halaman index hasil redirect
+        with self.client.post(
+            "/guru/dokumentasi",
+            data=payload_create,
+            files=files,
+            allow_redirects=False,
+            catch_response=True,
+            name="[Guru] Tambah Dokumentasi (POST)"
+        ) as r:
+            if r.status_code in [302, 301]:
+                location = r.headers.get("Location", "")
+                match = re.search(r'/guru/dokumentasi/(\d+)', location)
+                if match:
+                    id_kegiatan = match.group(1)
+                    r.success()
+                else:
+                    r.failure(f"Redirect tapi ID tidak ada di Location: {location}")
+                    return
+            elif r.status_code == 200:
                 match = re.search(r'/guru/dokumentasi/(\d+)/edit', r.text)
                 if match:
                     id_kegiatan = match.group(1)
-                    # Update token dari halaman hasil redirect, siapa tahu berubah
                     self.csrf_token = extract_csrf_token(r.text) or self.csrf_token
                     r.success()
                 else:
@@ -405,7 +419,7 @@ class GuruTasks(TaskSet):
                     r.failure(f"ID tidak ditemukan. Validasi/errors: {errors[:5]}")
                     return
             else:
-                r.failure(f"POST unggahan gagal: {r.status_code}")
+                r.failure(f"POST unggahan gagal: {r.status_code} | Body: {r.text[:500]}")
                 return
 
         if not id_kegiatan:

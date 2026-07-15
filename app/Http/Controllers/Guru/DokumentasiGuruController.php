@@ -110,7 +110,7 @@ class DokumentasiGuruController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('guru.dokumentasi.index')
+                ->route('guru.dokumentasi.show', $kegiatan->id_kegiatan)
                 ->with('success', 'Kegiatan berhasil ditambahkan.');
 
         } catch (\Throwable $e) {
