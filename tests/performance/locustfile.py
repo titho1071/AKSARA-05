@@ -4,10 +4,36 @@
   Pengujian Non-Fungsional: GET, POST, PUT, DELETE
 ============================================================
 
+Fitur yang diuji:
+  - Login (Admin, Guru, Orang Tua)
+  - CRUD Pengumuman (Admin)
+  - CRUD Jadwal Pelajaran (Admin)
+  - Pengisian Absensi (Guru)
+  - CRUD Dokumentasi Kegiatan (Guru, dengan upload foto)
+  - Akses data anak oleh Orang Tua (Absensi, Dokumentasi, Pengumuman, Jadwal)
+
+Target Pengujian (sesuai rencana BAB 4 - Performance Testing):
+  - Concurrent users : 150
+  - Ramp-up          : 15 user/detik
+
 Cara Menjalankan:
-  1. Install locust:       pip install locust
-  2. Jalankan:             locust -f locustfile.py --host=http://localhost:8000
-  3. Buka browser:         http://localhost:8089
+  1. Install locust:
+       pip install locust
+
+  2. Jalankan (mode UI, atur user & ramp-up manual di browser):
+       locust -f locustfile.py --host=http://localhost:8000
+
+     lalu buka http://localhost:8089 dan isi:
+       Number of users   : 150
+       Ramp up (users/s) : 15
+
+  3. Atau jalankan langsung tanpa UI (headless), sesuai target:
+       locust -f locustfile.py --host=http://localhost:8000 \
+         --users 150 --spawn-rate 15 --run-time 5m --headless \
+         --html report.html --csv aksara_report
+
+     Ini akan menghasilkan report.html dan file CSV (response time,
+     failure rate, RPS) yang bisa langsung dipakai untuk BAB 4.
 """
 
 import re
@@ -83,8 +109,6 @@ def do_login(user, credentials):
             response.failure("Login gagal - Cek kredensial di locustfile.py")
             return False
         if "dashboard" in response.url or response.status_code == 200:
-            # Simpan token terbaru (dari halaman dashboard hasil redirect)
-            # supaya bisa dipakai lagi untuk request POST/logout berikutnya.
             latest_token = extract_csrf_token(response.text)
             user.csrf_token = latest_token or csrf_token
             return True
@@ -142,7 +166,6 @@ class AdminTasks(TaskSet):
     @task(2)
     def pengumuman_crud(self):
         """CRUD Lengkap Pengumuman (GET, POST, PUT, DELETE) dalam satu alur."""
-        # 1. GET Halaman Create
         with self.client.get("/admin/pengumuman/create", catch_response=True, name="[Admin] Form Tambah Pengumuman (GET)") as r:
             if r.status_code != 200:
                 r.failure(f"GET form gagal: {r.status_code}")
@@ -150,7 +173,6 @@ class AdminTasks(TaskSet):
             csrf_token = extract_csrf_token(r.text)
             self.csrf_token = csrf_token or self.csrf_token
 
-        # 2. POST (Create)
         payload_create = {
             "_token": csrf_token,
             "judul": f"Pengumuman Uji Locust {random.randint(10000, 99999)}",
@@ -179,11 +201,9 @@ class AdminTasks(TaskSet):
         if not id_pengumuman:
             return
 
-        # 3. GET Detail & GET Edit Page
         self.client.get(f"/admin/pengumuman/{id_pengumuman}", name="[Admin] Detail Pengumuman (GET)")
         self.client.get(f"/admin/pengumuman/{id_pengumuman}/edit", name="[Admin] Form Edit Pengumuman (GET)")
 
-        # 4. PUT (Update)
         payload_update = {
             "_token": csrf_token,
             "_method": "PUT",
@@ -200,7 +220,6 @@ class AdminTasks(TaskSet):
             else:
                 r.failure(f"PUT gagal: {r.status_code}")
 
-        # 5. DELETE (Delete)
         payload_delete = {
             "_token": csrf_token,
             "_method": "DELETE"
@@ -214,7 +233,6 @@ class AdminTasks(TaskSet):
     @task(2)
     def jadwal_pelajaran_crud(self):
         """CRUD Lengkap Jadwal Pelajaran (GET, POST, PUT, DELETE) melalui API."""
-        # 1. GET Kelas
         with self.client.get("/api/kelas", catch_response=True, name="[Admin] Get API Kelas (GET)") as r:
             if r.status_code != 200:
                 r.failure("Gagal mengambil list kelas")
@@ -224,7 +242,6 @@ class AdminTasks(TaskSet):
                 return
             kelas_id = random.choice(kelas_list).get("id_kelas")
 
-        # 2. GET Jam Pelajaran
         with self.client.get("/api/jam-pelajaran", catch_response=True, name="[Admin] Get API Jam Pelajaran (GET)") as r:
             if r.status_code != 200:
                 r.failure("Gagal mengambil list jam pelajaran")
@@ -234,7 +251,6 @@ class AdminTasks(TaskSet):
                 return
             jam_id = random.choice(jam_data).get("id_jam")
 
-        # 3. GET Mata Pelajaran
         with self.client.get("/api/mata-pelajaran", catch_response=True, name="[Admin] Get API Mata Pelajaran (GET)") as r:
             if r.status_code != 200:
                 r.failure("Gagal mengambil list mata pelajaran")
@@ -244,7 +260,6 @@ class AdminTasks(TaskSet):
                 return
             mapel_id = random.choice(mapel_data).get("id_mapel")
 
-        # Dapatkan CSRF Token dari dashboard admin
         with self.client.get("/admin/dashboard", catch_response=True, name="[Admin] Get CSRF for Jadwal") as r:
             csrf_token = extract_csrf_token(r.text)
             self.csrf_token = csrf_token or self.csrf_token
@@ -254,7 +269,6 @@ class AdminTasks(TaskSet):
             "X-CSRF-TOKEN": csrf_token
         }
 
-        # 4. POST (Create)
         hari = random.choice(["Senin", "Selasa", "Rabu", "Kamis", "Jumat"])
         payload_create = {
             "hari": hari,
@@ -271,7 +285,6 @@ class AdminTasks(TaskSet):
                 id_jadwal = res_data.get("data", {}).get("id_jadwal")
                 r.success()
             elif r.status_code == 422:
-                # Slot sudah terisi, wajar terjadi dalam load test, tetap sukses
                 r.success()
                 return
             else:
@@ -281,10 +294,8 @@ class AdminTasks(TaskSet):
         if not id_jadwal:
             return
 
-        # 5. GET Detail Jadwal
         self.client.get(f"/api/jadwal-pelajaran/{id_jadwal}", name="[Admin] Detail Jadwal (GET)")
 
-        # 6. PUT (Update)
         payload_update = {
             "hari": hari,
             "jam_id": jam_id,
@@ -298,7 +309,6 @@ class AdminTasks(TaskSet):
             else:
                 r.failure(f"PUT Jadwal gagal: {r.status_code}")
 
-        # 7. DELETE (Delete)
         with self.client.delete(f"/api/jadwal-pelajaran/{id_jadwal}", headers=headers, catch_response=True, name="[Admin] Hapus Jadwal (DELETE)") as r:
             if r.status_code == 200:
                 r.success()
@@ -369,7 +379,6 @@ class GuruTasks(TaskSet):
     @task(2)
     def dokumentasi_crud(self):
         """CRUD Lengkap Dokumentasi Kegiatan (GET, POST, PUT, DELETE) dalam satu alur."""
-        # 1. GET Halaman Create
         with self.client.get("/guru/dokumentasi/create", catch_response=True, name="[Guru] Form Tambah Dokumentasi (GET)") as r:
             if r.status_code != 200:
                 r.failure(f"GET create form gagal: {r.status_code}")
@@ -377,7 +386,6 @@ class GuruTasks(TaskSet):
             csrf_token = extract_csrf_token(r.text)
             self.csrf_token = csrf_token or self.csrf_token
 
-        # 2. POST (Create)
         payload_create = {
             "_token": csrf_token,
             "judul": f"Kegiatan Uji Locust {random.randint(1000, 9999)}",
@@ -389,7 +397,6 @@ class GuruTasks(TaskSet):
             "foto[]": ("test.png", TEST_IMAGE_BYTES, "image/png")
         }
 
-        # Laravel web form upload
         id_kegiatan = None
         with self.client.post(
             "/guru/dokumentasi",
@@ -425,12 +432,9 @@ class GuruTasks(TaskSet):
         if not id_kegiatan:
             return
 
-        # 3. GET Detail & GET Edit Page
         self.client.get(f"/guru/dokumentasi/{id_kegiatan}", name="[Guru] Detail Dokumentasi (GET)")
         with self.client.get(f"/guru/dokumentasi/{id_kegiatan}/edit", catch_response=True, name="[Guru] Form Edit Dokumentasi (GET)") as r:
             if r.status_code == 200:
-                # Ambil token terbaru dari form edit, ini yang paling aman dipakai
-                # untuk PUT/DELETE berikutnya.
                 edit_token = extract_csrf_token(r.text)
                 if edit_token:
                     csrf_token = edit_token
@@ -439,7 +443,6 @@ class GuruTasks(TaskSet):
             else:
                 r.failure(f"GET edit form gagal: {r.status_code}")
 
-        # 4. PUT (Update) menggunakan Form Spoofing method
         payload_update = {
             "_token": csrf_token,
             "_method": "PUT",
@@ -454,7 +457,6 @@ class GuruTasks(TaskSet):
             else:
                 r.failure(f"PUT perbarui gagal: {r.status_code} - {r.text[:300]}")
 
-        # 5. DELETE (Delete) menggunakan Form Spoofing method
         payload_delete = {
             "_token": csrf_token,
             "_method": "DELETE"
