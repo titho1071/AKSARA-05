@@ -178,16 +178,19 @@ class OrangTuaController extends Controller
     }
 
     public function import(Request $request)
-    {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
-        ]);
+{
+    set_time_limit(300);
+    ini_set('memory_limit', '256M');
 
-        Excel::import(new OrangTuaImport, $request->file('file'));
+    $request->validate([
+        'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+    ]);
 
-        return redirect()->route('admin.orangtua.index')
-            ->with('success', 'Data orang tua berhasil diimport.');
-    }
+    Excel::import(new OrangTuaImport, $request->file('file'));
+
+    return redirect()->route('admin.orangtua.index')
+        ->with('success', 'Data orang tua berhasil diimport.');
+}
 
     public function templateOrangTua()
     {

@@ -310,16 +310,19 @@ class GuruController extends Controller
 }
 
     public function import(Request $request)
-    {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
-        ]);
+{
+    set_time_limit(300);
+    ini_set('memory_limit', '256M');
 
-        Excel::import(new GuruImport, $request->file('file'));
+    $request->validate([
+        'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+    ]);
 
-        return redirect()->route('admin.guru.index')
-            ->with('success', 'Data guru berhasil diimport.');
-    }
+    Excel::import(new GuruImport, $request->file('file'));
+
+    return redirect()->route('admin.guru.index')
+        ->with('success', 'Data guru berhasil diimport.');
+}
 
     public function preview(Request $request)
     {
