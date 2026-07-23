@@ -66,16 +66,19 @@ class SiswaController extends Controller
     }
 
     public function import(Request $request)
-    {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
-        ]);
+{
+    set_time_limit(300);
+    ini_set('memory_limit', '256M');
 
-        Excel::import(new SiswaImport, $request->file('file'));
+    $request->validate([
+        'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+    ]);
 
-        return redirect()->route('admin.siswa.index')
-            ->with('success', 'Data siswa berhasil diimport.');
-    }
+    Excel::import(new SiswaImport, $request->file('file'));
+
+    return redirect()->route('admin.siswa.index')
+        ->with('success', 'Data siswa berhasil diimport.');
+}
 
     public function templateSiswa()
     {
