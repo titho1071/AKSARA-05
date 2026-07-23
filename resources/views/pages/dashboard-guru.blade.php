@@ -37,7 +37,7 @@
         </div>
     </div>
     <p class="mt-5 text-3xl font-bold text-slate-900">{{ $absensiSummary['total'] ?? 0 }}</p>
-    <a href="#" class="text-sm text-blue-500 mt-5 inline-block hover:underline">
+    <a href="{{ route('guru.absensi') }}" class="text-sm text-blue-500 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
 </div>
@@ -60,7 +60,7 @@
         </div>
     </div>
     <p class="mt-5 text-3xl font-bold text-slate-900">{{ $countKelasGuru ?? 0 }}</p>
-    <a href="#" class="text-sm text-amber-600 mt-5 inline-block hover:underline">
+    <a href="{{ route('guru.siswa.index') }}" class="text-sm text-amber-600 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
 </div>
@@ -84,7 +84,7 @@
         </div>
     </div>
     <p class="mt-5 text-3xl font-bold text-slate-900">{{ $countSiswa ?? 0 }}</p>
-    <a href="#" class="text-sm text-sky-600 mt-5 inline-block hover:underline">
+    <a href="{{ route('guru.siswa.index') }}" class="text-sm text-sky-600 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
 </div>
@@ -105,7 +105,7 @@
         </div>
     </div>
 
-    <a href="#" class="text-sm text-emerald-600 mt-5 inline-block hover:underline">
+    <a href="{{ route('guru.jadwal') }}" class="text-sm text-emerald-600 mt-5 inline-block hover:underline">
         Lihat Detail
     </a>
 </div>

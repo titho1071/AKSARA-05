@@ -1,4 +1,4 @@
-@extends('layouts.index')
+﻿@extends('layouts.index')
 
 @php
     $role = 'admin';
@@ -46,7 +46,7 @@
                     <p class="text-sm text-slate-500">Data Guru</p>
                 </div>
             </div>
-            <a href="#" class="text-sm text-emerald-500 mt-5 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('admin.guru.index') }}" class="text-sm text-emerald-500 mt-5 inline-block hover:underline">Lihat Detail</a>
         </div>
 
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition">
@@ -64,7 +64,7 @@
                     <p class="text-sm text-slate-500">Data Siswa</p>
                 </div>
             </div>
-            <a href="#" class="text-sm text-sky-500 mt-5 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('admin.siswa.index') }}" class="text-sm text-sky-500 mt-5 inline-block hover:underline">Lihat Detail</a>
         </div>
 
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition">
@@ -79,7 +79,7 @@
                     <p class="text-sm text-slate-500">Data Orang Tua</p>
                 </div>
             </div>
-            <a href="#" class="text-sm text-amber-600 mt-5 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('admin.orangtua.index') }}" class="text-sm text-amber-600 mt-5 inline-block hover:underline">Lihat Detail</a>
         </div>
     </div>
 
@@ -98,7 +98,7 @@
                     <p class="text-sm text-slate-500">Data Kelas</p>
                 </div>
             </div>
-            <a href="#" class="text-sm text-amber-600 mt-5 inline-block hover:underline">Lihat Detail</a>
+            <a href="{{ route('admin.kelas') }}" class="text-sm text-amber-600 mt-5 inline-block hover:underline">Lihat Detail</a>
         </div>
     </div>
 
